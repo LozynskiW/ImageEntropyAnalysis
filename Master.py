@@ -60,7 +60,8 @@ class Master:
         return {"object": object, "dataset": dataset, "file": image}
 
     @staticmethod
-    def __form_query_to_update(isValid, isObjDetected, entropy, horizontal_angle, vertical_angle, distance_to_object, histogram):
+    def __form_query_to_update(isValid, isObjDetected, entropy, horizontal_angle, vertical_angle, distance_to_object,
+                               histogram):
         return {"$set": {"isValid": isValid,
                          "isObjectDetected": isObjDetected,
                          "entropy_of_segmented_image": entropy,
@@ -74,21 +75,31 @@ class Master:
         self.__local_storage.choose_data(self.__object, folder)
         self.__data_base.choose_collection(self.__object)
 
+    def choose_object(self, object):
+        self.__object = object
+        self.__local_storage.set_object(object)
+        self.__data_base.choose_collection(self.__object)
+
     def set_main_folder(self, folder_path):
         self.__local_storage.change_main_folder(folder_path)
 
     def change_information_processing_blackbox(self, information_processing_blackbox):
         self.__image_processing_blackbox = information_processing_blackbox
 
-    def load_data_from_db(self):
-        self.__data_from_db = self.__data_base \
+    def load_data_from_db(self,  scope='dataset'):
+        if scope == 'dataset':
+            self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
-                                                                               self.__local_storage.get_dataset()))
+                                                                                                 self.__local_storage.get_dataset()))
+        elif scope == 'object':
+            self.__data_from_db = self.__data_base \
+                .find_specific(DBQueryAssistance
+                               .form_query_to_get_validated_and_detected_images(self.__object))
         print('QUERY:')
         print(DBQueryAssistance
-                               .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
-                                                                               self.__local_storage.get_dataset()))
+              .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
+                                                                                self.__local_storage.get_dataset()))
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
@@ -222,7 +233,7 @@ class Master:
                 if mode == 'void':
                     print(db_query)
 
-    def analyze_dataset_with_flight_parameters_from_log_file(self, mode='void', limit = None):
+    def analyze_dataset_with_flight_parameters_from_log_file(self, mode='void', limit=None):
         """
         Metoda służąca do analizowania wskazanego w self.__dataset_path zestawu zdjęć w termowizji pod kątem ich
         informacyjności. Wykorzystana do tego jest klasa ImageEntropyAnalysis.ImageInformationAnalysis. Wynikiem
@@ -359,6 +370,13 @@ class Master:
                 self.__histogram_analyser.show_histogram()
                 self.__data_base.put_to_db(histogram_json)
 
+    def complete_analysis_of_whole_dataset(self, object, mode, limit_of_img_per_dataset):
+        self.choose_object(object)
+        for i in range(0, 2):
+            for folder in self.__local_storage.get_folder_contents():
+                self.choose_data(object, folder)
+                self.analyze_dataset_with_flight_parameters_from_log_file(mode, limit_of_img_per_dataset)
+
 
 class DBQueryAssistance:
     @staticmethod
@@ -388,12 +406,21 @@ class DBQueryAssistance:
 
 """dzik, 2021-02-23T235735"""
 """sarna, 2021-02-04T204006"""
+
 test = Master()
 test.set_main_folder('D:/magisterka/antrax')
+"""
 test.choose_data('dzik', '2021-02-23T235735')
 test.analyze_dataset_with_flight_parameters_from_log_file(
         mode='mixed',
         limit=20)
-#test.analyse_histogram_of_all_dataset(limit=5)
+
+
+test.analyse_histogram_of_all_dataset(limit=5)
 test.load_data_from_db()
 test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segmented_image")
+"""
+test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
+test.choose_object('sarna')
+test.load_data_from_db(scope='object')
+test.plot_data_with_respect_to('scatter', "barometric_height", "entropy_of_image")

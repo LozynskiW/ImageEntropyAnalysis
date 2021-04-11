@@ -108,6 +108,14 @@ class LocalDataStorage:
         self.__dataset = dataset
         self.__dataset_path = self.__main_folder + '/' + self.__object + '/' + self.__dataset + '/'
 
+    def set_object(self, data_folder):
+        self.__object = data_folder
+        self.__dataset_path = self.__main_folder + '/' + self.__object + '/'
+
+    def set_dataset(self, data_folder):
+        self.__dataset = data_folder
+        self.__dataset_path = self.__main_folder + '/' + self.__object + '/' + self.__dataset + '/'
+
     def __data_to_json(self, image_file, statistical_parameters):
         """Metoda do prekształcania danych do postaci możliwej do umieszczenia w baze danych - format json -
         słownik w pythonie"""

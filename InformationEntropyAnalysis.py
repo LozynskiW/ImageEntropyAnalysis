@@ -153,11 +153,9 @@ class ImageInformationAnalysis:
 
         if not self.__edge_segmentation_controller.check_if_contour_is_closed():
             sigma += 1
-            print("I'm still alive")
+            print("More POWER!!!")
             self.__segment_by_contour(im, sigma)
         else:
-            self.show_image_static(out)
-            print(sigma)
             return out
 
     @staticmethod
@@ -458,7 +456,10 @@ class ImageInformationAnalysis:
             print("Contour not closed, no object detected on image")
             return self.__data_to_json()"""
 
-        img_segmented_edge = self.__segment_by_contour('canny', sigma=2)
+        img_segmented_edge = self.__segment_by_contour(self.img, sigma=2)
+
+        if img_segmented_edge is None:
+            return self.__data_to_json()
 
         self.__edge_segmentation_controller.set_img(img_segmented_edge)
 

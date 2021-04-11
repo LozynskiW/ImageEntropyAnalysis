@@ -10,6 +10,16 @@ from skimage.filters.rank import median, mean_bilateral
 from skimage import io
 from skimage.color import rgb2grey, rgb2gray
 from skimage.morphology import disk, ball
+from InformationGainAnalysis.DataStorage import LocalDataStorage
+
+localStorageTest = LocalDataStorage()
+localStorageTest.change_main_folder('D:/magisterka/antrax')
+localStorageTest.set_object('sarna')
+print(localStorageTest.get_folder_contents())
+
+for i in localStorageTest.get_folder_contents():
+    localStorageTest.set_dataset(i)
+    localStorageTest.list_dataset_contents()
 
 img = io.imread('C:/Users/Wojciech Łożyński/Desktop/WAT/magisterka/materiały/termowizja/termo/wybrane/daniel/resized8bit/IM_49_res.jpg')
 img2 = io.imread('C:/Users/Wojciech Łożyński/Desktop/WAT/magisterka/materiały/termowizja/termo/wybrane/sarna/resized8bit/IM_731_res.jpg')
