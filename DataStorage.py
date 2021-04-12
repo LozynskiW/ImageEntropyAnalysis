@@ -38,6 +38,11 @@ class DataBase:
         self.__input_collection.update_one(query, json_file)
         print('AFTER:', self.find_specific(query))
 
+    def delete_in_db(self, query):
+        """Metoda służąca do usuwania danych z bazy"""
+        self.__input_collection.delete_one(query)
+        print('DELETED: ', query)
+
     def list_collections(self):
         """ Metoda służąca do wypisania wszystkich kolekcji z bazy danych"""
         collist = self.__db_database.list_collection_names()

@@ -487,6 +487,10 @@ class ImageInformationAnalysis:
                 self.__horizontal_angle_dist_from_center, self.__vertical_angle_dist_from_center = \
                     self.calculate_object_angle_position(self.img, log_file)
 
+            if self.__horizontal_angle_dist_from_center is None or self.__vertical_angle_dist_from_center is None:
+                self.__is_object_detected = False
+                return self.__data_to_json()
+
             self.__distance_to_object = self.__calculate_distance_to_object(log_file)
 
             if self.__is_object_too_big(5):

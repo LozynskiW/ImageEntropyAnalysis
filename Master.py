@@ -55,6 +55,9 @@ class Master:
         std_dev_luminosity = sum(map(lambda var: sqrt(var), var_luminosity)) * (1 / len(all_dataset))
         return mean_luminosity, std_dev_luminosity
 
+    def delete_from_db(self, query):
+        self.__data_base.delete_in_db(query)
+
     @staticmethod
     def __form_query_to_find_image(object, dataset, image):
         return {"object": object, "dataset": dataset, "file": image}
@@ -88,18 +91,16 @@ class Master:
 
     def load_data_from_db(self,  scope='dataset'):
         if scope == 'dataset':
+            print('dataset')
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
                                                                                                  self.__local_storage.get_dataset()))
         elif scope == 'object':
+            print('object')
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_validated_and_detected_images(self.__object))
-        print('QUERY:')
-        print(DBQueryAssistance
-              .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
-                                                                                self.__local_storage.get_dataset()))
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
@@ -108,6 +109,19 @@ class Master:
     def __data_to_json(self, image_file, statistical_parameters, data_from_log):
         """Metoda do prekształcania danych do postaci możliwej do umieszczenia w baze danych - format json -
         słownik w pythonie"""
+
+        horizontal_angle_of_view = statistical_parameters['horizontal_angle_of_view']
+        if horizontal_angle_of_view is not None:
+            horizontal_angle_of_view = float(horizontal_angle_of_view)
+
+        vertical_angle_of_view = statistical_parameters['vertical_angle_of_view']
+        if vertical_angle_of_view is not None:
+            vertical_angle_of_view = float(vertical_angle_of_view)
+
+        distance_to_object = statistical_parameters['distance_to_object']
+        if distance_to_object is not None:
+            distance_to_object = float(distance_to_object)
+
         return {
             "object": str(self.__object),
             "dataset": str(self.__local_storage.get_dataset()),
@@ -127,9 +141,9 @@ class Master:
             "yaw": float(data_from_log["yaw"]),
             "gps_speed": float(data_from_log["gps_speed"]),
             "gps_course": float(data_from_log["gps_course"]),
-            "horizontal_angle_of_view": float(statistical_parameters['horizontal_angle_of_view']),
-            "vertical_angle_of_view": float(statistical_parameters['vertical_angle_of_view']),
-            "distance_to_object": statistical_parameters['distance_to_object'],
+            "horizontal_angle_of_view": horizontal_angle_of_view,
+            "vertical_angle_of_view": vertical_angle_of_view,
+            "distance_to_object": distance_to_object,
             "histogram": statistical_parameters['histogram']
         }
 
@@ -420,7 +434,7 @@ test.analyse_histogram_of_all_dataset(limit=5)
 test.load_data_from_db()
 test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segmented_image")
 """
-test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
+#test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
 test.choose_object('sarna')
 test.load_data_from_db(scope='object')
-test.plot_data_with_respect_to('scatter', "barometric_height", "entropy_of_image")
+test.plot_data_with_respect_to('scatter', "horizontal_angle_of_view", "entropy_of_segmented_image")
