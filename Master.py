@@ -90,19 +90,27 @@ class Master:
         self.__image_processing_blackbox = information_processing_blackbox
 
     def load_data_from_db(self,  scope='dataset'):
+        self.__data_base.choose_collection(self.__object)
+        self.__data_from_db = []
+
         if scope == 'dataset':
-            print('dataset')
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
                                                                                                  self.__local_storage.get_dataset()))
         elif scope == 'object':
-            print('object')
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_validated_and_detected_images(self.__object))
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
+        self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
+        self.__db_data_processor.plot(plot_type, ox, oy)
+
+    def plot_data_with_respect_to_group_by_dataset(self, plot_type, ox, oy):
+        self.__db_data_processor.group_data_by_dataset(self.__data_from_db, ox, oy)
+
+    def plot_data_with_respect_to_for_whole_dataset(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
         self.__db_data_processor.plot(plot_type, ox, oy)
 
@@ -350,39 +358,43 @@ class Master:
 
     def analyse_histogram_of_all_dataset(self, limit=None):
 
-        try:
+        for folder in self.__local_storage.get_folder_contents():
             self.__data_base.choose_collection(self.__object)
-            query = self.__query_assistance.form_query_to_get_validated_and_detected_images(self.__object)
-            print(query)
+
+            query = self.__query_assistance.form_query_to_get_whole_dataset_validation_check_object_detected(
+                self.__object,
+                folder
+            )
             dataset = self.__data_base.find_specific(query)
-        except FileNotFoundError:
-            print("No folder was found, try setting other dataset path")
-            return None
-        else:
+            self.__histogram_analyser.restart()
+            num = 1
+            for data in dataset:
 
-            if dataset:
-                num = 1
-                for data in dataset:
+                print(num, '/', len(dataset))
 
-                    print(num, '/', len(dataset))
+                self.__histogram_analyser.add_histogram_from_db(data)
 
-                    self.__histogram_analyser.add_histogram_from_db(data)
+                num += 1
 
-                    num += 1
+                if limit:
+                    if num == limit:
+                        break
 
-                    if limit:
-                        if num == limit:
-                            break
+            self.__histogram_analyser.calculate_mean_histogram()
+            self.__data_base.choose_collection("histogramsOfObjects")
 
-                self.__histogram_analyser.calculate_mean_histogram()
-                self.__data_base.choose_collection("histogramsOfObjects")
+            histogram_json = {
+                "object": self.__object,
+                "dataset": folder,
+                "histogram": self.__histogram_analyser.get_saved_histogram_as_query(),
+            }
 
-                histogram_json = {
-                    "object": self.__object,
-                    "histogram": self.__histogram_analyser.get_saved_histogram_as_query(),
-                }
-                self.__histogram_analyser.show_histogram()
-                self.__data_base.put_to_db(histogram_json)
+            self.__histogram_analyser.show_histogram()
+
+            self.__data_base.delete_if_exist({
+                "object": self.__object,
+                "dataset": folder})
+            self.__data_base.put_to_db(histogram_json)
 
     def complete_analysis_of_whole_dataset(self, object, mode, limit_of_img_per_dataset):
         self.choose_object(object)
@@ -436,5 +448,13 @@ test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segm
 """
 #test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
 test.choose_object('sarna')
+#test.choose_data('sarna', '2021-02-04T182803')
+#test.analyse_histogram_of_all_dataset()
 test.load_data_from_db(scope='object')
-test.plot_data_with_respect_to('scatter', "horizontal_angle_of_view", "entropy_of_segmented_image")
+#test.plot_data_with_respect_to_group_by_dataset('scatter', "file", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "horizontal_angle_of_view", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "vertical_angle_of_view", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "distance_to_object", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "mean", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "entropy_of_image", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "time", "entropy_of_segmented_image")

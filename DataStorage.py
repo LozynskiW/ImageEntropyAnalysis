@@ -49,6 +49,12 @@ class DataBase:
         for col in collist:
             print(col)
 
+    def delete_if_exist(self, query):
+        """ Metoda służąca do usunięcia rekordu z bazy danych gdy istnieje"""
+        data = self.find_specific(query)
+        if data:
+            self.delete_in_db(query)
+
     def find_specific(self, query):
         """Metoda służąca do pobrania i zwrócenia danych spełniających warunki podane w zapytaniu"""
         mydoc = self.__input_collection.find(query, {"_id": 0})

@@ -30,7 +30,6 @@ class HistogramAnalyser:
 
     def add_histogram_from_db(self, db_res):
         if db_res:
-            print(db_res['histogram']['data'])
             grayscale_prob = db_res['histogram']['data']
             self.number_of_histograms += 1
             for i in range(0, len(self.histogram_from_data)):
@@ -70,6 +69,10 @@ class HistogramAnalyser:
     def calcualte_mutual_information(self, Y):
         """the reduction in uncertainty of X given Y"""
         return drv.information_mutual(Y, self.__mean_histogram_from_data, 2)
+
+    def restart(self):
+        self.histogram_from_data = np.zeros(256)
+        self.__mean_histogram_from_data = np.zeros(256)
 
     def is_histogram_valid(self):
         return sum(self.get_mean_histogram()) > 0.95
