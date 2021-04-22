@@ -2,12 +2,12 @@ from pylab import *
 import statistics as stat
 from skimage import feature, img_as_ubyte
 from skimage import io
-from skimage.color import rgb2grey, rgb2gray
+from skimage.color import rgb2gray
 from InformationGainAnalysis.ObjectGeoLoc import ObjectGeoLoc
 from scipy.stats import norm as norm
-from skimage.morphology import closing, convex_hull_object, binary_opening, erosion, flood_fill, skeletonize
+from skimage.morphology import closing
 from skimage.segmentation import flood
-from skimage.util import invert
+from pyitlib import discrete_random_variable as drv
 
 
 class ImageInformationAnalysis:

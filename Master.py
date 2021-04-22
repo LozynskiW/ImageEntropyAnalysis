@@ -89,19 +89,30 @@ class Master:
     def change_information_processing_blackbox(self, information_processing_blackbox):
         self.__image_processing_blackbox = information_processing_blackbox
 
-    def load_data_from_db(self,  scope='dataset'):
+    def load_data_from_db(self, scope='dataset', validation='full'):
         self.__data_base.choose_collection(self.__object)
         self.__data_from_db = []
 
-        if scope == 'dataset':
+        if scope == 'dataset' and validation == 'full':
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_whole_dataset_validation_check_object_detected(self.__object,
                                                                                                  self.__local_storage.get_dataset()))
-        elif scope == 'object':
+        elif scope == 'object' and validation == 'full':
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
-                               .form_query_to_get_validated_and_detected_images(self.__object))
+                               .form_query_to_get_all_datasets(self.__object,
+                                                               validation_type='detected'))
+        elif scope == 'object' and validation == 'partial':
+            self.__data_from_db = self.__data_base \
+                .find_specific(DBQueryAssistance
+                               .form_query_to_get_all_datasets(self.__object,
+                                                               validation_type='validated'))
+
+        elif scope == 'object' and validation == 'none':
+            self.__data_from_db = self.__data_base \
+                .find_specific(DBQueryAssistance
+                               .form_query_to_get_all_datasets(self.__object))
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
@@ -422,8 +433,22 @@ class DBQueryAssistance:
         return {"object": object, "dataset": dataset, "isValid": isValid, "isObjectDetected": True}
 
     @staticmethod
-    def form_query_to_get_whole_dataset(object, dataset):
-        return {"object": object, "dataset": dataset}
+    def form_query_to_get_single_dataset(object, dataset, validation_type=None):
+        if validation_type is None:
+            return {"object": object, "dataset": dataset}
+        if validation_type == 'validated':
+            return {"object": object, "dataset": dataset, "isValid": True}
+        if validation_type == 'detected':
+            return {"object": object, "dataset": dataset, "isValid": True, "isObjectDetected": True}
+
+    @staticmethod
+    def form_query_to_get_all_datasets(object, validation_type=None):
+        if validation_type is None:
+            return {"object": object}
+        if validation_type == 'validated':
+            return {"object": object, "isValid": True}
+        if validation_type == 'detected':
+            return {"object": object, "isValid": True, "isObjectDetected": True}
 
     @staticmethod
     def form_query_to_get_validated_and_detected_images(object):
@@ -446,15 +471,25 @@ test.analyse_histogram_of_all_dataset(limit=5)
 test.load_data_from_db()
 test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segmented_image")
 """
-#test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
+# test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
 test.choose_object('sarna')
-#test.choose_data('sarna', '2021-02-04T182803')
-#test.analyse_histogram_of_all_dataset()
-test.load_data_from_db(scope='object')
-#test.plot_data_with_respect_to_group_by_dataset('scatter', "file", "entropy_of_segmented_image")
+# test.choose_data('sarna', '2021-02-04T182803')
+# test.analyse_histogram_of_all_dataset()
+test.choose_object('sarna')
+test.load_data_from_db(scope='object',
+                       validation='none')
+test.plot_data_with_respect_to_group_by_dataset('scatter',
+                                                "time",
+                                                "entropy_of_segmented_image")
+
+test.plot_data_with_respect_to_group_by_dataset('scatter', "pitch", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "roll", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "yaw", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "distance_to_object", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "barometric_height", "entropy_of_segmented_image")
+
+
 test.plot_data_with_respect_to_group_by_dataset('scatter', "horizontal_angle_of_view", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "vertical_angle_of_view", "entropy_of_segmented_image")
-test.plot_data_with_respect_to_group_by_dataset('scatter', "distance_to_object", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "mean", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "entropy_of_image", "entropy_of_segmented_image")
-test.plot_data_with_respect_to_group_by_dataset('scatter', "time", "entropy_of_segmented_image")

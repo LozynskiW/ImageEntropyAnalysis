@@ -1,3 +1,6 @@
+import datetime
+from datetime import time
+
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -28,6 +31,11 @@ class DBdataProcessor:
         for d in datasets:
             temp = self.__filtering(data, d)
             self.get_data_with_respect_to(temp, ox, oy)
+            if ox == 'time':
+                for i in range(0, len(self.__ox)):
+                    self.__ox[i] = datetime.datetime.strptime(self.__ox[i], '%Y:%m:%d:%H:%M:%S')
+                    #self.__ox[i] = time(self.__ox[i].hour, self.__ox[i].minute)
+                    self.__ox[i] = self.__ox[i].hour
             self.__ox_per_dataset.append(self.__ox)
             self.__oy_per_dataset.append(self.__oy)
 
