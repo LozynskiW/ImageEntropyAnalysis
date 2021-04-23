@@ -605,6 +605,8 @@ class ImageInformationAnalysis:
         self.__isValid = False
         self.__histogram = None
         self.__distance_to_object = None
+        self.__entropy_of_segmented_image = 0
+        self.__entropy_of_image = 0
 
     def __calculate_histogram_to_query(self, im):
         if self.__isValid and self.__is_object_detected:

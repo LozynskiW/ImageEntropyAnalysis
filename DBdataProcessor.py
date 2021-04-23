@@ -53,11 +53,23 @@ class DBdataProcessor:
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
+        SMALL_SIZE = 16
+        MEDIUM_SIZE = 20
+        BIGGER_SIZE = 12
+
+        plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
+        plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+        plt.rc('xtick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+        plt.rc('legend', fontsize=SMALL_SIZE)  # legend fontsize
+        plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
         for i in range(0, len(self.__ox_per_dataset)):
             print(i, len(legend), len(self.__ox_per_dataset))
             ax.scatter(self.__ox_per_dataset[i], self.__oy_per_dataset[i], label=legend[i])
             plt.ylim(bottom=0)
-            #ax.axes.xaxis.set_visible(False)
+            plt.subplots_adjust(top=1, bottom=0.08, right=0.99, left=0.06,
+                                hspace=0, wspace=0)
 
         if legend is not None:
             plt.legend(loc='upper right')
