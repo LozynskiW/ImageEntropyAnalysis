@@ -83,6 +83,10 @@ class Master:
         self.__local_storage.set_object(object)
         self.__data_base.choose_collection(self.__object)
 
+    def choose_folder(self, folder):
+        self.__local_storage.choose_data(self.__object, folder)
+        self.__data_base.choose_collection(self.__object)
+
     def set_main_folder(self, folder_path):
         self.__local_storage.change_main_folder(folder_path)
 
@@ -113,6 +117,8 @@ class Master:
             self.__data_from_db = self.__data_base \
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_all_datasets(self.__object))
+
+        print(self.__data_from_db)
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
@@ -472,10 +478,10 @@ test.load_data_from_db()
 test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segmented_image")
 """
 # test.complete_analysis_of_whole_dataset(object='sarna', mode='mixed', limit_of_img_per_dataset=400)
-test.choose_object('sarna')
+#test.choose_object('sarna')
 # test.choose_data('sarna', '2021-02-04T182803')
 # test.analyse_histogram_of_all_dataset()
-test.choose_object('sarna')
+test.choose_object('dzik')
 test.load_data_from_db(scope='object',
                        validation='none')
 test.plot_data_with_respect_to_group_by_dataset('scatter',
