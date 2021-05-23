@@ -20,7 +20,7 @@ class DataBase:
         self.__input_collection = None
 
     def choose_collection(self, collection):
-        """ MEtoda służąca do wybrania kolekcji"""
+        """ Metoda służąca do wybrania kolekcji"""
         self.__db_collection = collection
         collist = self.__db_database.list_collection_names()
         if collection not in collist:
@@ -48,6 +48,7 @@ class DataBase:
         collist = self.__db_database.list_collection_names()
         for col in collist:
             print(col)
+        return collist
 
     def delete_if_exist(self, query):
         """ Metoda służąca do usunięcia rekordu z bazy danych gdy istnieje"""
@@ -164,7 +165,11 @@ class LocalDataStorage:
         all_files = self.get_folder_contents()
         for file in all_files:
             if file == 'log.txt':
-                log = pd.read_csv(self.__dataset_path + '/' + 'log.txt', sep="\t", header=None, skiprows=1)
+                log = pd.read_csv(self.__dataset_path + '/' + 'log.txt',
+                                  sep="\t",
+                                  header=None,
+                                  skiprows=1,
+                                  error_bad_lines=False)
                 file_names = log[10]
                 file_names.pop(0)
                 return file_names, log

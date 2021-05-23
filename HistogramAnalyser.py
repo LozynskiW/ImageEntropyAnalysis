@@ -9,6 +9,8 @@ class HistogramAnalyser:
         self.histogram_from_data = np.zeros(256)
         self.__mean_histogram_from_data = np.zeros(256)
         self.number_of_histograms = 0
+        self.__patterns = []
+        self.__classes_of_obj = []
 
     def get_mean_histogram(self):
         return self.__mean_histogram_from_data
@@ -18,9 +20,61 @@ class HistogramAnalyser:
 
     def get_saved_histogram_as_query(self):
         out = []
+
         for num in self.get_mean_histogram():
             out.append(num)
+
         return {'data': out}
+
+    def add_patterns_from_db(self, data):
+        self.__patterns = data
+        self.__select_all_classes_of_objects(data)
+
+    def get_patterns(self):
+        return self.__patterns
+
+    def __select_all_classes_of_objects(self, pattern_data):
+
+        classes = []
+
+        for p in pattern_data:
+            if p['object'] not in classes:
+                classes.append(p['object'])
+
+        self.__classes_of_obj = classes
+
+    def compare_with_all_patterns(self, target_histogram):
+
+        if self.does_array_contains_nan(target_histogram):
+            return 0
+
+        outcome = {}
+        for c in self.__classes_of_obj:
+            outcome[c] = 0.0
+
+        for p in self.__patterns:
+
+            self.__mean_histogram_from_data = p['histogram']['data']
+
+            if self.does_array_contains_nan(self.__mean_histogram_from_data):
+                print('it works?')
+                continue
+
+            mutual_inf = self.calculate_mutual_information(target_histogram)
+
+            for c in self.__classes_of_obj:
+                if c == p['object']:
+                    if outcome.get(c) < mutual_inf:
+                        outcome[c] = mutual_inf
+
+        return outcome
+
+    @staticmethod
+    def does_array_contains_nan(array):
+
+        if np.isnan(sum(array)):
+            return True
+        return False
 
     def add_histogram_from_im(self, im):
         grayscale, grayscale_prob = StatParam.image_histogram_with_offset(im, "on", 1)
@@ -37,7 +91,11 @@ class HistogramAnalyser:
 
     def calculate_mean_histogram(self):
         for i in range(0, len(self.histogram_from_data)):
-            self.__mean_histogram_from_data[i] = self.histogram_from_data[i] / self.number_of_histograms
+            if self.number_of_histograms != 0:
+                self.__mean_histogram_from_data[i] = self.histogram_from_data[i] / self.number_of_histograms
+            else:
+                self.__mean_histogram_from_data[i] = 0
+
         self.__mean_histogram_from_data[0] = 0
 
     def is_saved_histogram_valid(self):
@@ -62,11 +120,11 @@ class HistogramAnalyser:
             return False
 
     @staticmethod
-    def calcualte_mutual_information_static(X, Y):
+    def calculate_mutual_information_static(X, Y):
         """the reduction in uncertainty of X given Y"""
         return drv.information_mutual(X, Y, 2)
 
-    def calcualte_mutual_information(self, Y):
+    def calculate_mutual_information(self, Y):
         """the reduction in uncertainty of X given Y"""
         return drv.information_mutual(Y, self.__mean_histogram_from_data, 2)
 

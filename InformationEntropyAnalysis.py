@@ -640,7 +640,7 @@ class ImageInformationAnalysis:
         self.__isValid = False
         grayscale, grayscale_prob = self.__statistical_parameters_calculator.image_histogram(self.img, 'on')
         mean_pixel_value = self.__statistical_parameters_calculator.mean_from_histogram(grayscale, grayscale_prob)
-        if mean_pixel_value < self.mean_from_db + self.std_dev_from_db:
+        if mean_pixel_value < self.mean_from_db + 2 * self.std_dev_from_db:
             self.__isValid = True
 
     def __is_img_vignetted(self, img):

@@ -41,16 +41,20 @@ class Master:
         :return:
         """
         try:
-            all_dataset = self.__data_base \
-                .find_specific(DBQueryAssistance
-                               .form_query_to_get_whole_dataset(self.__object, self.__local_storage.get_dataset()))
-            check = len(all_dataset)
+            query = self.__query_assistance.form_query_to_get_single_dataset(
+                object=self.__object,
+                dataset=self.__local_storage.get_dataset(),
+                validation_type=None
+            )
+            all_dataset = self.__data_base.find_specific(query)
+
         except AttributeError:
             all_dataset = {"mean": 0}
 
         if not all_dataset:
             return 0, 0
-        mean_luminosity = mean(map(lambda reg: float(reg["mean"]), all_dataset))
+
+        mean_luminosity = mean(map(lambda reg: float(reg['mean']), all_dataset))
         var_luminosity = map(lambda reg: (float(reg["mean"]) - float(mean_luminosity)) ** 2, all_dataset)
         std_dev_luminosity = sum(map(lambda var: sqrt(var), var_luminosity)) * (1 / len(all_dataset))
         return mean_luminosity, std_dev_luminosity
@@ -93,6 +97,21 @@ class Master:
     def change_information_processing_blackbox(self, information_processing_blackbox):
         self.__image_processing_blackbox = information_processing_blackbox
 
+    def load_all_classes_of_objects_data(self, validation='detected'):
+
+        classes_of_objects = self.__data_base.list_collections()
+
+        query = self.__query_assistance.form_query_to_get_data(validation_type=validation)
+
+        for coo in classes_of_objects:
+            if coo == 'histogramsOfObjects':
+                continue
+            self.__data_base.choose_collection(coo)
+            temp_data = self.__data_base.find_specific(query)
+
+            for d in temp_data:
+                self.__data_from_db.append(d)
+
     def load_data_from_db(self, scope='dataset', validation='full'):
         self.__data_base.choose_collection(self.__object)
         self.__data_from_db = []
@@ -118,7 +137,8 @@ class Master:
                 .find_specific(DBQueryAssistance
                                .form_query_to_get_all_datasets(self.__object))
 
-        print(self.__data_from_db)
+    def get_data_from_db(self, query):
+        return self.__data_base.find_specific(query)
 
     def plot_data_with_respect_to(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
@@ -130,6 +150,57 @@ class Master:
     def plot_data_with_respect_to_for_whole_dataset(self, plot_type, ox, oy):
         self.__db_data_processor.get_data_with_respect_to(self.__data_from_db, ox, oy)
         self.__db_data_processor.plot(plot_type, ox, oy)
+
+    def plot_data_comparing_all_classes_of_object(self, oy):
+        self.__db_data_processor.group_and_plot_data_by_object_class(self.__data_from_db,
+                                                                     oy=oy, mean='on')
+
+    def save_figures_for_whole_dataset(self):
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="pitch",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="roll",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="yaw",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="distance_to_object",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox= "barometric_height",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="horizontal_angle_of_view",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox= "vertical_angle_of_view",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="mean",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
+        self.__db_data_processor.plot_whole_dataset(data=self.__data_from_db,
+                                                    ox="entropy_of_image",
+                                                    oy="entropy_of_segmented_image",
+                                                    mode="save",
+                                                    filename=self.__object)
 
     def __data_to_json(self, image_file, statistical_parameters, data_from_log):
         """Metoda do prekształcania danych do postaci możliwej do umieszczenia w baze danych - format json -
@@ -174,18 +245,23 @@ class Master:
 
     @staticmethod
     def __get_data_from_log(log, num):
-        return {
-            "time": log[0][num],
-            "longitude": log[1][num],
-            "latitude": log[2][num],
-            "gps_height": log[3][num],
-            "barometric_height": log[4][num],
-            "pitch": log[5][num],
-            "roll": log[6][num],
-            "yaw": log[7][num],
-            "gps_speed": log[8][num],
-            "gps_course": log[9][num],
-        }
+        if log[10][num] is None:
+            raise AttributeError
+        try:
+            return {
+                "time": log[0][num],
+                "longitude": float(log[1][num]),
+                "latitude": float(log[2][num]),
+                "gps_height": float(log[3][num]),
+                "barometric_height": float(log[4][num]),
+                "pitch": float(log[5][num]),
+                "roll": float(log[6][num]),
+                "yaw": float(log[7][num]),
+                "gps_speed": float(log[8][num]),
+                "gps_course": float(log[9][num])
+            }
+        except ValueError:
+            return None
 
     def analyze_dataset(self, mode='void'):
         """
@@ -314,10 +390,14 @@ class Master:
             self.__image_processing_blackbox.setup_for_geo_loc_rot_calculation('')
 
             for image in dataset:
-                print(num, '/', len(dataset))
+                print('Current image:', image, 'obj class: ', self.__object, '|', num, '/', len(dataset))
                 self.__image_processing_blackbox.add_image_from_path(
                     self.__local_storage.get_current_dataset_path() + image)
-                data_from_log = self.__get_data_from_log(log, num)
+
+                if self.__get_data_from_log(log, num) is not None:
+                    data_from_log = self.__get_data_from_log(log, num)
+                else:
+                    continue
 
                 if mode == 'test':
                     stat_parameters = self.__image_processing_blackbox.image_entropy_analysis_for_testing(data_from_log)
@@ -363,7 +443,11 @@ class Master:
                         print('No image in db')
 
                 if mode == 'create':
-                    self.__data_base.put_to_db(db_query)
+                    if not self.check_if_already_in_db(self.__object, self.__local_storage.get_dataset(), image):
+                        self.__data_base.put_to_db(db_query)
+                    else:
+                        print('Image:', image, 'of object class: ', self.__object, 'is already in database')
+
                 if mode == 'create' or mode == 'void' or mode == 'test':
                     print(db_query)
                 num += 1
@@ -406,19 +490,52 @@ class Master:
                 "histogram": self.__histogram_analyser.get_saved_histogram_as_query(),
             }
 
-            self.__histogram_analyser.show_histogram()
+            #self.__histogram_analyser.show_histogram()
 
             self.__data_base.delete_if_exist({
                 "object": self.__object,
                 "dataset": folder})
             self.__data_base.put_to_db(histogram_json)
 
-    def complete_analysis_of_whole_dataset(self, object, mode, limit_of_img_per_dataset):
+    def match_img_with_pattern(self, img, target_histogram):
+        """
+        Metoda służąca do porównania obiektu lub histogramu obiektu z wzorcem
+        :param img:
+        :param img_histogram:
+        :return:
+        """
+        self.__download_patterns_from_db()
+
+        if img is not None:
+            self.__image_processing_blackbox.add_image(img)
+            data = self.__image_processing_blackbox.image_entropy_analysis(None)
+            target_histogram = data['histogram']
+
+        if isinstance(target_histogram[0], dict):
+            target_histogram = target_histogram[0]['histogram']['data']
+
+        out = self.__histogram_analyser.compare_with_all_patterns(target_histogram=target_histogram)
+
+        print(out)
+
+    def __download_patterns_from_db(self):
+
+        self.__data_base.choose_collection('histogramsOfObjects')
+
+        patterns = self.__data_base.find_specific({})
+
+        self.__histogram_analyser.add_patterns_from_db(patterns)
+
+    def complete_analysis_of_whole_dataset(self, object, limit_of_img_per_dataset):
         self.choose_object(object)
-        for i in range(0, 2):
-            for folder in self.__local_storage.get_folder_contents():
-                self.choose_data(object, folder)
-                self.analyze_dataset_with_flight_parameters_from_log_file(mode, limit_of_img_per_dataset)
+
+        """for folder in self.__local_storage.get_folder_contents():
+            self.choose_data(object, folder)
+            self.analyze_dataset_with_flight_parameters_from_log_file('create', limit_of_img_per_dataset)"""
+
+        for folder in self.__local_storage.get_folder_contents():
+            self.choose_data(object, folder)
+            self.analyze_dataset_with_flight_parameters_from_log_file('mixed', limit_of_img_per_dataset)
 
 
 class DBQueryAssistance:
@@ -460,19 +577,29 @@ class DBQueryAssistance:
     def form_query_to_get_validated_and_detected_images(object):
         return {"object": object, "isValid": True, "isObjectDetected": True}
 
+    @staticmethod
+    def form_query_to_get_data(validation_type=None):
+        if validation_type is None:
+            return {}
+        if validation_type == 'validated':
+            return {"isValid": True}
+        if validation_type == 'detected':
+            return {"isValid": True, "isObjectDetected": True}
+
 
 """dzik, 2021-02-23T235735"""
 """sarna, 2021-02-04T204006"""
 
 test = Master()
 test.set_main_folder('D:/magisterka/antrax')
-"""
-test.choose_data('dzik', '2021-02-23T235735')
+
+"""test.choose_data('dzik', '2021-02-23T235735')
+
 test.analyze_dataset_with_flight_parameters_from_log_file(
         mode='mixed',
-        limit=20)
+        limit=20)"""
 
-
+"""
 test.analyse_histogram_of_all_dataset(limit=5)
 test.load_data_from_db()
 test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segmented_image")
@@ -481,13 +608,27 @@ test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segm
 #test.choose_object('sarna')
 # test.choose_data('sarna', '2021-02-04T182803')
 # test.analyse_histogram_of_all_dataset()
-test.choose_object('dzik')
+
+test.choose_object('sarna')
 test.load_data_from_db(scope='object',
-                       validation='none')
+                       validation='full')
+
+test.plot_data_with_respect_to_group_by_dataset("scatter", "horizontal_angle_of_view", "vertical_angle_of_view")
+#test.save_figures_for_whole_dataset()
+
+test_histogram = test.get_data_from_db({"object": "sarna", "file": "2021 02 04 18 28 05 455.tif"})
+test.match_img_with_pattern(img=None, target_histogram=test_histogram)
+
+
+"""test.load_all_classes_of_objects_data('detected')
+test.plot_data_comparing_all_classes_of_object(oy="histogram")"""
+
+
+"""
 test.plot_data_with_respect_to_group_by_dataset('scatter',
                                                 "time",
                                                 "entropy_of_segmented_image")
-
+                                                
 test.plot_data_with_respect_to_group_by_dataset('scatter', "pitch", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "roll", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "yaw", "entropy_of_segmented_image")
@@ -498,4 +639,4 @@ test.plot_data_with_respect_to_group_by_dataset('scatter', "barometric_height", 
 test.plot_data_with_respect_to_group_by_dataset('scatter', "horizontal_angle_of_view", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "vertical_angle_of_view", "entropy_of_segmented_image")
 test.plot_data_with_respect_to_group_by_dataset('scatter', "mean", "entropy_of_segmented_image")
-test.plot_data_with_respect_to_group_by_dataset('scatter', "entropy_of_image", "entropy_of_segmented_image")
+test.plot_data_with_respect_to_group_by_dataset('scatter', "entropy_of_image", "entropy_of_segmented_image")"""
