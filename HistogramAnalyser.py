@@ -28,6 +28,7 @@ class HistogramAnalyser:
 
     def add_patterns_from_db(self, data):
         self.__patterns = data
+        self.__filter_patterns()
         self.__select_all_classes_of_objects(data)
 
     def get_patterns(self):
@@ -48,26 +49,29 @@ class HistogramAnalyser:
         if self.does_array_contains_nan(target_histogram):
             return 0
 
-        outcome = {}
+        outcome_max = {}
+        outcome_min = {}
         for c in self.__classes_of_obj:
-            outcome[c] = 0.0
+            outcome_max[c] = 0.0
+            outcome_min[c] = 8.0
 
         for p in self.__patterns:
 
             self.__mean_histogram_from_data = p['histogram']['data']
 
             if self.does_array_contains_nan(self.__mean_histogram_from_data):
-                print('it works?')
                 continue
 
-            mutual_inf = self.calculate_mutual_information(target_histogram)
+            mutual_inf = self.calculate_mutual_information(target_histogram)/drv.entropy(self.__mean_histogram_from_data, 2)
 
-            for c in self.__classes_of_obj:
-                if c == p['object']:
-                    if outcome.get(c) < mutual_inf:
-                        outcome[c] = mutual_inf
+            for c in outcome_max:
+                if c == p['object'] and outcome_max[c] < mutual_inf:
+                    outcome_max[c] = mutual_inf
 
-        return outcome
+                if c == p['object'] and outcome_min[c] > mutual_inf > 0:
+                    outcome_min[c] = mutual_inf
+
+        return outcome_max, outcome_min
 
     @staticmethod
     def does_array_contains_nan(array):
@@ -131,6 +135,7 @@ class HistogramAnalyser:
     def restart(self):
         self.histogram_from_data = np.zeros(256)
         self.__mean_histogram_from_data = np.zeros(256)
+        self.number_of_histograms = 0
 
     def is_histogram_valid(self):
         return sum(self.get_mean_histogram()) > 0.95
@@ -158,4 +163,15 @@ class HistogramAnalyser:
         axs[1].bar(ox, histogram_data[1:len(histogram_data)])
         axs[1].set_title('examined')
         plt.show()
+
+    def __filter_patterns(self):
+
+        filtered_patterns = []
+        for p in self.__patterns:
+
+            histogram = p['histogram']['data']
+            if not self.does_array_contains_nan(histogram) and not np.isnan(sum(histogram)) and np.sum(histogram) > 0.95:
+                filtered_patterns.append(p)
+
+        self.__patterns = filtered_patterns
 

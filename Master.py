@@ -5,6 +5,7 @@ from InformationGainAnalysis.DBdataProcessor import DBdataProcessor
 from InformationGainAnalysis.HistogramAnalyser import HistogramAnalyser
 from statistics import mean
 from math import sqrt
+import numpy as np
 
 
 class Master:
@@ -459,43 +460,53 @@ class Master:
 
     def analyse_histogram_of_all_dataset(self, limit=None):
 
-        for folder in self.__local_storage.get_folder_contents():
-            self.__data_base.choose_collection(self.__object)
+        for object in self.__data_base.get_collections():
+            if object != 'histogramsOfObjects':
+                self.__data_base.choose_collection(object)
 
-            query = self.__query_assistance.form_query_to_get_whole_dataset_validation_check_object_detected(
-                self.__object,
-                folder
-            )
-            dataset = self.__data_base.find_specific(query)
-            self.__histogram_analyser.restart()
-            num = 1
-            for data in dataset:
+                distinct_datasets = []
+                datasets = self.__data_base.find_specific(self.__query_assistance.form_query_to_get_data(
+                    validation_type='detected'))
 
-                print(num, '/', len(dataset))
+                for d in datasets:
+                    if d['dataset'] not in distinct_datasets:
+                        distinct_datasets.append(d['dataset'])
 
-                self.__histogram_analyser.add_histogram_from_db(data)
+                for d in distinct_datasets:
 
-                num += 1
+                    query = self.__query_assistance.form_query_to_get_single_dataset(
+                        object=object,
+                        dataset=d,
+                        validation_type='detected'
+                    )
+                    self.__data_base.choose_collection(object)
+                    dataset = self.__data_base.find_specific(query)
+                    self.__histogram_analyser.restart()
+                    num = 1
+                    for data in dataset:
+                        self.__histogram_analyser.add_histogram_from_db(data)
 
-                if limit:
-                    if num == limit:
-                        break
+                        num += 1
 
-            self.__histogram_analyser.calculate_mean_histogram()
-            self.__data_base.choose_collection("histogramsOfObjects")
+                        if limit:
+                            if num == limit:
+                                break
 
-            histogram_json = {
-                "object": self.__object,
-                "dataset": folder,
-                "histogram": self.__histogram_analyser.get_saved_histogram_as_query(),
-            }
+                    self.__histogram_analyser.calculate_mean_histogram()
+                    self.__data_base.choose_collection("histogramsOfObjects")
 
-            #self.__histogram_analyser.show_histogram()
+                    histogram_json = {
+                        "object": object,
+                        "dataset": d,
+                        "histogram": self.__histogram_analyser.get_saved_histogram_as_query(),
+                    }
 
-            self.__data_base.delete_if_exist({
-                "object": self.__object,
-                "dataset": folder})
-            self.__data_base.put_to_db(histogram_json)
+                    #self.__histogram_analyser.show_histogram()
+
+                    self.__data_base.delete_if_exist({
+                        "object": self.__object,
+                        "dataset": d})
+                    self.__data_base.put_to_db(histogram_json)
 
     def match_img_with_pattern(self, img, target_histogram):
         """
@@ -504,7 +515,9 @@ class Master:
         :param img_histogram:
         :return:
         """
-        self.__download_patterns_from_db()
+
+        if self.__histogram_analyser.get_patterns() is None or len(self.__histogram_analyser.get_patterns()) < 1:
+            self.__download_patterns_from_db()
 
         if img is not None:
             self.__image_processing_blackbox.add_image(img)
@@ -514,9 +527,10 @@ class Master:
         if isinstance(target_histogram[0], dict):
             target_histogram = target_histogram[0]['histogram']['data']
 
-        out = self.__histogram_analyser.compare_with_all_patterns(target_histogram=target_histogram)
+        out_max, out_min = self.__histogram_analyser.compare_with_all_patterns(target_histogram=target_histogram)
 
-        print(out)
+        print('MAX:', out_max)
+        print('MIN:', out_min)
 
     def __download_patterns_from_db(self):
 
@@ -609,19 +623,40 @@ test.plot_data_with_respect_to('scatter', "distance_to_object", "entropy_of_segm
 # test.choose_data('sarna', '2021-02-04T182803')
 # test.analyse_histogram_of_all_dataset()
 
-test.choose_object('sarna')
+"""test.choose_object('sarna')
 test.load_data_from_db(scope='object',
                        validation='full')
 
-test.plot_data_with_respect_to_group_by_dataset("scatter", "horizontal_angle_of_view", "vertical_angle_of_view")
+test.plot_data_with_respect_to_group_by_dataset("scatter", "horizontal_angle_of_view", "vertical_angle_of_view")"""
 #test.save_figures_for_whole_dataset()
 
-test_histogram = test.get_data_from_db({"object": "sarna", "file": "2021 02 04 18 28 05 455.tif"})
-test.match_img_with_pattern(img=None, target_histogram=test_histogram)
+#test.analyse_histogram_of_all_dataset()
+
+test.choose_object('dzik')
+dzik1_histogram = test.get_data_from_db({"object": "dzik", "file": "2021 02 23 23 57 56 005.tiff"})
+dzik2_histogram = test.get_data_from_db({"object": "dzik", "file": "2021 02 04 23 37 15 249.tif"})
+test.choose_object('zajac')
+zajac1_histogram = test.get_data_from_db({"object": "zajac", "file": "2021 02 02 20 04 27 501.tif"})
+zajac2_histogram = test.get_data_from_db({"object": "zajac", "file": "2021 02 04 05 32 32 226.tif"})
+test.choose_object('daniel')
+daniel1_histogram = test.get_data_from_db({"object": "daniel", "file": "2021 02 05 00 46 25 807.tif"})
+daniel2_histogram = test.get_data_from_db({"object": "daniel", "file": "2021 02 02 20 40 50 798.tif"})
+test.choose_object('sarna')
+sarna1_histogram = test.get_data_from_db({"object": "sarna", "file": "2021 02 04 18 28 03 883.tif"})
+sarna2_histogram = test.get_data_from_db({"object": "sarna", "file": "2021 02 04 23 25 42 075.tif"})
+
+test.match_img_with_pattern(img=None, target_histogram=dzik1_histogram)
+test.match_img_with_pattern(img=None, target_histogram=dzik2_histogram)
+test.match_img_with_pattern(img=None, target_histogram=zajac1_histogram)
+test.match_img_with_pattern(img=None, target_histogram=zajac2_histogram)
+test.match_img_with_pattern(img=None, target_histogram=daniel1_histogram)
+test.match_img_with_pattern(img=None, target_histogram=daniel2_histogram)
+test.match_img_with_pattern(img=None, target_histogram=sarna1_histogram)
+test.match_img_with_pattern(img=None, target_histogram=sarna2_histogram)
 
 
-"""test.load_all_classes_of_objects_data('detected')
-test.plot_data_comparing_all_classes_of_object(oy="histogram")"""
+test.load_all_classes_of_objects_data('detected')
+test.plot_data_comparing_all_classes_of_object(oy="distance_to_object")
 
 
 """

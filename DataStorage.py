@@ -50,6 +50,9 @@ class DataBase:
             print(col)
         return collist
 
+    def get_collections(self):
+        return self.__db_database.list_collection_names()
+
     def delete_if_exist(self, query):
         """ Metoda służąca do usunięcia rekordu z bazy danych gdy istnieje"""
         data = self.find_specific(query)

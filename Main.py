@@ -3,9 +3,6 @@ from InformationGainAnalysis.Master import Master
 test = Master()
 test.set_main_folder('D:/magisterka/antrax')
 
-def action(turn=None):
-
-    if turn == 'analysis':
 
 
 """
