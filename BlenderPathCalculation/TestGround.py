@@ -1,0 +1,6 @@
+from InformationGainAnalysis.BlenderPathCalculation.Camera import CirclePath
+
+blender_circle_trajectory_test = CirclePath()
+blender_circle_trajectory_test.set_path_parameters(radius=10)
+blender_circle_trajectory_test.calculate_trajectory()
+blender_circle_trajectory_test.get_trajectory_as_blender_script()

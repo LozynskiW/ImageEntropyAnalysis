@@ -28,6 +28,9 @@ class DataBase:
             self.__db_collection = collection
         self.__input_collection = self.__db_database[self.__db_collection]
 
+    def create_collection(self, collection_name):
+        self.__db_database.create_collection(collection_name)
+
     def put_to_db(self, json_file):
         """ Metoda służąca do wprowadzania danych do bazy danych"""
         self.__input_collection.insert_one(json_file)

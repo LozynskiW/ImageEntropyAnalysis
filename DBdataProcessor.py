@@ -1,6 +1,6 @@
 import datetime
 import os
-from numpy import mean, max
+from numpy import mean, max, arctan
 
 from matplotlib import pyplot as plt
 
@@ -9,14 +9,17 @@ class DBdataProcessor:
     def __init__(self):
         self.__ox = []
         self.__oy = []
+        self.__oz = []
         self.__ox_per_dataset = []
         self.__oy_per_dataset = []
+        self.__oz_per_dataset = []
         self.__sort_spans = []
         self.__def_figure_folder = "figures/"
 
-    def get_data_with_respect_to(self, data, ox, oy):
+    def get_data_with_respect_to(self, data, ox, oy, oz=None):
         self.__ox = [x[ox] for x in data]
         self.__oy = [y[oy] for y in data]
+        self.__oz = [z[oz] for z in data]
 
     def sort_spans_for_angles(self):
         for i in range(-17, 18):
@@ -48,13 +51,15 @@ class DBdataProcessor:
 
         self.__multiple_scatter_plot(ox_label='classes_of_objects', oy_label=oy, legend=None, plot_mean=mean)
 
-    def group_data_by_dataset(self, data, ox, oy):
+    def group_data_by_dataset(self, data, ox, oy, oz=None):
         datasets = self.__select_datasets(data)
         self.__ox_per_dataset = []
         self.__oy_per_dataset = []
+        self.__oz_per_dataset = []
+
         for d in datasets:
             temp = self.__filter_by_dataset(data, d)
-            self.get_data_with_respect_to(temp, ox, oy)
+            self.get_data_with_respect_to(temp, ox, oy, oz)
             if ox == 'time':
                 for i in range(0, len(self.__ox)):
                     self.__ox[i] = datetime.datetime.strptime(self.__ox[i], '%Y:%m:%d:%H:%M:%S')
@@ -62,16 +67,19 @@ class DBdataProcessor:
                     self.__ox[i] = self.__ox[i].hour
             self.__ox_per_dataset.append(self.__ox)
             self.__oy_per_dataset.append(self.__oy)
+            if oz is not None:
+                self.__oz_per_dataset.append(self.__oz)
 
         # self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets)
 
-    def plot_whole_dataset(self, data, ox, oy, mode, filename):
+    def plot_whole_dataset(self, data, ox, oy, oz=None, mode=None, filename='default', translate_names_to_deg=False):
 
         datasets = self.__select_datasets(data)
 
-        self.group_data_by_dataset(data, ox, oy)
+        self.group_data_by_dataset(data, ox, oy, oz)
 
-        self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets, mode=mode, filename=filename)
+        self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets, mode=mode, filename=filename,
+                                     translate_names_to_deg=translate_names_to_deg)
 
     def plot(self, plot_type='line', ox_label='X', oy_label='Y'):
 
@@ -82,8 +90,8 @@ class DBdataProcessor:
         if plot_type == 'bar':
             self.__bar_plot(ox_label, oy_label)
 
-    def __multiple_scatter_plot(self, ox_label=None, oy_label=None, legend=None, mode=None, filename="default",
-                                plot_mean='off'):
+    def __multiple_scatter_plot(self, ox_label=None, oy_label=None, legend=None, mode=None,
+                                filename="default", plot_mean='off', translate_names_to_deg=False):
 
         if mode is None:
             mode = "show"
@@ -103,10 +111,13 @@ class DBdataProcessor:
         plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
         for i in range(0, len(self.__ox_per_dataset)):
+            x = self.__ox_per_dataset[i]
+            if translate_names_to_deg:
+                x = self.__translate_imgs_names_to_deg(x)
             if legend is not None:
-                ax.scatter(self.__ox_per_dataset[i], self.__oy_per_dataset[i], label=legend[i])
+                ax.scatter(x, self.__oy_per_dataset[i], label=legend[i])
             else:
-                ax.scatter(self.__ox_per_dataset[i], self.__oy_per_dataset[i])
+                ax.scatter(x, self.__oy_per_dataset[i])
             y_top_lim = max(list(map(lambda a: max(a), self.__oy_per_dataset)))
             y_bot_lim = min(list(map(lambda a: max(a), self.__oy_per_dataset)))
             plt.ylim(bottom=0, top=y_top_lim + 0.1 * y_top_lim)
@@ -119,12 +130,89 @@ class DBdataProcessor:
             plt.legend(loc='upper right')
 
         if ox_label is not None:
-            plt.xlabel(ox_label, labelpad=15)
+            if translate_names_to_deg:
+                plt.xlabel('angle', labelpad=15)
+            else:
+                plt.xlabel(ox_label, labelpad=15)
 
         if oy_label is not None:
             plt.ylabel(oy_label, labelpad=15)
 
-        plt.grid()
+        # plt.grid()
+
+        if mode == "show":
+            plt.show()
+
+        if mode == "save":
+
+            fig_name = filename + "_" + ox_label + "_" + oy_label + ".png"
+
+            if not os.path.exists(self.__def_figure_folder + '/' + filename):
+                # Create target Directory
+                os.mkdir(self.__def_figure_folder + '/' + filename)
+
+            plt.savefig(self.__def_figure_folder + '/' + filename + '/' + fig_name)
+            print(fig_name, 'saved to', self.__def_figure_folder + filename)
+
+        plt.close(fig=fig)
+
+    def __3d_multiple_scatter_plot(self, ox_label=None, oy_label=None, oz_label=None, legend=None, mode="show",
+                                   filename="default", plot_mean='off', translate_names_to_deg=False):
+
+        fig = plt.figure(figsize=(16, 9), dpi=180)
+        ax = fig.add_subplot(111, projection="3d")
+
+        SMALL_SIZE = 16
+        MEDIUM_SIZE = 20
+        BIGGER_SIZE = 12
+
+        plt.rc('font', size=SMALL_SIZE)  # controls default text sizes
+        plt.rc('axes', titlesize=MEDIUM_SIZE)  # fontsize of the axes title
+        plt.rc('xtick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+        plt.rc('ytick', labelsize=SMALL_SIZE)  # fontsize of the tick labels
+        plt.rc('legend', fontsize=SMALL_SIZE)  # legend fontsize
+        plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure
+
+        if oy_label == 'pitch':
+            new_oz_per_dataset = []
+
+            for z in self.__oz_per_dataset:
+                new_z = self.__translate_datasets_names_to_deg(z)
+                new_oz_per_dataset.append(new_z)
+
+            self.__oz_per_dataset = new_oz_per_dataset
+
+        for i in range(0, len(self.__ox_per_dataset)):
+
+            x = self.__ox_per_dataset[i]
+            y = self.__oy_per_dataset[i]
+            z = self.__oz_per_dataset[i]
+
+            if translate_names_to_deg:
+                x = self.__translate_imgs_names_to_deg(x)
+            if legend is not None:
+                ax.scatter(x, y, z, label=legend[i])
+            else:
+                ax.scatter(x, y, z)
+
+            y_top_lim = max(list(map(lambda a: max(a), self.__oy_per_dataset)))
+            y_bot_lim = min(list(map(lambda a: max(a), self.__oy_per_dataset)))
+            plt.ylim(bottom=0, top=y_top_lim + 0.1 * y_top_lim)
+            """plt.subplots_adjust(top=1, bottom=0.08, right=0.99, left=0.06,
+                                hspace=0, wspace=0)"""
+
+        if legend is not None:
+            plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper right')
+        plt.tight_layout()
+
+        if ox_label is not None:
+            if translate_names_to_deg:
+                plt.xlabel('angle', labelpad=15)
+            else:
+                plt.xlabel(ox_label, labelpad=15)
+
+        if oy_label is not None:
+            plt.ylabel(oy_label, labelpad=15)
 
         if mode == "show":
             plt.show()
@@ -152,9 +240,26 @@ class DBdataProcessor:
 
     def __scatter_plot(self, ox_label="X", oy_label="Y"):
         plt.figure(figsize=(16, 9), dpi=180)
-        plt.scatter(self.__ox, self.__oy)
+
         plt.xlabel(ox_label)
         plt.ylabel(oy_label)
+
+        plt.scatter(self.__ox, self.__oy)
+
+        plt.grid()
+        plt.show()
+
+    def __3d_scatter_plot(self, ox_label="X", oy_label="Y", oz_label="Z"):
+        fig = plt.figure(figsize=(16, 9), dpi=180)
+
+        ax = fig.add_subplot(projection='3d')
+
+        ax.scatter(self.__ox, self.__oy, self.__oz)
+
+        ax.set_xlabel(ox_label)
+        ax.set_ylabel(oy_label)
+        ax.set_zlabel(oz_label)
+
         plt.grid()
         plt.show()
 
@@ -207,3 +312,38 @@ class DBdataProcessor:
                 mean = i * h[i] + mean
             histograms_means.append(mean)
         return histograms_means
+
+    @staticmethod
+    def __translate_imgs_names_to_deg(data):
+
+        try:
+            names = [x['file'] for x in data]
+        except:
+            names = data
+
+        names_deg = []
+
+        for name in names:
+            name = name.split('.')[0]
+
+            names_deg.append(int(name) * 0.68)
+
+        return names_deg
+
+    @staticmethod
+    def __translate_datasets_names_to_deg(data):
+
+        try:
+            names = [x['dataset'] for x in data]
+        except:
+            names = data
+
+        names = names.split(sep='_')
+        h = int(names[0].replace('h', '').replace('m', ''))
+        r = int(names[1].replace('r', '').replace('m', ''))
+        datasets_deg = []
+
+        for i in range(0, len(h)):
+            datasets_deg.append(arctan(r[i] / h[i]))
+
+        return datasets_deg

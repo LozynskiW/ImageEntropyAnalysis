@@ -435,28 +435,43 @@ class ImageInformationAnalysis:
             return horizontal_angle_dist_from_center, vertical_angle_dist_from_center
         return None
 
-    def image_entropy_analysis(self, log_file):
+    def image_entropy_analysis(self, log_file=None, test_mode=False):
         self.__set_all_to_zero()
 
-        if self.__is_img_vignetted(self.img):
-            self.img = self.__img_vignetting_correction(self.img)
+        if test_mode:
+            self.add_histogram_filtering_data(255, 255)
 
+        print("Checking if img is vignetted..." if test_mode else "")
+        if self.__is_img_vignetted(self.img):
+            print("Img is vignetted, vignetting correction initiated..." if test_mode else "")
+            self.img = self.__img_vignetting_correction(self.img)
+            print("Done" if test_mode else "")
+
+            print("Histogram check started...", end="")
+
+        print("Histogram check started..." if test_mode else "")
         self.__check_histogram()
+        print("DONE" if test_mode else "")
+        if test_mode:
+            self.show_image()
+
         if not self.__isValid:
+            print("Image not valid, exiting function" if test_mode else "")
             self.__mean_pixel_value, _, self.__std_dev, self.__entropy_of_image = \
                 self.__statistical_parameters_calculator.calculate_all(self.img)
             return self.__data_to_json()
+        print("Image valid" if test_mode else "")
 
         self.__mean_pixel_value, _, _, self.__entropy_of_image = self.__statistical_parameters_calculator.calculate_all(
             self.img)
+        print("mean pixel value: ", self.__mean_pixel_value if test_mode else "")
+        print("image entropy: ", self.__entropy_of_image if test_mode else "")
 
-        """img_segmented_edge = self.__segment_by_contour(self.img, 4)
-
-        if img_segmented_edge is None:
-            print("Contour not closed, no object detected on image")
-            return self.__data_to_json()"""
-
+        print("Segmenting by contour..." if test_mode else "", end="")
         img_segmented_edge = self.__segment_by_contour(self.img, sigma=2)
+        print("DONE" if test_mode else "")
+        if test_mode:
+            self.show_image_static(img_segmented_edge)
 
         if img_segmented_edge is None:
             return self.__data_to_json()
@@ -640,6 +655,7 @@ class ImageInformationAnalysis:
         self.__isValid = False
         grayscale, grayscale_prob = self.__statistical_parameters_calculator.image_histogram(self.img, 'on')
         mean_pixel_value = self.__statistical_parameters_calculator.mean_from_histogram(grayscale, grayscale_prob)
+
         if mean_pixel_value < self.mean_from_db + 2 * self.std_dev_from_db:
             self.__isValid = True
 
