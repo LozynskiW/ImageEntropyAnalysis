@@ -19,7 +19,8 @@ class DBdataProcessor:
     def get_data_with_respect_to(self, data, ox, oy, oz=None):
         self.__ox = [x[ox] for x in data]
         self.__oy = [y[oy] for y in data]
-        self.__oz = [z[oz] for z in data]
+        if oz is not None:
+            self.__oz = [z[oz] for z in data]
 
     def sort_spans_for_angles(self):
         for i in range(-17, 18):
@@ -51,7 +52,7 @@ class DBdataProcessor:
 
         self.__multiple_scatter_plot(ox_label='classes_of_objects', oy_label=oy, legend=None, plot_mean=mean)
 
-    def group_data_by_dataset(self, data, ox, oy, oz=None):
+    def group_data_by_dataset(self, data, ox, oy):
         datasets = self.__select_datasets(data)
         self.__ox_per_dataset = []
         self.__oy_per_dataset = []
@@ -59,7 +60,7 @@ class DBdataProcessor:
 
         for d in datasets:
             temp = self.__filter_by_dataset(data, d)
-            self.get_data_with_respect_to(temp, ox, oy, oz)
+            self.get_data_with_respect_to(temp, ox, oy)
             if ox == 'time':
                 for i in range(0, len(self.__ox)):
                     self.__ox[i] = datetime.datetime.strptime(self.__ox[i], '%Y:%m:%d:%H:%M:%S')
@@ -67,19 +68,17 @@ class DBdataProcessor:
                     self.__ox[i] = self.__ox[i].hour
             self.__ox_per_dataset.append(self.__ox)
             self.__oy_per_dataset.append(self.__oy)
-            if oz is not None:
-                self.__oz_per_dataset.append(self.__oz)
 
         # self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets)
 
-    def plot_whole_dataset(self, data, ox, oy, oz=None, mode=None, filename='default', translate_names_to_deg=False):
+    def plot_whole_dataset(self, data, ox, oy, mode=None, filename='default', translate_names_to_deg=False, oy_values='values'):
 
         datasets = self.__select_datasets(data)
 
-        self.group_data_by_dataset(data, ox, oy, oz)
+        self.group_data_by_dataset(data, ox, oy)
 
-        self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets, mode=mode, filename=filename,
-                                     translate_names_to_deg=translate_names_to_deg)
+        self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=None, mode=mode, filename=filename,
+                                     translate_names_to_deg=translate_names_to_deg, plot_mean='on')
 
     def plot(self, plot_type='line', ox_label='X', oy_label='Y'):
 
@@ -127,7 +126,7 @@ class DBdataProcessor:
                 ax.scatter(self.__ox_per_dataset[i][0], mean(self.__oy_per_dataset[i]), 200, color='black')
 
         if legend is not None:
-            plt.legend(loc='upper right')
+            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
         if ox_label is not None:
             if translate_names_to_deg:
@@ -323,10 +322,12 @@ class DBdataProcessor:
 
         names_deg = []
 
+        deg_for_fps = 360 / len(names)
+
         for name in names:
             name = name.split('.')[0]
 
-            names_deg.append(int(name) * 0.68)
+            names_deg.append(int(name) * deg_for_fps)
 
         return names_deg
 

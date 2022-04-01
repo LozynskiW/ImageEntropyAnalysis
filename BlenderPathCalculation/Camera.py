@@ -1,12 +1,14 @@
 import sys
+from abc import ABC
 
 from Interfaces import BasicBlenderPathCalculation
 import numpy as np
 import blender_python_commands as bpy
 from matplotlib import pyplot as plt
 
+TRAJECTORIES_PATH = 'D:/artykuly/wat_2/test_animations/trajectories'
 
-class CirclePath(BasicBlenderPathCalculation):
+class CirclePath(BasicBlenderPathCalculation, ABC):
 
     def __init__(self):
         self.__height = 0
@@ -15,9 +17,10 @@ class CirclePath(BasicBlenderPathCalculation):
         self.__center_y = 0
         self.__center_z = 0
         self.__start_frame = 0
-        self.__end_frame = 100
+        self.__end_frame = 520
         self.__ang_freq = 1
-        self.__fps = 24
+        self.__velocity = 18  #m/s
+        self.__fps = 30
 
     def set_path_parameters(self, height=None, radius=None, start_x=None, start_y=None, start_z=None,
                             start_frame=None, end_frame=None, ang_freq=None, fps=None):
@@ -49,18 +52,51 @@ class CirclePath(BasicBlenderPathCalculation):
         if fps:
             self.__fps = fps
 
-    def calculate_trajectory(self):
+    def calculate_trajectory(self, camera_set=True):
 
-        self.trajectory.append({"x": self.__radius, "y": self.__center_y, "z": self.__center_z})
+        self.trajectory = []
 
-        for frame in range(self.__start_frame, self.__end_frame):
-            t = frame / self.__fps
+        self.__end_frame = self.__get_end_frame()
 
-            x = self.__radius * np.cos(self.__ang_freq * t)
-            y = self.__radius * np.sin(self.__ang_freq * t)
-            z = self.__center_z
+        frame_num = self.__end_frame - self.__start_frame
 
-            self.trajectory.append({"x": x, "y": y, "z": z})
+        x, y, z = self.__get_trajectory_xyz_coordinates(frame_num=frame_num,
+                                                        camera_set=camera_set)
+
+        for frame in range(0, frame_num):
+            self.trajectory.append({"x": x[frame], "y": y[frame], "z": z[frame]})
+
+    def __get_end_frame(self):
+
+        t = 2 * 3.14 * self.__radius / self.__velocity
+
+        return int(t*self.__fps)
+
+    def __get_trajectory_xyz_coordinates(self, frame_num, camera_set=False):
+
+        x = []
+        y = []
+        z = []
+
+        if not camera_set:
+
+            for frame in range(0, frame_num):
+
+                t = frame / self.__fps
+                x.append(self.__radius * np.cos(self.__ang_freq * t))
+                y.append(self.__radius * np.sin(self.__ang_freq * t))
+                z.append(self.__center_z)
+        else:
+
+            step = 2 * self.__radius / frame_num
+
+            for i in range(0, int(frame_num)):
+
+                x.append(step*i)
+                y.append(0)
+                z.append(0)
+
+        return x, y, z
 
     def plot(self):
 
@@ -80,34 +116,84 @@ class CirclePath(BasicBlenderPathCalculation):
         plt.grid()
         plt.show()
 
-    def get_trajectory_as_blender_script(self):
+    def calculate_multiple_trajectories(self, path_to_files="/",
+                                        file_ext="txt",
+                                        camera_set=False,
+                                        radius=20,
+                                        height=40,
+                                        const_val='h',
+                                        end_val=50,
+                                        step=10):
+        self.__height = height
+        self.__radius = radius
 
-        f = open('trajectory.txt', 'w')
+        if const_val == 'h':
+            start_val = self.__radius
+        else:
+            start_val = self.__height
+
+        for trajectory_parameter in range(start_val, end_val+1, step):
+
+            if const_val == 'h':
+                self.__radius = trajectory_parameter
+            else:
+                self.__height = trajectory_parameter
+
+            file_name = 'h' + str(self.__height) + 'm_r' + str(self.__radius) + 'm'
+
+            self.calculate_trajectory(camera_set=camera_set)
+
+            full_file_path = path_to_files + '/' + file_name
+
+            self.save_trajectory_as_blender_script(file_name=full_file_path, file_ext=file_ext, camera_set=camera_set)
+
+    def save_trajectory_as_blender_script(self, file_name="trajectory", file_ext="txt", camera_set=False):
+
+        if type(self.__end_frame) is float:
+            raise ValueError("self.end_frame is float, should be int")
+
+        if len(self.trajectory) != self.__end_frame:
+
+            raise ValueError('len(self.trajectory)=', len(self.trajectory), " self.__end_frame=", int(self.__end_frame),
+                             "\nLength of trajectory is not equal to number of keyframes")
+
+        file = file_name + "." + file_ext
+        f = open(file, 'w')
         sys.stdout = f
         keyframe = 0
 
         print(bpy.BPY_IMPORT)
         print(bpy.DESELECT_ALL)
-        print(bpy.SELECT_CAMERA)
-        print(bpy.ADD_CAMERA_TRACKING_TO_OBJECT)
-        print(bpy.SET_CAMERA_TRACKING_TO_TARGET)
-        print(bpy.SET_START_KEYFRAME.format(val=self.__start_frame))
-        print(bpy.SET_END_KEYFRAME.format(val=self.__end_frame))
+
+        print(bpy.DECLARE_CAMERA_AS_VARIABLE)
+        print(bpy.DECLARE_CAMERAPATH_AS_VARIABLE)
+        print(bpy.SET_FRAME.format(val=0))
+        print(bpy.SET_CAMERAPATH_LOCATION.format(val=self.__height))
+        print(bpy.SET_CAMERAPATH_SCALING.format(val=self.__radius))
+        print(bpy.SELECT_ALL)
+        print(bpy.APPLY_LOCATION)
+        print(bpy.APPLY_SCALING)
         print(bpy.DESELECT_ALL)
-        print(bpy.SELECT_CAMERA)
+
+        if not camera_set:
+            print(bpy.DESELECT_ALL)
+            print(bpy.SELECT_CAMERA)
+            print(bpy.ADD_CAMERA_TRACKING_TO_OBJECT)
+            print(bpy.SET_CAMERA_TRACKING_TO_TARGET)
+        print(bpy.SET_START_FRAME.format(val=self.__start_frame))
+        print(bpy.SET_END_FRAME.format(val=self.__end_frame))
+        print(bpy.DESELECT_ALL)
 
         for pos in self.trajectory:
 
-            x_position_script = bpy.ABSOLUTE_POSITION_X.format(val=pos['x'])
-            y_position_script = bpy.ABSOLUTE_POSITION_Y.format(val=pos['y'])
-            z_position_script = bpy.ABSOLUTE_POSITION_Z.format(val=pos['z'])
+            print(bpy.SET_FRAME.format(val=keyframe))
 
-            print(bpy.SET_KEYFRAME.format(val=keyframe))
-
-            print(x_position_script)
-            print(y_position_script)
-            print(z_position_script)
+            print(bpy.SET_CAMERA_LOCATION.format(val=pos['x']))
+            print(bpy.SET_CAMERAPATH_LOCATION.format(val=self.__height))
+            print(bpy.SET_CAMERAPATH_SCALING.format(val=self.__radius))
+            print(bpy.SELECT_ALL)
             print(bpy.APPLY_LOCATION)
+            print(bpy.DESELECT_ALL)
 
             keyframe += 1
 
