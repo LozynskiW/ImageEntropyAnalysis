@@ -31,7 +31,10 @@ class Master:
 
     def check_if_already_in_db(self, object, dataset, image):
         try:
-            return len(self.__data_base.find_specific(self.__form_query_to_find_image(object, dataset, image))) > 0
+            return len(self.__data_base.find_specific(self.__query_assistance.form_query_to_find_image(
+                object=object,
+                dataset=dataset,
+                image=image))) > 0
         except AttributeError:
             return False
 
@@ -62,21 +65,6 @@ class Master:
 
     def delete_from_db(self, query):
         self.__data_base.delete_in_db(query)
-
-    @staticmethod
-    def __form_query_to_find_image(object, dataset, image):
-        return {"object": object, "dataset": dataset, "file": image}
-
-    @staticmethod
-    def __form_query_to_update(isValid, isObjDetected, entropy, horizontal_angle, vertical_angle, distance_to_object,
-                               histogram):
-        return {"$set": {"isValid": isValid,
-                         "isObjectDetected": isObjDetected,
-                         "entropy_of_segmented_image": entropy,
-                         "horizontal_angle_of_view": horizontal_angle,
-                         "vertical_angle_of_view": vertical_angle,
-                         "distance_to_object": distance_to_object,
-                         "histogram": histogram}}
 
     def choose_data(self, object, folder):
         """
@@ -112,7 +100,7 @@ class Master:
         self.__data_base.choose_collection(self.__object)
 
     def set_main_folder(self, folder_path):
-        self.__local_storage.change_main_folder(folder_path)
+        self.__local_storage.set_main_folder(folder_path)
 
     def change_information_processing_blackbox(self, information_processing_blackbox):
         self.__image_processing_blackbox = information_processing_blackbox
@@ -264,17 +252,21 @@ class Master:
                 if self.check_if_already_in_db(self.__object, self.__local_storage.get_dataset(), image):
 
                     self.__data_base.update_in_db(
-                        self.__form_query_to_find_image(db_query["object"],
-                                                        db_query["dataset"],
-                                                        db_query["file"]),
-
-                        self.__form_query_to_update(db_query["isValid"],
-                                                    db_query["isObjectDetected"],
-                                                    db_query["entropy_of_segmented_image"],
-                                                    db_query["horizontal_angle_of_view"],
-                                                    db_query["vertical_angle_of_view"],
-                                                    db_query["distance_to_object"],
-                                                    db_query["histogram"]))
+                        query=self.__query_assistance.form_query_to_find_image(
+                            object=db_query["object"],
+                            dataset=db_query["dataset"],
+                            image=db_query["file"]
+                        ),
+                        json_file=self.__query_assistance.form_query_to_update_all(
+                            is_valid=db_query["isValid"],
+                            is_obj_detected=["isObjectDetected"],
+                            entropy=db_query["entropy_of_segmented_image"],
+                            horizontal_angle=db_query["horizontal_angle_of_view"],
+                            vertical_angle=db_query["vertical_angle_of_view"],
+                            distance_to_object=db_query["distance_to_object"],
+                            histogram=db_query["histogram"]
+                        )
+                    )
                 else:
                     if mode == 'mixed':
                         self.__data_base.put_to_db(db_query)
@@ -339,7 +331,7 @@ class Master:
 
                     # self.__histogram_analyser.show_histogram()
 
-                    self.__data_base.delete_if_exist({
+                    self.__data_base.delete_documents({
                         "object": self.__object,
                         "dataset": d})
                     self.__data_base.put_to_db(histogram_json)
@@ -454,6 +446,21 @@ class Master:
             except RuntimeError:
                 return []
 
+        def multiple_datasets_for_one_object(self, datasets, validation_type_for_all):
+
+            query = self.__query_assistance.form_query_to_get_multiple_datasets(
+                object=self.__object,
+                datasets=datasets,
+                validation_type_for_all=validation_type_for_all
+            )
+
+            try:
+                data_from_db = self.__data_base.find_specific(query)
+            except RuntimeError:
+                return []
+
+            return data_from_db
+
         def specific_data_from_db(self, query, save_in_cache=False):
 
             try:
@@ -471,6 +478,9 @@ class Master:
         def __init__(self, data, plotting_processor):
             self.__data = data
             self.__plotting_processor = plotting_processor
+
+        def set_folder_to_save_figures(self, filepath):
+            self.__plotting_processor.set_folder_to_save_figures(filepath)
 
         def scatter_plot_3d(self, x=None, y=None, z=None):
 
@@ -517,21 +527,155 @@ class Master:
                                                              mode="save",
                                                              filename=object)
 
-        def with_respect_to_group_by_dataset(self, x, y, translate_names_to_deg=False):
+        def with_respect_to_group_by_dataset(self, x, y, legend=True,
+                                             translate_names_to_azimuthal_angle=False,
+                                             filename='default',
+                                             mode='show',
+                                             plot_title=''
+                                             ):
+
             self.__plotting_processor.plot_whole_dataset(data=self.__data,
                                                          ox=x,
                                                          oy=y,
-                                                         mode="show",
-                                                         translate_names_to_deg=translate_names_to_deg)
+                                                         legend=legend,
+                                                         mode=mode,
+                                                         filename=filename,
+                                                         plot_title=plot_title,
+                                                         translate_names_to_azimuthal_angle=translate_names_to_azimuthal_angle)
 
         def comparing_all_classes_of_objects(self, y):
             self.__plotting_processor.group_and_plot_data_by_object_class(self.__data, oy=y, mean='on')
 
 
+class AnalysisMaster:
+
+    def __init__(self):
+        self.__master = Master()
+        self.__base_folder = 'figures'
+        self.__path_to_files = ''
+
+    def set_path_to_files(self, path_to_files):
+        self.__path_to_files = path_to_files
+
+    def master(self):
+        return self.__master
+
+    def set_object(self, object):
+        self.__master.choose_object(object=object)
+        self.__path_to_files += self.__base_folder+'/'+object+'/'
+        self.__master.plot().set_folder_to_save_figures(self.__path_to_files)
+
+    def analysis(self):
+        return self.AngleOfObservation(self)
+
+    class AngleOfObservation:
+
+        def __init__(self, analysis_master):
+            self.__analysis_master = analysis_master
+
+        @staticmethod
+        def __build_names_for_datasets(radius_values=None, height_values=None, separator='_', distance_unit='m'):
+
+            if radius_values is None or height_values is None:
+                return []
+
+            datasets_dict = {}
+
+            for r in radius_values:
+                datasets_names = []
+                for h in height_values:
+                    datasets_names.append('h'+str(h)+distance_unit+separator+'r'+str(r)+distance_unit)
+                datasets_dict['r'+str(r)] = datasets_names
+            return datasets_dict
+
+        def azimuthal(self,
+                      radius_values=None,
+                      height_values=None,
+                      separator='_',
+                      distance_unit='m'
+                      ):
+
+            dataset_dict = self.__build_names_for_datasets(radius_values, height_values, separator, distance_unit)
+
+            if height_values is None:
+                height_values = []
+            if radius_values is None:
+                radius_values = []
+
+            for dataset_key in dataset_dict:
+
+                datasets = dataset_dict[dataset_key]
+
+                data_from_db = self.__analysis_master.master().load_data().multiple_datasets_for_one_object(
+                    datasets=datasets,
+                    validation_type_for_all=None
+                )
+
+                self.__analysis_master.master().set_data_from_db(data_from_db)
+
+                self.__analysis_master.master().plot().with_respect_to_group_by_dataset(
+                    x='file',
+                    y='entropy_of_segmented_image',
+                    legend=datasets,
+                    translate_names_to_azimuthal_angle=True,
+                    mode='save',
+                    filename=dataset_key,
+                    plot_title="Distance camera-target = "+dataset_key.replace('r','') + " [m]"
+                )
+
+            print("DONE")
+
+        def azimuthal_means(self,
+                      radius_values=None,
+                      height_values=None,
+                      separator='_',
+                      distance_unit='m'
+                      ):
+
+            dataset_dict = self.__build_names_for_datasets(radius_values, height_values, separator, distance_unit)
+
+            mean_of_datasets = []
+
+            if height_values is None:
+                height_values = []
+            if radius_values is None:
+                radius_values = []
+
+            for dataset_key in dataset_dict:
+
+                datasets = dataset_dict[dataset_key]
+
+                data_from_db = self.__analysis_master.master().load_data().multiple_datasets_for_one_object(
+                    datasets=datasets,
+                    validation_type_for_all=None
+                )
+
+                mean_of_dataset = mean(list(map(lambda x: x['entropy_of_segmented_image'], data_from_db)))
+                mean_of_datasets.append({'dataset': dataset_key, 'mean': mean_of_dataset})
+
+            self.__analysis_master.master().set_data_from_db(data_from_db)
+
+
+
+            print("DONE")
+
 class DBQueryAssistance:
+
+    @staticmethod
+    def form_query_to_update_all(is_valid, is_obj_detected, entropy, horizontal_angle, vertical_angle,
+                                 distance_to_object,
+                                 histogram):
+        return {"$set": {"isValid": is_valid,
+                         "isObjectDetected": is_obj_detected,
+                         "entropy_of_segmented_image": entropy,
+                         "horizontal_angle_of_view": horizontal_angle,
+                         "vertical_angle_of_view": vertical_angle,
+                         "distance_to_object": distance_to_object,
+                         "histogram": histogram}}
+
     @staticmethod
     def form_query_to_find_image(object, dataset, image):
-        return {"object": object, "dataset": dataset, "file": image}
+        return {"object": object, "dataset": dataset, "image": image}
 
     @staticmethod
     def form_query_to_update(isValid, entropy, mean):
@@ -554,6 +698,20 @@ class DBQueryAssistance:
         if validation_type == 'detected':
             return {"object": object, "dataset": dataset, "isValid": True, "isObjectDetected": True}
 
+        raise AttributeError
+
+    @staticmethod
+    def form_query_to_get_multiple_datasets(object, datasets, validation_type_for_all=None):
+
+        if validation_type_for_all is None:
+            return {"object": object, "dataset": {"$in": datasets}}
+        if validation_type_for_all == 'validated':
+            return {"object": object, "dataset": {"$in": datasets}, "isValid": True}
+        if validation_type_for_all == 'detected':
+            return {"object": object, "dataset": {"$in": datasets}, "isValid": True, "isObjectDetected": True}
+
+        raise AttributeError
+
     @staticmethod
     def form_query_to_get_all_datasets(object, validation_type=None):
         if validation_type is None:
@@ -562,6 +720,8 @@ class DBQueryAssistance:
             return {"object": object, "isValid": True}
         if validation_type == 'detected':
             return {"object": object, "isValid": True, "isObjectDetected": True}
+
+        raise AttributeError
 
     @staticmethod
     def form_query_to_get_validated_and_detected_images(object):
@@ -575,3 +735,5 @@ class DBQueryAssistance:
             return {"isValid": True}
         if validation_type == 'detected':
             return {"isValid": True, "isObjectDetected": True}
+
+        raise AttributeError

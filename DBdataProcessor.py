@@ -1,6 +1,6 @@
 import datetime
 import os
-from numpy import mean, max, arctan
+from numpy import mean, max, arctan, ceil
 
 from matplotlib import pyplot as plt
 
@@ -15,6 +15,9 @@ class DBdataProcessor:
         self.__oz_per_dataset = []
         self.__sort_spans = []
         self.__def_figure_folder = "figures/"
+
+    def set_folder_to_save_figures(self, folder_path):
+        self.__def_figure_folder = folder_path
 
     def get_data_with_respect_to(self, data, ox, oy, oz=None):
         self.__ox = [x[ox] for x in data]
@@ -71,14 +74,30 @@ class DBdataProcessor:
 
         # self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=datasets)
 
-    def plot_whole_dataset(self, data, ox, oy, mode=None, filename='default', translate_names_to_deg=False, oy_values='values'):
+    def plot_whole_dataset(self,
+                           data,
+                           ox,
+                           oy,
+                           legend=True,
+                           mode=None,
+                           filename='default',
+                           plot_title = '',
+                           translate_names_to_azimuthal_angle=False):
 
-        datasets = self.__select_datasets(data)
+        if legend:
+            if not type(legend) == list:
+                legend = self.__select_datasets(data)
 
         self.group_data_by_dataset(data, ox, oy)
 
-        self.__multiple_scatter_plot(ox_label=ox, oy_label=oy, legend=None, mode=mode, filename=filename,
-                                     translate_names_to_deg=translate_names_to_deg, plot_mean='on')
+        self.__multiple_scatter_plot(ox_label=ox,
+                                     oy_label=oy,
+                                     legend=legend,
+                                     mode=mode,
+                                     filename=filename,
+                                     translate_names_to_azimuthal_angle=translate_names_to_azimuthal_angle,
+                                     plot_title=plot_title,
+                                     plot_mean='off')
 
     def plot(self, plot_type='line', ox_label='X', oy_label='Y'):
 
@@ -89,13 +108,23 @@ class DBdataProcessor:
         if plot_type == 'bar':
             self.__bar_plot(ox_label, oy_label)
 
-    def __multiple_scatter_plot(self, ox_label=None, oy_label=None, legend=None, mode=None,
-                                filename="default", plot_mean='off', translate_names_to_deg=False):
+    def __multiple_scatter_plot(self,
+                                ox_label=None,
+                                oy_label=None,
+                                legend=None,
+                                mode='show',
+                                filename="default",
+                                plot_mean='off',
+                                translate_names_to_azimuthal_angle=False,
+                                translate_datasets_to_elevation_angle=True,
+                                plot_title='',
+                                scatter_points_size=10):
 
-        if mode is None:
-            mode = "show"
+        fig = plt.figure(figsize=(4, 3), dpi=200)
 
-        fig = plt.figure(figsize=(16, 9), dpi=180)
+        if mode == 'save':
+            fig = plt.figure(figsize=(16, 9), dpi=200)
+
         ax = fig.add_subplot(111)
 
         SMALL_SIZE = 16
@@ -109,14 +138,22 @@ class DBdataProcessor:
         plt.rc('legend', fontsize=SMALL_SIZE)  # legend fontsize
         plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
+        legend_title = 'Datasets'
+        if translate_datasets_to_elevation_angle:
+            legend = self.__translate_datasets_names_to_deg(legend)
+            legend_title = "Elevation angle in deg"
+
         for i in range(0, len(self.__ox_per_dataset)):
+
             x = self.__ox_per_dataset[i]
-            if translate_names_to_deg:
+
+            if translate_names_to_azimuthal_angle:
                 x = self.__translate_imgs_names_to_deg(x)
+
             if legend is not None:
-                ax.scatter(x, self.__oy_per_dataset[i], label=legend[i])
+                ax.scatter(x, self.__oy_per_dataset[i], label=legend[i], s=scatter_points_size)
             else:
-                ax.scatter(x, self.__oy_per_dataset[i])
+                ax.scatter(x, self.__oy_per_dataset[i], s=scatter_points_size)
             y_top_lim = max(list(map(lambda a: max(a), self.__oy_per_dataset)))
             y_bot_lim = min(list(map(lambda a: max(a), self.__oy_per_dataset)))
             plt.ylim(bottom=0, top=y_top_lim + 0.1 * y_top_lim)
@@ -126,18 +163,21 @@ class DBdataProcessor:
                 ax.scatter(self.__ox_per_dataset[i][0], mean(self.__oy_per_dataset[i]), 200, color='black')
 
         if legend is not None:
-            plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+            lgd = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title=legend_title)
 
         if ox_label is not None:
-            if translate_names_to_deg:
-                plt.xlabel('angle', labelpad=15)
+            if translate_names_to_azimuthal_angle:
+                plt.xlabel('azimuthal_angle', labelpad=15)
             else:
                 plt.xlabel(ox_label, labelpad=15)
 
         if oy_label is not None:
             plt.ylabel(oy_label, labelpad=15)
 
-        # plt.grid()
+        fig.subplots_adjust(right=0.75)
+        plt.title(plot_title)
+        plt.grid()
+        plt.draw()
 
         if mode == "show":
             plt.show()
@@ -146,14 +186,15 @@ class DBdataProcessor:
 
             fig_name = filename + "_" + ox_label + "_" + oy_label + ".png"
 
-            if not os.path.exists(self.__def_figure_folder + '/' + filename):
+            if not os.path.exists(self.__def_figure_folder):
                 # Create target Directory
-                os.mkdir(self.__def_figure_folder + '/' + filename)
+                os.mkdir(self.__def_figure_folder)
 
-            plt.savefig(self.__def_figure_folder + '/' + filename + '/' + fig_name)
-            print(fig_name, 'saved to', self.__def_figure_folder + filename)
+            plt.savefig(self.__def_figure_folder + fig_name,
+                        orientation='landscape')
+            print(fig_name, 'saved to', self.__def_figure_folder)
 
-        plt.close(fig=fig)
+            plt.close(fig=fig)
 
     def __3d_multiple_scatter_plot(self, ox_label=None, oy_label=None, oz_label=None, legend=None, mode="show",
                                    filename="default", plot_mean='off', translate_names_to_deg=False):
@@ -206,7 +247,7 @@ class DBdataProcessor:
 
         if ox_label is not None:
             if translate_names_to_deg:
-                plt.xlabel('angle', labelpad=15)
+                plt.xlabel('azimuthal angle', labelpad=15)
             else:
                 plt.xlabel(ox_label, labelpad=15)
 
@@ -332,19 +373,19 @@ class DBdataProcessor:
         return names_deg
 
     @staticmethod
-    def __translate_datasets_names_to_deg(data):
+    def __translate_datasets_names_to_deg(datasets):
 
-        try:
-            names = [x['dataset'] for x in data]
-        except:
-            names = data
+        names_deg = []
 
-        names = names.split(sep='_')
-        h = int(names[0].replace('h', '').replace('m', ''))
-        r = int(names[1].replace('r', '').replace('m', ''))
-        datasets_deg = []
+        for dataset in datasets:
+            height = dataset.split('_')[0]
+            radius = dataset.split('_')[1]
 
-        for i in range(0, len(h)):
-            datasets_deg.append(arctan(r[i] / h[i]))
+            height = height.replace('h', '')
+            height = float(height.replace('m', ''))
+            radius = radius.replace('r', '')
+            radius = float(radius.replace('m', ''))
 
-        return datasets_deg
+            names_deg.append(str(round(arctan(radius/height)*(180/3.1415))))
+
+        return names_deg

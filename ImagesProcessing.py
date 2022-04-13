@@ -13,7 +13,7 @@ from skimage.morphology import disk, ball
 from InformationGainAnalysis.DataStorage import LocalDataStorage
 
 localStorageTest = LocalDataStorage()
-localStorageTest.change_main_folder('D:/magisterka/antrax')
+localStorageTest.set_main_folder('D:/magisterka/antrax')
 localStorageTest.set_object('sarna')
 print(localStorageTest.get_folder_contents())
 
