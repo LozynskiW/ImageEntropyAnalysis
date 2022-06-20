@@ -5,11 +5,9 @@ from skimage import io
 from skimage.color import rgb2gray
 from InformationGainAnalysis.ObjectGeoLoc import ObjectGeoLoc
 from scipy.stats import norm as norm
-from skimage.morphology import closing
-from skimage.segmentation import flood
-from pyitlib import discrete_random_variable as drv
 
 
+@DeprecationWarning
 class ImageInformationAnalysis:
     """
     Klasa służąca do analizowania entropii obrazów termowizyjnych przedstawiających jakiś obiekt. Zdjęcia początkowo
@@ -435,42 +433,70 @@ class ImageInformationAnalysis:
             return horizontal_angle_dist_from_center, vertical_angle_dist_from_center
         return None
 
-    def image_entropy_analysis(self, log_file=None, test_mode=False):
+    def vignetting_correction(self, image, verbose_mode=False):
+
+        if verbose_mode: print("")
+        if verbose_mode: print("vignetting_correction")
+        if verbose_mode: print("---------------------")
+
+        if verbose_mode: print("Checking if img is vignetted...")
+
+        if self.__is_img_vignetted(image):
+            if verbose_mode: print("Img is vignetted, vignetting correction initiated...")
+
+            image = self.__img_vignetting_correction(image)
+
+            if verbose_mode: print("Vignetting correction done")
+
+            return image
+        else:
+
+            if verbose_mode: print("Img is not vignetted")
+
+            return image
+
+    def __check_histogram(self):
+        self.__isValid = False
+        grayscale, grayscale_prob = self.__statistical_parameters_calculator.image_histogram(self.img, 'on')
+        mean_pixel_value = self.__statistical_parameters_calculator.mean_from_histogram(grayscale, grayscale_prob)
+
+        if mean_pixel_value < self.mean_from_db + 2 * self.std_dev_from_db:
+            self.__isValid = True
+
+    def image_entropy_analysis(self, log_file=None, test_mode=False, verbose_mode=False):
         self.__set_all_to_zero()
 
         if test_mode:
             self.add_histogram_filtering_data(255, 255)
 
-        print("Checking if img is vignetted..." if test_mode else "")
+        print("Checking if img is vignetted..." if verbose_mode else "")
         if self.__is_img_vignetted(self.img):
-            print("Img is vignetted, vignetting correction initiated..." if test_mode else "")
+            print("Img is vignetted, vignetting correction initiated..." if verbose_mode else "")
             self.img = self.__img_vignetting_correction(self.img)
-            print("Done" if test_mode else "")
+            print("Done" if verbose_mode else "")
 
-            print("Histogram check started...", end="")
-
-        print("Histogram check started..." if test_mode else "")
+        print("Histogram check started..." if verbose_mode else "")
         self.__check_histogram()
-        print("DONE" if test_mode else "")
-        if test_mode:
+        print("DONE" if verbose_mode else "")
+        if verbose_mode:
             self.show_image()
 
         if not self.__isValid:
-            print("Image not valid, exiting function" if test_mode else "")
+            print("Image not valid, exiting function" if verbose_mode else "")
             self.__mean_pixel_value, _, self.__std_dev, self.__entropy_of_image = \
                 self.__statistical_parameters_calculator.calculate_all(self.img)
             return self.__data_to_json()
-        print("Image valid" if test_mode else "")
+        print("Image valid" if verbose_mode else "")
 
         self.__mean_pixel_value, _, _, self.__entropy_of_image = self.__statistical_parameters_calculator.calculate_all(
             self.img)
-        print("mean pixel value: ", self.__mean_pixel_value if test_mode else "")
-        print("image entropy: ", self.__entropy_of_image if test_mode else "")
+        print("mean pixel value: ", self.__mean_pixel_value if verbose_mode else "")
+        print("image entropy: ", self.__entropy_of_image if verbose_mode else "")
 
-        print("Segmenting by contour..." if test_mode else "", end="")
+        print("Segmenting by contour..." if verbose_mode else "", end="")
         img_segmented_edge = self.__segment_by_contour(self.img, sigma=2)
-        print("DONE" if test_mode else "")
-        if test_mode:
+        print("DONE" if verbose_mode else "")
+        if verbose_mode:
             self.show_image_static(img_segmented_edge)
 
         if img_segmented_edge is None:
@@ -520,6 +546,7 @@ class ImageInformationAnalysis:
             self.__isValid = False
         return self.__data_to_json()
 
+    @DeprecationWarning
     def image_entropy_analysis_for_testing(self, log_file):
         """image_entropy_analysis służące do testowamia nowych rozwiązań, podczas pracy metoda pokazuej kolejne
         wyniki przetwarzania obrazu i informuje o wykonywanym zadaniu"""
@@ -642,9 +669,9 @@ class ImageInformationAnalysis:
     def __is_object_too_big(self, max_object_dim):
         try:
             img_horizontal_dim_in_meters = 2 * np.tan((
-                                                                  np.pi / 180) * 0.5 * self.__object_geo_loc_calculator.get_camera_horizontal_fov()) * self.__distance_to_object
+                                                              np.pi / 180) * 0.5 * self.__object_geo_loc_calculator.get_camera_horizontal_fov()) * self.__distance_to_object
             img_vertical_dim_in_meters = 2 * np.tan((
-                                                                np.pi / 180) * 0.5 * self.__object_geo_loc_calculator.get_camera_vertical_fov()) * self.__distance_to_object
+                                                            np.pi / 180) * 0.5 * self.__object_geo_loc_calculator.get_camera_vertical_fov()) * self.__distance_to_object
         except TypeError:
             return False
 
@@ -918,97 +945,3 @@ class ImageQualityController:
 
         kern2d = np.outer(kern1d_y, kern1d_x)
         return kern2d / kern2d.sum()
-
-
-class ObjectDetectionTester:
-    """
-    Klasa pozwalająca na okreslenie, czy kontur obiektu jest zamknięty
-    """
-
-    def __init__(self):
-        self.__img = None
-        self.__szer = 0
-        self.__wys = 0
-
-    def set_img(self, contour_segmented_img):
-        self.__img = contour_segmented_img
-        self.__img = closing(self.__img)
-        self.__szer = len(self.__img[0])
-        self.__wys = len(self.__img)
-
-    def get_img(self):
-        return self.__img
-
-    def check_if_contour_is_closed(self):
-
-        coords = self.__hook_to_pixel()
-
-        if not coords:
-            return False
-
-        object_area = self.__enlarge_window(coords[0], coords[1])
-
-        original_num = self.__count_white_pixels_in_given_area(object_area[0],
-                                                               object_area[1],
-                                                               object_area[2],
-                                                               object_area[3],
-                                                               True)
-
-        self.__img = flood(self.__img, (0, 0), connectivity=0)
-
-        if self.__count_white_pixels_in_given_area(object_area[0], object_area[1], object_area[2], object_area[3],
-                                                   False) > original_num:
-            return True
-
-        return False
-
-    def check_if_contour_exist(self):
-        for y in range(0, self.__wys):
-            for x in range(0, self.__szer):
-                if self.__img[y][x]:
-                    return True
-        return False
-
-    def __hook_to_pixel(self):
-        for y in range(0, self.__wys):
-            for x in range(0, self.__szer):
-                if self.__img[y][x]:
-                    return [y, x]
-        return []
-
-    def __count_white_pixels_in_given_area(self, corner_y, corner_x, height, width, test):
-        num = 0
-        for y in range(corner_y, corner_y + height):
-            for x in range(corner_x, corner_x + width):
-                try:
-                    if self.__img[y][x] == test:
-                        num += 1
-                except IndexError:
-                    continue
-        return num
-
-    def __enlarge_window(self, pixel_y, pixel_x):
-        window_height = 1
-        window_width = 1
-        pixel_count = 1
-        while True:
-            window_height += 1
-            window_width += 1
-            if self.__count_white_pixels_in_given_area(pixel_y, pixel_x, window_height, window_width,
-                                                       True) > pixel_count:
-                pixel_count = self.__count_white_pixels_in_given_area(pixel_y, pixel_x, window_height, window_width,
-                                                                      True)
-            else:
-                break
-
-        while True:
-            pixel_x -= 1
-            pixel_y -= 1
-            if self.__count_white_pixels_in_given_area(pixel_y, pixel_x, window_height, window_width,
-                                                       True) > pixel_count:
-                pixel_count = self.__count_white_pixels_in_given_area(pixel_y, pixel_x, window_height, window_width,
-                                                                      True)
-            else:
-                break
-
-        return [pixel_y, pixel_x, window_height, window_width]

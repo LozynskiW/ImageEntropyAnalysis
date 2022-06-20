@@ -1,5 +1,7 @@
 import datetime
 import os
+
+import numpy as np
 from numpy import mean, max, arctan, ceil
 
 from matplotlib import pyplot as plt
@@ -154,11 +156,14 @@ class DBdataProcessor:
                 ax.scatter(x, self.__oy_per_dataset[i], label=legend[i], s=scatter_points_size)
             else:
                 ax.scatter(x, self.__oy_per_dataset[i], s=scatter_points_size)
+
+            ax.set_xticks(np.arange(0, 361, 30.0))
+
             y_top_lim = max(list(map(lambda a: max(a), self.__oy_per_dataset)))
             y_bot_lim = min(list(map(lambda a: max(a), self.__oy_per_dataset)))
+
             plt.ylim(bottom=0, top=y_top_lim + 0.1 * y_top_lim)
-            """plt.subplots_adjust(top=1, bottom=0.08, right=0.99, left=0.06,
-                                hspace=0, wspace=0)"""
+
             if plot_mean == 'on':
                 ax.scatter(self.__ox_per_dataset[i][0], mean(self.__oy_per_dataset[i]), 200, color='black')
 

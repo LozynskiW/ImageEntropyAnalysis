@@ -5,7 +5,7 @@ from InformationGainAnalysis.DBdataProcessor import DBdataProcessor
 from InformationGainAnalysis.HistogramAnalyser import HistogramAnalyser
 from statistics import mean
 from math import sqrt
-import numpy as np
+from InformationGainAnalysis.image_processing.ready_to_use_systems import information_entropy_based_system
 
 
 class Master:
@@ -15,15 +15,15 @@ class Master:
     danych
     """
 
-    def __init__(self):
+    def __init__(self, image_processing_blackbox=None):
         self.__data_base = DataBase()
         self.__local_storage = LocalDataStorage()
-        self.__image_processing_blackbox = ImageInformationAnalysis()
+        self.__image_processing_blackbox = image_processing_blackbox
         self.__db_data_processor = DBdataProcessor()
         self.__histogram_analyser = HistogramAnalyser()
         self.__query_assistance = DBQueryAssistance()
         """Zależności"""
-        self.__local_storage.change_information_processing_blackbox(self.__image_processing_blackbox)
+        # self.__local_storage.change_information_processing_blackbox(self.__image_processing_blackbox)
         """Dane o lokalizacji plików"""
         self.__object = None
         """Zmienne do przechowywania danych dynamicznych"""
@@ -37,6 +37,9 @@ class Master:
                 image=image))) > 0
         except AttributeError:
             return False
+
+    def set_image_processing_blackbox(self, image_processing_blackbox):
+        self.__image_processing_blackbox = image_processing_blackbox
 
     def __calculate_mean_and_std_from_luminosity(self):
         """
@@ -169,7 +172,83 @@ class Master:
         except ValueError:
             return None
 
-    def analyze_dataset(self, mode='void', dataset_validation=True, limit=None):
+    def __db_collection_setup(self):
+        try:
+            self.__data_base.choose_collection(self.__object)
+        except:
+            self.__data_base.create_collection(self.__object)
+
+    def __images_and_logs_setup(self, logs=True):
+
+        if logs:
+            try:
+                dataset, log = self.__local_storage.get_folder_contents_from_log()
+
+                if len(dataset) > 0:
+
+                    return dataset, log
+
+                else:
+                    self.__images_and_logs_setup(logs=False)
+            except FileNotFoundError:
+                self.__images_and_logs_setup(logs=False)
+
+        else:
+
+            try:
+                dataset = self.__local_storage.get_folder_contents()
+                return dataset, None
+            except FileNotFoundError:
+                print("No folder was found, try setting other dataset path")
+                return None
+
+    def analyze_dataset(self, save_to_db=False, verbose_mode=False):
+
+        analysis_system = information_entropy_based_system
+
+        self.__db_collection_setup()
+
+        datasets, log = self.__images_and_logs_setup(logs=False)
+
+        for dataset in datasets:
+
+            self.__local_storage.set_dataset(dataset)
+            images = self.__local_storage.get_folder_content(folder_name=dataset)
+
+            for image in images:
+
+                image = self.__local_storage.open_img_from_path(image)
+
+                img_processing_outcome = analysis_system.search_for_target(img=image, verbose_mode=verbose_mode)
+
+                print(img_processing_outcome)
+                """
+                if save_to_db:
+                    if self.check_if_already_in_db(self.__object, self.__local_storage.get_dataset(), image):
+    
+                        self.__data_base.update_in_db(
+                            query=self.__query_assistance.form_query_to_find_image(
+                                object=db_query["object"],
+                                dataset=db_query["dataset"],
+                                image=db_query["file"]
+                            ),
+                            json_file=self.__query_assistance.form_query_to_update_all(
+                                is_valid=db_query["isValid"],
+                                is_obj_detected=["isObjectDetected"],
+                                entropy=db_query["entropy_of_segmented_image"],
+                                horizontal_angle=db_query["horizontal_angle_of_view"],
+                                vertical_angle=db_query["vertical_angle_of_view"],
+                                distance_to_object=db_query["distance_to_object"],
+                                histogram=db_query["histogram"]
+                            )
+                        )
+                        self.__data_base.put_to_db(db_query)
+                    else:
+                        print('Image:', image, 'of object class: ', self.__object, 'is already in database')
+                """
+
+    @DeprecationWarning
+    def analyze_dataset2(self, mode='void', dataset_validation=True, limit=None):
         """
         Metoda służąca do analizowania wskazanego w self.__dataset_path zestawu zdjęć w termowizji pod kątem ich
         informacyjności. Wykorzystana do tego jest klasa ImageEntropyAnalysis.ImageInformationAnalysis. Wynikiem
@@ -242,7 +321,8 @@ class Master:
                 data_from_log = None
 
             if mode == 'test':
-                stat_parameters = self.__image_processing_blackbox.image_entropy_analysis(data_from_log, test_mode=True)
+                stat_parameters = self.__image_processing_blackbox.image_entropy_analysis(data_from_log,
+                                                                                          verbose_mode=True)
             else:
                 stat_parameters = self.__image_processing_blackbox.image_entropy_analysis(data_from_log)
             db_query = self.__data_to_json(image, stat_parameters, data_from_log)
@@ -562,7 +642,7 @@ class AnalysisMaster:
 
     def set_object(self, object):
         self.__master.choose_object(object=object)
-        self.__path_to_files += self.__base_folder+'/'+object+'/'
+        self.__path_to_files += self.__base_folder + '/' + object + '/'
         self.__master.plot().set_folder_to_save_figures(self.__path_to_files)
 
     def analysis(self):
@@ -584,8 +664,8 @@ class AnalysisMaster:
             for r in radius_values:
                 datasets_names = []
                 for h in height_values:
-                    datasets_names.append('h'+str(h)+distance_unit+separator+'r'+str(r)+distance_unit)
-                datasets_dict['r'+str(r)] = datasets_names
+                    datasets_names.append('h' + str(h) + distance_unit + separator + 'r' + str(r) + distance_unit)
+                datasets_dict['r' + str(r)] = datasets_names
             return datasets_dict
 
         def azimuthal(self,
@@ -603,7 +683,6 @@ class AnalysisMaster:
                 radius_values = []
 
             for dataset_key in dataset_dict:
-
                 datasets = dataset_dict[dataset_key]
 
                 data_from_db = self.__analysis_master.master().load_data().multiple_datasets_for_one_object(
@@ -620,17 +699,17 @@ class AnalysisMaster:
                     translate_names_to_azimuthal_angle=True,
                     mode='save',
                     filename=dataset_key,
-                    plot_title="Distance camera-target = "+dataset_key.replace('r','') + " [m]"
+                    plot_title="Distance camera-target = " + dataset_key.replace('r', '') + " [m]"
                 )
 
             print("DONE")
 
         def azimuthal_means(self,
-                      radius_values=None,
-                      height_values=None,
-                      separator='_',
-                      distance_unit='m'
-                      ):
+                            radius_values=None,
+                            height_values=None,
+                            separator='_',
+                            distance_unit='m'
+                            ):
 
             dataset_dict = self.__build_names_for_datasets(radius_values, height_values, separator, distance_unit)
 
@@ -642,7 +721,6 @@ class AnalysisMaster:
                 radius_values = []
 
             for dataset_key in dataset_dict:
-
                 datasets = dataset_dict[dataset_key]
 
                 data_from_db = self.__analysis_master.master().load_data().multiple_datasets_for_one_object(
@@ -655,9 +733,8 @@ class AnalysisMaster:
 
             self.__analysis_master.master().set_data_from_db(data_from_db)
 
-
-
             print("DONE")
+
 
 class DBQueryAssistance:
 

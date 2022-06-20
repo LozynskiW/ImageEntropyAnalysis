@@ -554,6 +554,23 @@ class LocalDataStorage:
         """
         return self.__dataset_path
 
+    def get_folder_content(self, folder_name):
+        """
+        Returns list of all files in self.__main_folder + '/' + self.__object + '/' + folder_name
+
+        Parameters
+        ----------
+        folder_name : str
+            Folder which content is going to be returned
+
+        Raises
+        ------
+
+        Returns
+        Value of __dataset_path
+        """
+        return os.listdir(self.__main_folder + '/' + self.__object + '/' + folder_name)
+
     def get_folder_contents_from_log(self, log_filename='log.txt'):
         """
         Method function is silmillar to get_folder_contents but returns images not from folder contents, but from
@@ -661,7 +678,7 @@ class LocalDataStorage:
 
 
 """
-KOD TESTOWY
+EXAMPLE USAGE
 
 test = LocalDataStorage()
 test.change_main_folder('D:/magisterka/antrax')
