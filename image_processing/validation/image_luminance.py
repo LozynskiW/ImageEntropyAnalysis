@@ -1,5 +1,5 @@
-from InformationGainAnalysis.image_processing.validation.validation_interfaces import base
-from InformationGainAnalysis.image_processing.basictools import statisticalparameters as stat_params
+from app.image_processing.validation.validation_interfaces import base
+from app.image_processing.basictools import statisticalparameters as stat_params
 
 
 class maximal_mean_luminance(base):

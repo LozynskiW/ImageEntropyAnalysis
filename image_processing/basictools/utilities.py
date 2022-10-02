@@ -1,9 +1,27 @@
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, patches
 
+
+def show_detected_target_on_img(img, target_x, target_y, window_height, window_width):
+    # Create figure and axes
+    fig, ax = plt.subplots()
+
+    # Display the image
+    ax.imshow(img, cmap='Greys')
+
+    # Create a Rectangle patch
+    rect = patches.Rectangle((target_x, target_y), window_width, window_height, linewidth=2,
+                             edgecolor='r',
+                             facecolor='none')
+
+    # Add the patch to the Axes
+    ax.add_patch(rect)
+
+    plt.title("Target detected on image")
+
+    plt.show()
 
 def show_image_before_and_after(img_before_processing, img_after_processing, fig_title):
-
     fig, (ax1, ax2) = plt.subplots(ncols=2)
     fig.suptitle(fig_title)
     ax1.imshow(img_before_processing, cmap='Greys')
@@ -11,8 +29,13 @@ def show_image_before_and_after(img_before_processing, img_after_processing, fig
     plt.show()
 
 
-def show_images_before_and_after(imgs_before_processing, img_after_processing, fig_title):
+def show_image(img, fig_title):
+    plt.imshow(img, cmap='Greys')
+    plt.title(fig_title)
+    plt.show()
 
+
+def show_images_before_and_after(imgs_before_processing, img_after_processing, fig_title):
     fig, axs = plt.subplots(2, len(imgs_before_processing))
     fig.suptitle(fig_title)
 
@@ -38,7 +61,7 @@ def calculate_fill_factor(img):
 
     fill_factor /= (img_width * img_height)
 
-    return np.around(fill_factor*100, decimals=2)
+    return np.around(fill_factor * 100, decimals=2)
 
 
 def enumerate_list(list_to_enumerate):

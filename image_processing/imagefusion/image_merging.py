@@ -1,8 +1,8 @@
 from abc import ABC
 
-from InformationGainAnalysis.image_processing.basictools.imageoverlay import image_add, image_and, image_multiply
-from InformationGainAnalysis.image_processing.basictools.utilities import calculate_fill_factor
-from InformationGainAnalysis.image_processing.interfaces import show_img_before_and_after_with_verbose_mode
+from app.image_processing.basictools.imageoverlay import image_add, image_and, image_multiply
+from app.image_processing.basictools.utilities import calculate_fill_factor
+from app.image_processing.interfaces import show_img_before_and_after_with_verbose_mode
 
 
 class add(show_img_before_and_after_with_verbose_mode, ABC):

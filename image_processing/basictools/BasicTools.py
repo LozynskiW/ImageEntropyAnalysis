@@ -377,7 +377,7 @@ class StatisticsParameters:
 class TwoDimStructures:
 
     @staticmethod
-    def center_disk_mask(img):
+    def center_disk_mask(img, size_factor=2):
         """
         Calculates mask that would only leave pixels in image center (based on circle) useful when it is assumed that
         outside of image center is noise
@@ -401,7 +401,7 @@ class TwoDimStructures:
 
         cnt_row, cnt_col = nrows / 2, ncols / 2
 
-        outer_disk_mask = ((row - cnt_row) ** 2 + (col - cnt_col) ** 2 > (nrows / 2) ** 2)
+        outer_disk_mask = ((row - cnt_row) ** 2 + (col - cnt_col) ** 2 > (nrows / size_factor) ** 2)
 
         return outer_disk_mask
 

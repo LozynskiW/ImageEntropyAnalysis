@@ -1,6 +1,6 @@
 import numpy as np
 
-from InformationGainAnalysis.image_processing.basictools import twodimstructures
+from app.image_processing.basictools import twodimstructures
 
 
 class validation_correction:

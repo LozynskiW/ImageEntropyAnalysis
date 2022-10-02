@@ -1,4 +1,4 @@
-from InformationGainAnalysis.ObjectGeoLoc import ObjectGeoLoc
+from app.data_collection_logs_analysis.ObjectGeoLoc import ObjectGeoLoc
 
 
 class base:

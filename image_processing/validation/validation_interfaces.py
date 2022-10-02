@@ -1,4 +1,4 @@
-from InformationGainAnalysis.image_processing.interfaces import verbose_mode
+from app.image_processing.interfaces import verbose_mode
 
 
 class base(verbose_mode):

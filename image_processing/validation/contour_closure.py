@@ -1,5 +1,5 @@
 from skimage.segmentation import flood
-from InformationGainAnalysis.image_processing.validation import validation_interfaces
+from app.image_processing.validation import validation_interfaces
 
 
 class without_contour_closing(validation_interfaces.base):

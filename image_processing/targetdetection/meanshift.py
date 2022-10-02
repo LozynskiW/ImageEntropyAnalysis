@@ -1,6 +1,6 @@
-from matplotlib import pyplot as plt, patches
+from app.image_processing.basictools.utilities import show_detected_target_on_img
 
-from InformationGainAnalysis.image_processing.targetdetection import targetdetection_interfaces
+from app.image_processing.targetdetection import targetdetection_interfaces
 
 
 class highest_luminance_density(targetdetection_interfaces.base):
@@ -113,23 +113,3 @@ class highest_luminance_density(targetdetection_interfaces.base):
                 still_search = True
 
         return target_x, target_y, window_height, window_width
-
-
-def show_detected_target_on_img(img, target_x, target_y, window_height, window_width):
-    # Create figure and axes
-    fig, ax = plt.subplots()
-
-    # Display the image
-    ax.imshow(img, cmap='Greys')
-
-    # Create a Rectangle patch
-    rect = patches.Rectangle((target_x, target_y), window_width, window_height, linewidth=2,
-                             edgecolor='r',
-                             facecolor='none')
-
-    # Add the patch to the Axes
-    ax.add_patch(rect)
-
-    plt.title("Image after processing")
-
-    plt.show()

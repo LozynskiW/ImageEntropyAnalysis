@@ -137,7 +137,6 @@ def information_entropy(im):
     grayscale, gray_shade_prob = image_histogram(im, True)
 
     I_n = information(im)
-    print(gray_shade_prob[240:256])
 
     # Entropia
     H_n = []  # entropia od n

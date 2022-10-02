@@ -1,11 +1,5 @@
-from InformationGainAnalysis.image_processing.validation import image_luminance
-from InformationGainAnalysis.image_processing.preproocessing import vignetting
-from InformationGainAnalysis.image_processing.preproocessing import format_standardization
-from InformationGainAnalysis.image_processing.segmentation import threshold, contour
-from InformationGainAnalysis.image_processing.imagefusion import image_merging
-from InformationGainAnalysis.image_processing.postprocessing import pixel_outside_center_removal
-from InformationGainAnalysis.image_processing.targetdetection import meanshift
-from InformationGainAnalysis.image_processing.targetestablishing import target_distance_based
+from app.image_processing.basictools.utilities import show_image, calculate_fill_factor, show_detected_target_on_img
+from app.image_processing.basictools import statisticalparameters
 from copy import deepcopy
 
 
@@ -75,6 +69,7 @@ class ImageTargetDetectionSystem:
                  target_detection_algorithms=None,
                  target_establishing=None,
                  target_detection_validators=None,
+                 additional_postprocessing_image_parameters=None
                  ):
 
         if preprocessing_tools is None:
@@ -91,6 +86,8 @@ class ImageTargetDetectionSystem:
             target_establishing = []
         if target_detection_validators is None:
             target_detection_validators = []
+        if additional_postprocessing_image_parameters is None:
+            additional_postprocessing_image_parameters = []
 
         self.__preprocessing_tools = preprocessing_tools
         self.__img_validators = img_validators
@@ -100,12 +97,11 @@ class ImageTargetDetectionSystem:
         self.__target_detection_algorithms = target_detection_algorithms
         self.__target_establishing = target_establishing
         self.__target_detection_validators = target_detection_validators
+        self.__additional_postprocessing_image_parameters = additional_postprocessing_image_parameters
 
-    def search_for_target(self, img, verbose_mode=False):
+    def search_for_target(self, img, verbose_mode=False, show_images=False):
 
         img_processing_outcome = {
-            "original_img": img,
-            "processed_img": None,
             "is_valid": False,
             "was_processed": False,
             "fill_factor": 0,
@@ -113,9 +109,15 @@ class ImageTargetDetectionSystem:
             "target_coordinates": []
         }
 
+        if show_images:
+            show_image(img=img, fig_title="Original image")
+
         # PREPROCESSING
 
         img = self.__preprocessing(img=img, verbose_mode=verbose_mode)
+
+        if show_images:
+            show_image(img=img, fig_title="Image after preprocessing")
 
         # IMAGE VALIDATION
 
@@ -130,21 +132,36 @@ class ImageTargetDetectionSystem:
 
         # SEGMENTATION FUSION
 
-        img_segmented, fill_factor = self.__segmentation_fusion(imgs_segmented=imgs_segmented, verbose_mode=verbose_mode)
+        if self.__segmentation_fusion_method:
+
+            img_segmented, fill_factor = self.__segmentation_fusion(imgs_segmented=imgs_segmented,
+                                                                    verbose_mode=verbose_mode)
+
+        else:
+
+            img_segmented = imgs_segmented[0]
+            fill_factor = calculate_fill_factor(img=img_segmented)
+
+        if show_images:
+            show_image(img=img_segmented, fig_title="Image after segmentation fusion")
 
         img_processing_outcome["was_processed"] = True
 
         # INITIAL VALIDATION AND POSTPROCESSING
 
-        outcome, img_segmented = self.__initial_validation_and_postprocessing(img_segmented=img_segmented,
-                                                                              fill_factor=fill_factor,
-                                                                              verbose_mode=verbose_mode)
+        if self.__initial_validation_and_postprocessing_tools:
 
-        img_processing_outcome["processed_img"] = img_segmented
-        img_processing_outcome["fill_factor"] = fill_factor
+            outcome, img_segmented, fill_factor = self.__initial_validation_and_postprocessing(img_segmented=img_segmented,
+                                                                                               fill_factor=fill_factor,
+                                                                                               verbose_mode=verbose_mode)
 
-        if not outcome:
-            return img_processing_outcome
+            if show_images:
+                show_image(img=img_segmented, fig_title="Image after initial validation and postprocessing")
+
+            if not outcome:
+                return img_processing_outcome
+
+        img_processing_outcome["fill_factor"] = float(fill_factor)
 
         # TARGET DETECTION
 
@@ -154,13 +171,33 @@ class ImageTargetDetectionSystem:
 
         target_location = self.__establish_target(target_coordinates=target_coordinates, verbose_mode=verbose_mode)
 
+        if show_images:
+
+            show_detected_target_on_img(img=img_segmented,
+                                    target_x=target_coordinates[0][0],
+                                    target_y=target_coordinates[0][1],
+                                    window_height=10,
+                                    window_width=10)
+
         # TARGET DETECTION VALIDATION
 
         if not self.__validate_target(target_coordinates=target_location, verbose_mode=verbose_mode):
-            return  img_processing_outcome
+            return img_processing_outcome
 
         img_processing_outcome["is_target_detected"] = True
         img_processing_outcome["target_coordinates"] = target_location
+
+        additional_postprocessing_parameters = self.__calculate_additional_postprocessing_parameters(img,
+                                                                                                     additional_parameters=self.__additional_postprocessing_image_parameters,
+                                                                                                     is_image_processed=False)
+        for key in additional_postprocessing_parameters:
+            img_processing_outcome[key] = additional_postprocessing_parameters[key]
+
+        additional_postprocessing_parameters = self.__calculate_additional_postprocessing_parameters(img_segmented,
+                                                                                                     additional_parameters=self.__additional_postprocessing_image_parameters,
+                                                                                                     is_image_processed=True)
+        for key in additional_postprocessing_parameters:
+            img_processing_outcome[key] = additional_postprocessing_parameters[key]
 
         return img_processing_outcome
 
@@ -226,11 +263,13 @@ class ImageTargetDetectionSystem:
             print("DONE")
             print()
 
+
         return img_segmented, fill_factor
 
     def __initial_validation_and_postprocessing(self, img_segmented, fill_factor, verbose_mode):
 
         img_segmented = deepcopy(img_segmented)
+        new_fill_factor = fill_factor
 
         for i in range(0, len(self.__initial_validation_and_postprocessing_tools)):
             initial_validation_and_postprocessing_tool = self.__initial_validation_and_postprocessing_tools[i]
@@ -238,7 +277,7 @@ class ImageTargetDetectionSystem:
             if verbose_mode: print("Initial validation and postprocessing via:",
                                    str(initial_validation_and_postprocessing_tool))
 
-            outcome, img_segmented, fill_factor = initial_validation_and_postprocessing_tool.validate_or_process(
+            outcome, img_segmented, new_fill_factor = initial_validation_and_postprocessing_tool.validate_or_process(
                 img_segmented, fill_factor)
 
             if not outcome:
@@ -250,7 +289,7 @@ class ImageTargetDetectionSystem:
             print("Initial validation and postprocessing done")
             print()
 
-        return True, img_segmented
+        return True, img_segmented, new_fill_factor
 
     def __detect_target(self, img_segmented, verbose_mode):
 
@@ -299,6 +338,40 @@ class ImageTargetDetectionSystem:
         if verbose_mode: print("Detected target matches given criteria, target detected")
 
         return True
+
+    @staticmethod
+    def __calculate_additional_postprocessing_parameters(img, additional_parameters, is_image_processed=False):
+
+        additional_postprocessing_parameters = {}
+
+        name = "original"
+        if is_image_processed:
+            name = "processed"
+
+        for parameter in additional_parameters:
+
+            if parameter == 'histogram':
+                grayscale, gray_shade_prob = statisticalparameters.image_histogram(im=img, normalize_to_pdf=False)
+                additional_postprocessing_parameters["histogram_of_" + name + "_image"] = tuple(gray_shade_prob)
+
+            if parameter == 'entropy':
+                H, H_n = statisticalparameters.information_entropy(im=img)
+                additional_postprocessing_parameters["entropy_of_" + name + "_image"] = float(H)
+
+            if parameter == 'expected_value':
+                grayscale, gray_shade_prob = statisticalparameters.image_histogram(im=img, normalize_to_pdf=True)
+                additional_postprocessing_parameters["expected_value_of_" + name + "_image"] = \
+                    float(statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob))
+
+            if parameter == 'variance':
+                grayscale, gray_shade_prob = statisticalparameters.image_histogram(im=img, normalize_to_pdf=True)
+                expected_val = statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob)
+
+                additional_postprocessing_parameters["variance_of_" + name + "_image"] = \
+                    float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))
+
+        return additional_postprocessing_parameters
+
 
 """
 EXAMPLE USAGE

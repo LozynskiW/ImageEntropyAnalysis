@@ -1,6 +1,5 @@
 import numpy as np
 
-from InformationGainAnalysis.ObjectGeoLoc import ObjectGeoLoc
 from target_detection_validation_interfaces import base
 
 

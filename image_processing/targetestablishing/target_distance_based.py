@@ -1,5 +1,5 @@
 import numpy as np
-from InformationGainAnalysis.image_processing.targetestablishing import target_establishing_interfaces
+from app.image_processing.targetestablishing import target_establishing_interfaces
 
 
 class max_target_coordinates_distance(target_establishing_interfaces.base):
@@ -20,6 +20,9 @@ class max_target_coordinates_distance(target_establishing_interfaces.base):
         for target_coord1 in target_coordinates:
 
             for target_coord2 in target_coordinates:
+
+                if target_coord2[0] == 0:
+                    return False
 
                 if (1 - self.__max_variety > target_coord1[0] / target_coord2[0] > 1 + self.__max_variety) or \
                         (1 - self.__max_variety > target_coord1[1] / target_coord2[1] > 1 + self.__max_variety):

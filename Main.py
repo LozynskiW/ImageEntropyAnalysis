@@ -1,44 +1,56 @@
-from InformationGainAnalysis.Master import Master
-from InformationGainAnalysis.Master import AnalysisMaster
-from InformationGainAnalysis.image_processing import ready_to_use_systems as ready_systems
+from app.application_management.app import app_manager
+from app.image_processing.ready_to_use_systems import luminance_threshold_based_system as threshold_sys
+from data.datasets_for_object import deer as all_datasets_for_deer
 
-test = Master()
-test.set_main_folder('D:/artykuly/wat_2/test_animations')
-test.set_image_processing_blackbox(ready_systems.information_entropy_based_system)
+used_system = threshold_sys.luminance_threshold_based_system
+
+app_manager = app_manager()
+app_manager.set_main_folder('D:/artykuly/wat_2/test_animations')
+app_manager.set_image_processing_system(used_system)
+
+app_manager.set_object(object='deer')
 
 verbose_mode = False
-ready_systems.global_verbose_mode = verbose_mode
+show_images = False
+used_system.global_verbose_mode = verbose_mode
 
-test.choose_object('deer')
-datasets = ['h70m_r80m', 'h70m_r90m', 'h70m_r100m']
+app_manager.load_data_to_cache().app_manager(
+        datasets=all_datasets_for_deer['h20m_set'],
+        is_valid=True,
+        was_processed=True,
+        is_target_detected=True
+)
 
-data_from_db = test.load_data().multiple_datasets_for_one_object(datasets=datasets, validation_type_for_all=None)
+#test.analyze_dataset(save_to_db=True, verbose_mode=verbose_mode, show_images=show_images, memory=True)
 
-test.set_data_from_db(data_from_db)
+""" data inspection
+for i in range(0, len(list(all_datasets_for_deer.values()))):
 
-test.analyze_dataset(save_to_db=False, verbose_mode=verbose_mode)
+    data_from_db = test.load_data().specific_dataset_for_one_object(
+            dataset=list(all_datasets_for_deer.values())[i],
+    )
 
-test.plot().with_respect_to_group_by_dataset(x='file', y='entropy_of_segmented_image',
-                                             legend=True, translate_names_to_azimuthal_angle=True, mode='save')
-
+    analysis_method_test = overall_data_analysis(data=data_from_db, data_name=str(list(all_datasets_for_deer.values())[i]))
+    analysis_method_test.general_description()
 """
-test.choose_data('animacje_testowe', 'h40m_r50m')
-test.analyze_dataset(
-    mode='void',
-    dataset_validation=False)
-"""
-"""
-for obj_class in ['deer', 'wild_boar', 'rabbit']:
-    test.choose_object(obj_class)
-    test.analyse_all_datasets_for_single_object(mode='mixed', dataset_validation=False, limit_of_img_per_dataset=3000)
-"""
+#image_data_from_db(data_from_db)
 
-"""
-test.choose_object('deer')
-for folder in ['h70m_r80m', 'h70m_r90m', 'h70m_r100m',
-               'h80m_r40m', 'h80m_r50m', 'h80m_r60m', 'h80m_r70m', 'h80m_r80m', 'h80m_r90m', 'h80m_100m',
-               'h90m_r40m', 'h90m_r50m', 'h90m_r60m', 'h90m_r70m', 'h90m_r80m', 'h90m_r90m', 'h90m_100m',
-               'h100m_r40m', 'h100m_r50m', 'h100m_r60m', 'h100m_r70m', 'h100m_r80m', 'h100m_r90m', 'h100m_100m']:
-    test.choose_folder(folder)
-    test.analyze_dataset(mode='mixed', dataset_validation=False, limit=3000)
-"""
+for dataset_name in all_datasets_for_deer.keys():
+
+    data_from_db = app_manager.load_data_to_cache().multiple_datasets(
+        datasets=all_datasets_for_deer[dataset_name],
+        is_valid=True,
+        was_processed=True,
+        is_target_detected=True
+    )
+
+    app_manager.set_data_from_db(data_from_db)
+
+    app_manager.plot().set_folder_to_save_figures("figures/deer/")
+    app_manager.plot().with_respect_to_group_by_dataset(x='file_name',
+                                                        y='entropy_of_processed_image',
+                                                        filename=dataset_name,
+                                                        legend=True,
+                                                        translate_names_to_azimuthal_angle=False,
+                                                        translate_datasets_to_elevation_angle=True,
+                                                        mode='show')
