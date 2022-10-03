@@ -1,11 +1,14 @@
-from data_format_unification import data_from_db_to_dict as to_dict
-import basic_plot_functions as bpf
+from app.data_visualisation.analysis_outcome.data_format_unification import data_from_db_to_dict as to_dict
+import app.data_visualisation.analysis_outcome.basic_plot_functions as bpf
 
 
 class basic_plotting_functions:
 
     def __init__(self, data_from_db, data_to_x_axis, data_to_y_axis):
-        self.__data_to_plot = to_dict(data_from_db=data_from_db, data_to_x_axis=data_to_x_axis, data_to_y_axis=data_to_y_axis)
+        self.__data_to_plot = to_dict.unify_for_one_class_of_object(
+            data_from_db=data_from_db,
+            data_to_x_axis=data_to_x_axis,
+            data_to_y_axis=data_to_y_axis)
 
     def scatter_plot(self):
 

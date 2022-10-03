@@ -14,7 +14,7 @@ test.set_object(object='deer')
 verbose_mode = False
 show_images = False
 
-data_from_db = test.load_data_to_cache().multiple_datasets(
+data_from_db = test.load_data_from_db().multiple_datasets(
         datasets=all_datasets_for_deer['h20m_set'],
         is_valid=True,
         was_processed=True,

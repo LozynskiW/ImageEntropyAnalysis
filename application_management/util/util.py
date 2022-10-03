@@ -1,4 +1,4 @@
-class load_data_to_cache:
+class load_data_from_db:
 
     def __init__(self, data_base, local_storage, query_assistance, object):
         self.__local_storage = local_storage
@@ -78,12 +78,12 @@ class load_data_to_cache:
 
         return data_from_db
 
+
 class db_management:
 
     def __init__(self, data_base):
 
         self.__data_base = data_base
-
 
     def is_already_in_db(self, object, dataset, image):
         try:

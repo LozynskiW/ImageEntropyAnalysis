@@ -14,12 +14,16 @@ verbose_mode = False
 show_images = False
 used_system.global_verbose_mode = verbose_mode
 
-app_manager.load_data_to_cache().app_manager(
+data_from_db = app_manager.load_data_from_db().multiple_datasets(
         datasets=all_datasets_for_deer['h20m_set'],
         is_valid=True,
         was_processed=True,
         is_target_detected=True
 )
+
+app_manager.set_data_from_db(data_from_db=data_from_db)
+
+app_manager.plot_data_from_db(data_to_y_axis="fill_factor", data_to_x_axis="file_name").scatter_plot()
 
 #test.analyze_dataset(save_to_db=True, verbose_mode=verbose_mode, show_images=show_images, memory=True)
 
@@ -33,24 +37,3 @@ for i in range(0, len(list(all_datasets_for_deer.values()))):
     analysis_method_test = overall_data_analysis(data=data_from_db, data_name=str(list(all_datasets_for_deer.values())[i]))
     analysis_method_test.general_description()
 """
-#image_data_from_db(data_from_db)
-
-for dataset_name in all_datasets_for_deer.keys():
-
-    data_from_db = app_manager.load_data_to_cache().multiple_datasets(
-        datasets=all_datasets_for_deer[dataset_name],
-        is_valid=True,
-        was_processed=True,
-        is_target_detected=True
-    )
-
-    app_manager.set_data_from_db(data_from_db)
-
-    app_manager.plot().set_folder_to_save_figures("figures/deer/")
-    app_manager.plot().with_respect_to_group_by_dataset(x='file_name',
-                                                        y='entropy_of_processed_image',
-                                                        filename=dataset_name,
-                                                        legend=True,
-                                                        translate_names_to_azimuthal_angle=False,
-                                                        translate_datasets_to_elevation_angle=True,
-                                                        mode='show')

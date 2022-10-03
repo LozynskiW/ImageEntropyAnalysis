@@ -401,3 +401,4 @@ class Mongo:
             if is_target_detected is None:
                 del query['is_target_detected']
 
+            return query

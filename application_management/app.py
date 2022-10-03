@@ -1,7 +1,7 @@
 from app.data_management.local_storage import on_disk
 from app.application_management.analysis_progress_memory import file_memory
 import pandas as pd
-from app.application_management.util.util import load_data_to_cache, db_management
+from app.application_management.util.util import load_data_from_db, db_management
 from app.data_visualisation.analysis_outcome.plotting_framework import basic_plotting_functions
 from app.data_management.data_base.nosql import Mongo
 
@@ -239,13 +239,14 @@ class app_manager:
                     print(self.__object, dataset, image_name, ' DONE')
                     memory_unit.save_current_img(self.__object, dataset, image_name)
 
-    def plot(self, data_to_x_axis, data_to_y_axis):
+    def plot_data_from_db(self, data_to_x_axis, data_to_y_axis):
         return basic_plotting_functions(data_from_db=self.__data_from_db,
                                         data_to_x_axis=data_to_x_axis,
                                         data_to_y_axis=data_to_y_axis)
 
-    def load_data_to_cache(self, translate_images_names_to_deg=False, translate_datasets_names_to_deg=False):
-        return load_data_to_cache(
+    def load_data_from_db(self, translate_images_names_to_deg=False, translate_datasets_names_to_deg=False):
+
+        return load_data_from_db(
             data_base=self.__data_base,
             local_storage=self.__local_storage,
             query_assistance=self.__data_base.query_assistance(),

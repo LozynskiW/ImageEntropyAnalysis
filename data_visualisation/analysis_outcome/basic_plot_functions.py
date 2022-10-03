@@ -1,8 +1,10 @@
 from matplotlib import pyplot as plt
+from app.data_visualisation.util.figure_and_plot_style import FigureBuilder
 
 
-def scatter_plot(data_to_plot, figure_builder, style):
+def scatter_plot(data_to_plot, figure_builder=FigureBuilder(), style={}):
 
+    figure_builder.build()
     figure = figure_builder.get_figure()
 
     for dataset in data_to_plot.keys():
