@@ -78,6 +78,43 @@ class load_data_from_db:
 
         return data_from_db
 
+    @staticmethod
+    def __translate_imgs_names_to_deg(data):
+
+        try:
+            names = [x['file'] for x in data]
+        except:
+            names = data
+
+        names_deg = []
+
+        deg_for_fps = 360 / len(names)
+
+        for name in names:
+            name = name.split('.')[0]
+
+            names_deg.append(int(name) * deg_for_fps)
+
+        return names_deg
+
+    @staticmethod
+    def __translate_datasets_names_to_deg(datasets):
+
+        names_deg = []
+
+        for dataset in datasets:
+            height = dataset.split('_')[0]
+            radius = dataset.split('_')[1]
+
+            height = height.replace('h', '')
+            height = float(height.replace('m', ''))
+            radius = radius.replace('r', '')
+            radius = float(radius.replace('m', ''))
+
+            names_deg.append(str(round(arctan(radius / height) * (180 / 3.1415))))
+
+        return names_deg
+
 
 class db_management:
 

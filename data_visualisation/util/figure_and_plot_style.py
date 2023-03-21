@@ -6,7 +6,13 @@ class FigureBuilder:
     def __init__(self):
         self.__ax = None
 
-    def build(self, figsize=(4,3), dpi=200):
+        self.set_fig_size()
+
+    def build(self):
+
+        return self.__ax
+
+    def set_fig_size(self, figsize=(4, 3), dpi=200):
 
         fig = plt.figure(figsize=figsize, dpi=dpi)
 
@@ -24,7 +30,3 @@ class FigureBuilder:
         self.__ax.rc('axes', titlesize=medium_size)  # fontsize of the axes title
 
         self.__ax.rc('figure', titlesize=big_size)  # fontsize of the figure title
-
-    def get_figure(self):
-
-        return self.__ax
