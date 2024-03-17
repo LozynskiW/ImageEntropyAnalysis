@@ -1,16 +1,15 @@
-from app.data_management.local_storage import on_disk
-from app.application_management.analysis_progress_memory import file_memory
+from data_management.local_storage import on_disk
+from application_management.analysis_progress_memory import file_memory
 import pandas as pd
-from app.application_management.util.util import load_data_from_db, db_management
-from app.data_visualisation.analysis_outcome.plotting_framework import basic_plotting_functions
-from app.data_management.data_base.nosql import Mongo
+from application_management.util.util import load_data_from_db, db_management
+from data_visualisation.analysis_outcome.plotting_framework import basic_plotting_functions
+from data_management.data_base.nosql import Mongo
 
 
 class app_manager:
     """
-    Klasa służąca do obsługiwania klas LocalDataStoraga, DataBase i ImageEntropyAnalysis, by zapewnić współpracę
-    lokalnej maszynie służącej do przetwarzania danych i bazie danych. Dodatkowo ma umozliwiać wysyłanie zapytań do bazy
-    danych
+    A class used to support the LocalDataStoraga, DataBase and ImageEntropyAnalysis classes to ensure the cooperation
+    between the local data processing machine and the database
     """
 
     def __init__(self, image_processing_system=None):
@@ -244,7 +243,7 @@ class app_manager:
                                         data_to_x_axis=data_to_x_axis,
                                         data_to_y_axis=data_to_y_axis)
 
-    def load_data_from_db(self, translate_images_names_to_deg=False, translate_datasets_names_to_deg=False):
+    def load_data_from_db(self):
 
         return load_data_from_db(
             data_base=self.__data_base,

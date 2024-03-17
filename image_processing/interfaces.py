@@ -1,6 +1,6 @@
 import numpy as np
 
-from app.image_processing.basictools.utilities import show_images_before_and_after, \
+from image_processing.basictools.utilities import show_images_before_and_after, \
     show_image_before_and_after
 
 

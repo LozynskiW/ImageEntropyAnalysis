@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from app.legacy.InformationEntropyAnalysis import StatisticsParameters as StatParam
+from legacy.InformationEntropyAnalysis import StatisticsParameters as StatParam
 from pyitlib import discrete_random_variable as drv
 
 

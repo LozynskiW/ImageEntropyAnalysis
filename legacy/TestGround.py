@@ -4,7 +4,7 @@ from skimage import img_as_ubyte
 from skimage import io
 from skimage.color import rgb2grey
 import matplotlib.pyplot as plt
-from app.legacy import InformationEntropyAnalysis
+from legacy import InformationEntropyAnalysis
 
 InformationEntropyAnalysisTest = InformationEntropyAnalysis.ImageInformationAnalysis()
 

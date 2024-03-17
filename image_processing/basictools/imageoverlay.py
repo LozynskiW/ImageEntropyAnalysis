@@ -1,4 +1,6 @@
-
+"""
+    Methods used to fuse two images into one
+"""
 def __check_is_img_and_mask_shape_equal(img, mask):
 
     if img.shape == mask.shape:

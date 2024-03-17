@@ -1,5 +1,5 @@
 from matplotlib import pyplot as plt
-from app.data_visualisation.util.figure_and_plot_style import FigureBuilder
+from data_visualisation.util.figure_and_plot_style import FigureBuilder
 
 
 def scatter_plot(data_to_plot, figure_builder=FigureBuilder(), style={}):
@@ -8,7 +8,7 @@ def scatter_plot(data_to_plot, figure_builder=FigureBuilder(), style={}):
 
     for dataset in data_to_plot.keys():
 
-        figure.scatter(data_to_plot[dataset]["ox"], data_to_plot[dataset]["oy"])
+        figure.scatter(data_to_plot["ox"], data_to_plot["oy"])
 
     plt.show()
 

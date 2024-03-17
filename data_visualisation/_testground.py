@@ -1,11 +1,11 @@
-from app.application_management.app import app_manager
+from application_management.app import app_manager
 
 from data.datasets_for_object import deer as all_datasets_for_deer
 
 from analysis_outcome.data_format_unification import to_dict
 
-from app.data_visualisation.analysis_outcome.basic_plot_functions import scatter_plot
-from app.data_visualisation.util.figure_and_plot_style import FigureBuilder
+from data_visualisation.analysis_outcome.basic_plot_functions import scatter_plot
+from data_visualisation.util.figure_and_plot_style import FigureBuilder
 
 test = app_manager()
 

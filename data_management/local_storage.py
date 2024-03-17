@@ -18,17 +18,6 @@ class on_disk:
             -> poligon_wat - another dataset, that may be accessed just by setting __dataset
         -> deer - another class of obj set by __object, gives access to other datasets
         -> (...)
-
-    Attributes
-    ----------
-    __main_folder : str
-        Main folder where all datasets will be stored. Default value is 'data'
-    __object : str
-        = None
-    __dataset : str
-        = None
-    __dataset_path : str
-        = None
     """
 
     def __init__(self):

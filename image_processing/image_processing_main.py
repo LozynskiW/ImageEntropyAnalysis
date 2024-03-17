@@ -1,46 +1,18 @@
-from app.image_processing.basictools.utilities import show_image, calculate_fill_factor, show_detected_target_on_img
-from app.image_processing.basictools import statisticalparameters
+from image_processing.basictools.utilities import show_image, calculate_fill_factor, show_detected_target_on_img
+from image_processing.basictools import statisticalparameters
 from copy import deepcopy
 
 
 class ImageTargetDetectionSystem:
     """
-        Searches for target coordinates on image based on algorithms and tools provided in parameters
-
-        Parameters
-        ----------
-        img_validators : ImageValidation
-            Checks if image is suitable for further processing based on specified criteria if not then image is not
-            further analysed
-        preprocessing_tools : ImagePreprocessing
-            Processes image in order to enhance it's quality before further segmentation
-        image_segmentation_algorithms : ImageSegmentation
-            Algorithms to divide image into target and background pixels. More than one may be selected, but
-            segmentation_fusion_method must also be used
-        segmentation_fusion_method : SegmentationFusion
-            Method of fusing segmentation output images into one based on some criteria if user decided
-            to use more than one image segmentation algorithm
-        initial_validation_and_postprocessing_tools : InitialValidationAndPostprocessing
-            Validation or image processing (or both) after segmentation in order to make target detection easier or
-            determine that target detection is going to be impossible and stop further calculations
-        target_detection_algorithms : TargetDetectionAlgorithms
-            Just as written, each algorithm (may be more than one) outputs target coordinates and area covering
-            all target pixels
-        target_establishing : TargetEstablishing
-            Establishes target coordinates in case user used more than one target detection
-            algorithm
-        target_detection_validators : TargetDetectionAlgorithms
-            Determines if detected target is target or not
+        Searches for target coordinates on image based on algorithms and tools provided in parameters, see docs
 
         Raises
         ------
         ValueError
             If main_folder is blank
-        ValueError
             If object is blank
-        ValueError
             If dataset is blank
-        ValueError
             If img_file_name is blank
 
         Returns
@@ -57,7 +29,6 @@ class ImageTargetDetectionSystem:
         |0000000000100100000000000000|
         |0000000000000000000000000000|
         +----------------------------+ window_height
-
         """
 
     def __init__(self,

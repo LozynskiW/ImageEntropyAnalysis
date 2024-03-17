@@ -1,6 +1,6 @@
 import numpy as np
 
-from app.image_processing.basictools import twodimstructures
+from image_processing.basictools import twodimstructures
 
 
 class validation_correction:
@@ -47,7 +47,7 @@ class validation_correction:
 
             rows, cols = img.shape[:2]
 
-            resultant_kernel = twodimstructures.gaussian_kernel(cols, rows)
+            resultant_kernel = twodimstructures.calculate_gaussian_kernel(cols, rows)
 
             mask = 255 * resultant_kernel / np.linalg.norm(resultant_kernel)
             img = np.uint8(img * mask)

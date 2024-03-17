@@ -4,7 +4,7 @@ import os
 class file_memory:
 
     def __init__(self):
-        self.__path = "../tmp/mem.txt"
+        self.__path = "/mem.txt"
         self.__object = ""
         self.__dataset = ""
 
@@ -17,7 +17,7 @@ class file_memory:
             with open(self.__path, 'r', encoding='utf-8') as f:
                 return f.readlines()
         except FileNotFoundError:
-            open(self.__path, 'w', encoding='utf-8')
+            open(self.__path, 'w+', encoding='utf-8')
             return []
 
     def is_img_already_processed(self, object, dataset, img):

@@ -1,6 +1,6 @@
-from app.image_processing.basictools.utilities import show_detected_target_on_img
+from image_processing.basictools.utilities import show_detected_target_on_img
 
-from app.image_processing.targetdetection import targetdetection_interfaces
+from image_processing.targetdetection import targetdetection_interfaces
 
 
 class highest_luminance_density(targetdetection_interfaces.base):

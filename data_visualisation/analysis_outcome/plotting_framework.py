@@ -1,5 +1,5 @@
-from app.data_visualisation.analysis_outcome.data_format_unification import data_from_db_to_dict as to_dict
-import app.data_visualisation.analysis_outcome.basic_plot_functions as bpf
+from data_visualisation.analysis_outcome.data_format_unification import data_from_db_to_dict as to_dict
+import data_visualisation.analysis_outcome.basic_plot_functions as bpf
 
 
 class basic_plotting_functions:
@@ -34,3 +34,4 @@ class basic_plotting_functions:
                                                          oy="entropy_of_segmented_image",
                                                          mode="save",
                                                          filename=object)
+

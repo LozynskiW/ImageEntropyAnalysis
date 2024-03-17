@@ -1,5 +1,5 @@
-from app.blender3d_intergration.Camera import CirclePath
-from app.blender3d_intergration.Camera import TRAJECTORIES_PATH as PATH
+from blender3d_intergration.Camera import CirclePath
+from blender3d_intergration.Camera import TRAJECTORIES_PATH as PATH
 
 blender_circle_trajectory_test = CirclePath()
 blender_circle_trajectory_test.set_path_parameters(radius=10)

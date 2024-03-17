@@ -1,4 +1,4 @@
-from app.image_processing.preproocessing import preprocessing_interfaces
+from image_processing.preproocessing import preprocessing_interfaces
 from skimage import img_as_ubyte
 from skimage.color import rgb2gray
 import numpy as np

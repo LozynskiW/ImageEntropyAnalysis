@@ -1,8 +1,7 @@
-from app.image_processing.segmentation import segmentation_interfaces
+from image_processing.segmentation import segmentation_interfaces
 from pylab import *
 
-from app.image_processing.basictools.BasicTools import StatisticsParameters as img_stat
-from app.image_processing.basictools.utilities import show_image_before_and_after
+import image_processing.basictools.statisticalparameters as img_stat
 
 
 class information_threshold(segmentation_interfaces.base):

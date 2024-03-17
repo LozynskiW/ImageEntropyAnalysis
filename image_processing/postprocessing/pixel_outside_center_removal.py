@@ -1,6 +1,6 @@
-from app.image_processing.basictools.BasicTools import TwoDimStructures, calculate_fill_factor
-from app.image_processing.postprocessing import postprocessing_interfaces
-from app.image_processing.basictools.utilities import show_image
+from image_processing.basictools.utilities import calculate_fill_factor
+from image_processing.basictools.twodimstructures import calculate_center_disk_mask
+from image_processing.postprocessing import postprocessing_interfaces
 
 
 class fill_factor_based(postprocessing_interfaces.base):
@@ -31,8 +31,7 @@ class fill_factor_based(postprocessing_interfaces.base):
 
     @staticmethod
     def img_noise_outside_centre_deleting(img):
-
-        center_disk_mask = TwoDimStructures.center_disk_mask(img, size_factor=3)
+        center_disk_mask = calculate_center_disk_mask(img, size_factor=3)
 
         width = len(img[0])
         height = len(img)

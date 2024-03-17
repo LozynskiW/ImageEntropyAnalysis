@@ -1,5 +1,5 @@
 import numpy as np
-from app.image_processing.targetestablishing import target_establishing_interfaces
+from image_processing.targetestablishing import target_establishing_interfaces
 
 
 class max_target_coordinates_distance(target_establishing_interfaces.base):

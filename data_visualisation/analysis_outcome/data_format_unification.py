@@ -1,27 +1,19 @@
 import numpy as np
 
 
-class to_dict:
+class _to_dict:
 
     @staticmethod
     def unify_for_one_class_of_object(data_from_db, data_to_x_axis, data_to_y_axis):
-
-        data_to_plot = {}
-
         if data_from_db['meta']['num_of_objects'] > 1:
             raise NotImplemented("Not implemented")
 
         del data_from_db['meta']
+        datasets_in_data_from_db = list(data_from_db.keys())
 
-        data_from_db = data_from_db[list(data_from_db.keys())[0]]
-
-        for dataset in data_from_db.keys():
-            data_to_plot[dataset] = {
-                "ox": list(map(lambda x: x[data_to_x_axis], data_from_db[dataset])),
-                "oy": list(map(lambda y: y[data_to_y_axis], data_from_db[dataset])),
-            }
-
-        return data_to_plot
+        if len(datasets_in_data_from_db) == 1:
+            return _to_dict.__return_data_for_single_dataset(data_from_db, datasets_in_data_from_db[0], data_to_x_axis, data_to_y_axis)
+        return {}
 
     @staticmethod
     def unify_plot_style_for_data(data_to_plot, style):
@@ -72,5 +64,17 @@ class to_dict:
 
         return names_deg
 
+    @staticmethod
+    def __return_data_for_single_dataset(data_from_db, dataset, data_to_x_axis, data_to_y_axis):
+        data_from_db = data_from_db[list(data_from_db.keys())[0]]
 
-data_from_db_to_dict = to_dict()
+        return {
+            "ox": list(map(lambda x: x[data_to_x_axis], data_from_db)),
+            "oy": list(map(lambda y: y[data_to_y_axis], data_from_db)),
+        }
+
+    @staticmethod
+    def __return_data_for_multiple_datasets(data_from_db, data_to_x_axis, data_to_y_axis):
+        raise NotImplemented
+
+data_from_db_to_dict = _to_dict()

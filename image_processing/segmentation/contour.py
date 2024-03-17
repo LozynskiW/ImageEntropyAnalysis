@@ -1,10 +1,9 @@
 from pylab import *
 from skimage import feature
 from skimage.segmentation import flood
-from app.image_processing.segmentation import segmentation_interfaces
+from image_processing.segmentation import segmentation_interfaces
 
-from app.image_processing.validation import contour_closure
-from app.image_processing.basictools.BasicTools import show_images_before_and_after
+from image_processing.validation import contour_closure
 
 
 class canny(segmentation_interfaces.base):

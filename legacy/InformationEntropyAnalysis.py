@@ -3,7 +3,7 @@ import statistics as stat
 from skimage import feature, img_as_ubyte
 from skimage import io
 from skimage.color import rgb2gray
-from app.data_collection_logs_analysis.ObjectGeoLoc import ObjectGeoLoc
+from data_collection_logs_analysis.ObjectGeoLoc import ObjectGeoLoc
 from scipy.stats import norm as norm
 
 

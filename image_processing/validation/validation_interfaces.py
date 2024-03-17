@@ -1,4 +1,4 @@
-from app.image_processing.interfaces import verbose_mode
+from image_processing.interfaces import verbose_mode
 
 
 class base(verbose_mode):

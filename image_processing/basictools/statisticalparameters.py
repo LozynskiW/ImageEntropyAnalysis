@@ -1,10 +1,7 @@
 """
     Container for static methods used to calculate statistical parameters of images like histogram and it's parameters,
     entropy, information, information gain
-
-    Attributes
-    ----------
-    """
+"""
 import numpy as np
 
 
