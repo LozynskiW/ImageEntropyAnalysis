@@ -126,9 +126,12 @@ def std_dev_from_histogram(variance):
 
 def information_entropy(im):
     """
-    Metoda obliczająca entropię informacji na obrazie
-    :param im:
-    :return:
+    Information entropy calculated by:
+    H = sum (p * log2(p)) [bit]
+    where:
+    p - probability of pixel value (color/luminescence) in image histogram
+    :param im: grayscale image
+    :returns: information entropy for given image and array of information entropy for each value of pixel
     """
     # Histogram - dyskretny rozkład prawdopodobieństwa
     grayscale, gray_shade_prob = image_histogram(im, True)
@@ -150,9 +153,12 @@ def information_entropy(im):
 
 def information(im):
     """
-    Metoda obliczająca entropię informacji na obrazie
-    :param im:
-    :return:
+    Information calculated by:
+    I = log2(p) [bit]
+    where:
+    p - probability of pixel value (color/luminescence) in image histogram
+    :param im: grayscale image
+    :returns: array of information for each value of pixel
     """
     # Histogram - dyskretny rozkład prawdopodobieństwa
     grayscale, gray_shade_prob = image_histogram(im, True)

@@ -2,11 +2,13 @@ from data_management.local_storage import on_disk
 from application_management.analysis_progress_memory import file_memory
 import pandas as pd
 from application_management.util.util import load_data_from_db, db_management
-from data_visualisation.analysis_outcome.plotting_framework import basic_plotting_functions
+from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
+from data_visualisation.consts.plot_options import PlotOptions
+from data_unification.data_unification_facade import DataUnificationForPlotting
 
 
-class app_manager:
+class AppManager:
     """
     A class used to support the LocalDataStoraga, DataBase and ImageEntropyAnalysis classes to ensure the cooperation
     between the local data processing machine and the database
@@ -17,6 +19,7 @@ class app_manager:
         self.__data_base = Mongo()
         self.__local_storage = on_disk()
         self.__image_processing_system = image_processing_system
+        self.__data_unification_for_plotting = DataUnificationForPlotting()
 
         # Local storage and database coordinates for data extraction
         self.__object = None
@@ -163,6 +166,9 @@ class app_manager:
     def get_data_base(self):
         return self.__data_base
 
+    def update_data(self, query, data):
+        self.__data_base.update_in_db(query=query, json_file=self.__data_base.query_assistance().form_query_to_update(data))
+
     def __db_collection_setup(self):
         try:
             self.__data_base.choose_collection(self.__object)
@@ -238,10 +244,14 @@ class app_manager:
                     print(self.__object, dataset, image_name, ' DONE')
                     memory_unit.save_current_img(self.__object, dataset, image_name)
 
-    def plot_data_from_db(self, data_to_x_axis, data_to_y_axis):
-        return basic_plotting_functions(data_from_db=self.__data_from_db,
-                                        data_to_x_axis=data_to_x_axis,
-                                        data_to_y_axis=data_to_y_axis)
+    def plot_2d(self, plot_options: PlotOptions):
+        return Plots2D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
+
+    def heatmap(self, plot_options: PlotOptions):
+        return Heatmap(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
+
+    def plot_3d(self, plot_options: PlotOptions):
+        return Plots3D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
 
     def load_data_from_db(self):
 

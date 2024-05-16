@@ -1,0 +1,1 @@
+PATH_TO_MAIN_FOLDER = 'D:/artykuly/wat_2/test_animations'

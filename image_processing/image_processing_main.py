@@ -254,7 +254,7 @@ class ImageTargetDetectionSystem:
             if not outcome:
                 print('image segmentation not enough to detect target')
                 print()
-                return False, img_segmented
+                return False, img_segmented, 0
 
         if verbose_mode:
             print("Initial validation and postprocessing done")

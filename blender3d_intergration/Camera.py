@@ -105,9 +105,9 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         z = list(map(lambda i: i['z'], self.trajectory))
 
         fig, axs = plt.subplots(1, 3)
-        axs[0].plot_data_from_db(x, y)
-        axs[1].plot_data_from_db(x, z)
-        axs[2].plot_data_from_db(y, z)
+        axs[0].plot_2d(x, y)
+        axs[1].plot_2d(x, z)
+        axs[2].plot_2d(y, z)
 
         axs[0].set_title("X(Y)")
         axs[1].set_title("X(Z)")
