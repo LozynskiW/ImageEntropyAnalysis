@@ -1,6 +1,4 @@
 from application_management.app import AppManager
-from data_analysis.method_analysis import overall_data_analysis
-from image_processing.ready_to_use_systems import luminance_threshold_based_system as threshold_sys
 from image_processing.ready_to_use_systems import information_entropy_based_system as information_entropy_sys
 from consts.datasets_for_object import DEER
 from consts.system_util import PATH_TO_MAIN_FOLDER
