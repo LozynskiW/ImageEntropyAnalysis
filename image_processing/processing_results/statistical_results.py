@@ -34,24 +34,55 @@ class ImageHistogram:
         return self.__variable_values_counts
 
 
-@dataclass(frozen=True, init=True, eq=True)
+class ExpectedValue(Calculateable[float], ABC):
+
+    def __init__(self, grayscale: array, gray_shade_prob: array):
+        super().__init__(grayscale, gray_shade_prob)
+
+    def calculate(self, grayscale: array, gray_shade_prob: array) -> float:
+        return float(statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob))
+
+    def __sub__(self, other) -> float:
+        return self.value - other
+
+    def __add__(self, other) -> float:
+        return self.value + other
+
+
+class Variance(Calculateable[float], ABC):
+
+    def __init__(self, grayscale: array, gray_shade_prob: array, expected_val: ExpectedValue):
+        super().__init__(grayscale, gray_shade_prob, expected_val.value)
+
+    def calculate(self, grayscale: array, gray_shade_prob: array, expected_val: ExpectedValue) -> float:
+        return float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))
+
+
 class StatisticalResults(ProcessingResult, ABC):
-    histogram: ImageHistogram
-    expected_value: float
-    variance: float
+    __histogram: ImageHistogram
+    __histogram_normalized: ImageHistogram
+    __expected_value: ExpectedValue
+    __variance: Variance
 
     def to_dict(self) -> dict:
         return dict([
-            ("histogram", self.histogram),
-            ("expected_value", self.expected_value),
-            ("variance", self.variance)
+            ("histogram", self.__histogram.get_values_counts()),
+            ("histogram_normalized", self.__histogram_normalized.get_values_counts()),
+            ("expected_value", self.__expected_value.value),
+            ("variance", self.__variance.value)
         ])
 
     def calculate(self, img: ArrayImage):
-        _, histogram = statisticalparameters.image_histogram(im=img, normalize_to_pdf=False)
-        grayscale, gray_shade_prob = statisticalparameters.image_histogram(im=img, normalize_to_pdf=True)
-        expected_val = statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob)
-        variance = float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))
+        self.__histogram = ImageHistogram(img)
+        self.__histogram_normalized = self.__histogram.normalize()
+        self.__expected_value = ExpectedValue(grayscale=self.__histogram_normalized.get_variables_values(),
+                                              gray_shade_prob=self.__histogram_normalized.get_values_counts())
+        self.__variance = Variance(grayscale=self.__histogram_normalized.get_variables_values(),
+                                   gray_shade_prob=self.__histogram_normalized.get_values_counts(),
+                                   expected_val=self.__expected_value)
+
+    def __str__(self):
+        return self.to_dict()
 
 
 @dataclass(frozen=True, init=True)
@@ -66,18 +97,3 @@ class EntropyMeasures(ProcessingResult, ABC):
             ("entropy_for_x", self.entropy_for_x),
             ("entropy", self.entropy)
         ])
-
-    def get_name(self) -> str:
-        return "EntropyMeasures"
-
-
-class ExpectedValue(Calculateable[float], ABC):
-
-    def calculate(self, grayscale, gray_shade_prob: ImageHistogram) -> float:
-        return float(statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob))
-
-
-class Variance(Calculateable[float], ABC):
-
-    def calculate(self, grayscale, gray_shade_prob: ImageHistogram, expected_val: ExpectedValue) -> float:
-        return float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))

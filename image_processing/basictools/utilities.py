@@ -30,7 +30,7 @@ def show_image_before_and_after(img_before_processing, img_after_processing, fig
 
 
 def show_image(img, fig_title):
-    plt.imshow(img, cmap='Greys')
+    plt.imshow(img, cmap=plt.cm.gray)
     plt.title(fig_title)
     plt.show()
 

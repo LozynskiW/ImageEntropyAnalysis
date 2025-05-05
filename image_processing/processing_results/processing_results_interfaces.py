@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 
 from image_processing.models.image import ArrayImage
 
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Self
 
 class Convertable(ABC):
 
@@ -12,10 +12,6 @@ class Convertable(ABC):
 
 
 class ProcessingResult(Convertable, ABC):
-
-    @abstractmethod
-    def get_name(self) -> str:
-        raise NotImplementedError
 
     @abstractmethod
     def calculate(self, img: ArrayImage):
@@ -28,9 +24,9 @@ T = TypeVar('T')
 class Calculateable(Generic[T]):
     value: T = None
 
-    def __init__(self, **kwargs):
-        self.value = self.calculate(**kwargs)
+    def __init__(self, *args):
+        self.value = self.calculate(*args)
 
     @abstractmethod
-    def calculate(self, **kwargs) -> T:
+    def calculate(self, *args) -> T:
         raise NotImplementedError

@@ -5,14 +5,13 @@ from image_processing.processing_results.statistical_results import StatisticalR
 
 
 class ProcessingResults:
-    __processing_audit: ProcessingAudit
+    __processing_audit: ProcessingAudit = None
 
-    __statistical_parameters_before_processing: StatisticalResults
-    __entropy_measures_before_processing: EntropyMeasures
+    __statistical_parameters_before_processing: StatisticalResults = None
+    __entropy_measures_before_processing: EntropyMeasures = None
 
-    __statistical_parameters_after_processing: StatisticalResults
-    __entropy_measures_after_processing: EntropyMeasures
-
+    __statistical_parameters_after_processing: StatisticalResults = None
+    __entropy_measures_after_processing: EntropyMeasures = None
 
     def add_operations_audit_data(self, processing_audit: ProcessingAudit):
         self.__processing_audit = processing_audit
@@ -29,7 +28,7 @@ class ProcessingResults:
     def add_entropy_measures_after_processing(self, entropy_measures: EntropyMeasures):
         self.__entropy_measures_after_processing = entropy_measures
 
-    def toDict(self) -> dict:
+    def to_dict(self) -> dict:
         return {
             **ProcessingResults.__convert_obj(self.__processing_audit),
             **ProcessingResults.__convert_obj(self.__statistical_parameters_before_processing,
@@ -49,7 +48,10 @@ class ProcessingResults:
     def __convert_obj(convertable_obj: Convertable, key_mapper=lambda k: k) -> dict:
         output_dict = {}
 
-        for k, v in convertable_obj.to_dict():
+        if convertable_obj is None:
+            return output_dict
+
+        for k, v in convertable_obj.to_dict().items():
             output_dict[key_mapper(k)] = v
 
         return output_dict
