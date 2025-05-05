@@ -1,11 +1,11 @@
 from abc import ABC
 from dataclasses import dataclass
 
-from image_processing.processingresults.processing_results_interfaces import Convertable
+from image_processing.processing_results.processing_results_interfaces import ProcessingResult
 
 
 @dataclass(frozen=True)
-class ProcessingAudit(Convertable, ABC):
+class ProcessingAudit(ProcessingResult, ABC):
     is_processable: bool
     was_processed: bool
     was_target_detected: bool

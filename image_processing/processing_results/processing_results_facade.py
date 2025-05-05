@@ -1,7 +1,7 @@
-from image_processing.processingresults.application_actions import ProcessingAudit
-from image_processing.processingresults.consts import BEFORE_IMG_PROCESSING, AFTER_IMG_PROCESSING
-from image_processing.processingresults.processing_results_interfaces import Convertable
-from image_processing.processingresults.statistical_results import StatisticalResults, EntropyMeasures
+from image_processing.processing_results.application_actions import ProcessingAudit
+from image_processing.processing_results.consts import BEFORE_IMG_PROCESSING, AFTER_IMG_PROCESSING
+from image_processing.processing_results.processing_results_interfaces import Convertable
+from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
 
 
 class ProcessingResults:

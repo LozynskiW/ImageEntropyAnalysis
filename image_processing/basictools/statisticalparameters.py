@@ -2,13 +2,14 @@
     Container for static methods used to calculate statistical parameters of images like histogram and it's parameters,
     entropy, information, information gain
 """
+import array
+
 import numpy as np
+from numpy import copy
 
 
 def image_histogram(im, normalize_to_pdf=False, grayscale_offset=-1):
     """
-    Checks if collection is in currently set __db_database. If it is then method returns True, if not False
-
     Parameters
     ----------
     im : np.array
@@ -51,6 +52,17 @@ def image_histogram(im, normalize_to_pdf=False, grayscale_offset=-1):
     return grayscale, gray_shade_prob
 
 
+def normalize_histogram(histogram_values_counts: array) -> array:
+
+    num_of_all_pixels = np.sum(histogram_values_counts)
+    probabilities = copy(histogram_values_counts)
+
+    for i in range(0, len(probabilities)):
+        probabilities[i] = probabilities[i] / num_of_all_pixels
+
+    return probabilities
+
+
 def information_gain_between_histograms(original_img_histogram, processed_img_histogram):
     """
     Calculates information gain between original_img_histogram and processed_img_histogram
@@ -83,7 +95,6 @@ def information_gain_between_histograms(original_img_histogram, processed_img_hi
 
 
 def exp_val_from_histogram(grayscale, gray_shade_prob):
-
     """
     Calculates expected value from histogram where probabilities for values are not all equal. Expected value
     is calculated in following way:

@@ -2,6 +2,12 @@ from image_processing.basictools.utilities import show_image, calculate_fill_fac
 from image_processing.basictools import statisticalparameters
 from copy import deepcopy
 
+from image_processing.processing_results.application_actions import ProcessingAudit
+from image_processing.processing_results.processing_results_facade import ProcessingResults
+from image_processing.processing_results.processing_results_interfaces import ProcessingResult
+from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
+from image_processing.models.image import ArrayImage
+
 
 class ImageTargetDetectionSystem:
     """
@@ -72,13 +78,7 @@ class ImageTargetDetectionSystem:
 
     def search_for_target(self, img, verbose_mode=False, show_images=False):
 
-        img_processing_outcome = {
-            "is_valid": False,
-            "was_processed": False,
-            "fill_factor": 0,
-            "is_target_detected": False,
-            "target_coordinates": []
-        }
+        img_processing_outcome = ProcessingResults()
 
         if show_images:
             show_image(img=img, fig_title="Original image")
@@ -93,7 +93,14 @@ class ImageTargetDetectionSystem:
         # IMAGE VALIDATION
 
         if not self.__image_validation(img=img, verbose_mode=verbose_mode):
-            return img_processing_outcome
+            img_processing_outcome.add_operations_audit_data(
+                ProcessingAudit(
+                    is_processable=False,
+                    was_processed=False,
+                    was_target_detected=False
+                )
+            )
+            return img_processing_outcome.toDict()
 
         img_processing_outcome["is_valid"] = True
 
@@ -130,7 +137,14 @@ class ImageTargetDetectionSystem:
                 show_image(img=img_segmented, fig_title="Image after initial validation and postprocessing")
 
             if not outcome:
-                return img_processing_outcome
+                img_processing_outcome.add_operations_audit_data(
+                    ProcessingAudit(
+                        is_processable=True,
+                        was_processed=True,
+                        was_target_detected=False
+                    )
+                )
+                return img_processing_outcome.toDict()
 
         img_processing_outcome["fill_factor"] = float(fill_factor)
 
@@ -343,58 +357,8 @@ class ImageTargetDetectionSystem:
 
         return additional_postprocessing_parameters
 
+    @staticmethod
+    def __calculate_processing_results_for_image(img: ArrayImage, processing_results_calc: tuple[ProcessingResult]):
 
-"""
-EXAMPLE USAGE
-
-from skimage import io
-
-img_preprocessing = [
-    format_standardization.to_unit8_rgb(verbose_mode=True),
-    vignetting.validation_correction(verbose_mode=True)
-]
-
-img_validators = [
-    image_luminance.maximal_mean_luminance(
-        validating_mean=100,
-        validating_std=50,
-        deviation_from_mean_in_std=1,
-        verbose_mode=True),
-]
-
-img_segment_algorithms = [
-    threshold.information_threshold(verbose_mode=True, show_image_after_processing=True),
-    contour.canny(verbose_mode=True, show_image_after_processing=True)
-]
-
-segmentation_fusion_method = image_merging.add(verbose_mode=True, show_image_after_processing=True)
-
-initial_validation_and_postprocessing_tools = [
-    pixel_outside_center_removal.fill_factor_based(
-        max_fill_factor=0.2,
-        verbose_mode=True,
-        show_image_after_processing=True)
-]
-
-target_detection_algorithms = [
-    meanshift.highest_luminance_density(verbose_mode=True, show_image_after_processing=True)
-]
-
-target_establishing = [
-    target_distance_based.max_target_coordinates_distance(max_variety=0.3, verbose_mode=True)
-]
-
-test = ImageTargetDetectionSystem(preprocessing_tools=img_preprocessing,
-                                  img_validators=img_validators,
-                                  image_segmentation_algorithms=img_segment_algorithms,
-                                  segmentation_fusion_method=segmentation_fusion_method,
-                                  initial_validation_and_postprocessing_tools=initial_validation_and_postprocessing_tools,
-                                  target_detection_algorithms=target_detection_algorithms,
-                                  target_establishing=target_establishing
-                                  )
-
-img = io.imread('D:/magisterka/antrax/sarna/2021-02-04T211617/2021 02 04 21 16 17 812.tif')
-
-test.search_for_target(img=img, verbose_mode=True)
-
-"""
+        for res in processing_results_calc:
+            res.calculate(img)
