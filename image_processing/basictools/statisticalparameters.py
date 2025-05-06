@@ -7,6 +7,8 @@ import array
 import numpy as np
 from numpy import copy
 
+from image_processing.models.image import ArrayImage
+
 
 def image_histogram(im, normalize_to_pdf=False, grayscale_offset=-1):
     """
@@ -53,7 +55,6 @@ def image_histogram(im, normalize_to_pdf=False, grayscale_offset=-1):
 
 
 def normalize_histogram(histogram_values_counts: array) -> array:
-
     num_of_all_pixels = np.sum(histogram_values_counts)
     probabilities = copy(histogram_values_counts)
 
@@ -190,6 +191,25 @@ def information(im):
         I_n.append(I)
 
     return I_n
+
+
+def information_for_image_histogram(image: ArrayImage):
+    """
+    Information calculated by:
+    I = log2(p) [bit]
+    where:
+    p - probability of pixel value (color/luminescence) in image histogram
+    :returns: array of information for each value of pixel
+    """
+
+    histogram_values, histogram_probabilities = image_histogram(image, True)
+
+    information_for_histogram_values = []
+
+    for p in histogram_probabilities:
+        information_for_histogram_values.append(-np.log2(p) if p != 0 else 0)
+
+    return histogram_values, information_for_histogram_values
 
 
 def calculate_all(im):

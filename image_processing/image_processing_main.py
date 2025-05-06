@@ -107,6 +107,7 @@ class ImageTargetDetectionSystem:
         show_image(img=img_segmented, fig_title="Image after segmentation")
 
         img_processing_outcome.add_statistical_parameters_after_processing(StatisticalResults.from_image(img_segmented))
+        img_processing_outcome.add_entropy_measures_after_processing(EntropyMeasures.from_image(img_segmented))
 
         return img_processing_outcome
 
