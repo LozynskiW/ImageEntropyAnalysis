@@ -81,6 +81,12 @@ class StatisticalResults(ProcessingResult, ABC):
                                    gray_shade_prob=self.__histogram_normalized.get_values_counts(),
                                    expected_val=self.__expected_value)
 
+    @staticmethod
+    def from_image(img: ArrayImage) -> ProcessingResult:
+        statistical_results = StatisticalResults()
+        statistical_results.calculate(img)
+        return statistical_results
+
     def __str__(self):
         return self.to_dict()
 

@@ -79,9 +79,7 @@ class ImageTargetDetectionSystem:
     def process_image(self, img: ArrayImage) -> ProcessingResults:
 
         img_processing_outcome = ProcessingResults()
-        stat_res = StatisticalResults()
-        stat_res.calculate(img)
-        img_processing_outcome.add_statistical_parameters_before_processing(stat_res)
+        img_processing_outcome.add_statistical_parameters_before_processing(StatisticalResults.from_image(img))
         show_image(img=img, fig_title="Given image - before any processing")
 
         img_preprocessed = self.__preprocessing(img=img)
@@ -109,8 +107,7 @@ class ImageTargetDetectionSystem:
 
         show_image(img=img_segmented, fig_title="Image after segmentation")
 
-        stat_res.calculate(img_segmented)
-        img_processing_outcome.add_statistical_parameters_after_processing(stat_res)
+        img_processing_outcome.add_statistical_parameters_after_processing(StatisticalResults.from_image(img_segmented))
 
         return img_processing_outcome
 
