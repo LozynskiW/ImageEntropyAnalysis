@@ -212,6 +212,29 @@ def information_for_image_histogram(image: ArrayImage):
     return histogram_values, information_for_histogram_values
 
 
+def information_entropy_for_image_histogram(image: ArrayImage):
+    """
+    Information entropy calculated by:
+    H(x) = p(x) * log2(p(x)) [bit]
+    where:
+    p - probability of pixel value (color/luminescence) in image histogram
+    :param image: grayscale image
+    :returns: information entropy for given image and array of information entropy for each value of pixel
+    """
+
+    histogram_values, histogram_probabilities = image_histogram(image, True)
+
+    _, information_for_histogram_values = information_for_image_histogram(image)
+
+    information_entropy_for_histogram_values = []
+
+    for i in range(0, len(histogram_values)):
+        H_i = histogram_probabilities[i] * information_for_histogram_values[i]
+        information_entropy_for_histogram_values.append(H_i)
+
+    return histogram_values, information_entropy_for_histogram_values
+
+
 def calculate_all(im):
     grayscale, gray_shade_prob = image_histogram(im, True)
     mean = exp_val_from_histogram(grayscale, gray_shade_prob)

@@ -80,6 +80,7 @@ class ImageTargetDetectionSystem:
 
         img_processing_outcome = ProcessingResults()
         img_processing_outcome.add_statistical_parameters_before_processing(StatisticalResults.from_image(img))
+        img_processing_outcome.add_entropy_measures_before_processing(EntropyMeasures.from_image(img))
         show_image(img=img, fig_title="Given image - before any processing")
 
         img_preprocessed = self.__preprocessing(img=img)

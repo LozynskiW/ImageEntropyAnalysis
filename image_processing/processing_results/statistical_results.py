@@ -37,6 +37,18 @@ class ImageHistogram:
         return self.__variable_values_counts
 
 
+class InformationForVariableStates(ImageHistogram):
+
+    def calculate(self, image: ArrayImage):
+        return statisticalparameters.information_for_image_histogram(image)
+
+
+class EntropyForVariableStates(ImageHistogram):
+
+    def calculate(self, image: ArrayImage):
+        return statisticalparameters.information_entropy_for_image_histogram(image)
+
+
 class ExpectedValue(Calculateable[float], ABC):
 
     def __init__(self, grayscale: array, gray_shade_prob: array):
@@ -70,18 +82,20 @@ class StandardDeviation(Calculateable[float], ABC):
         return float(statisticalparameters.std_dev_from_variance(variance.value))
 
 
-class InformationForVariableStates(ImageHistogram):
-
-    def calculate(self, image: ArrayImage):
-        return statisticalparameters.information_for_image_histogram(image)
-
-
 class InformationInBits(Calculateable[float], ABC):
     def __init__(self, information_for_variable_states: InformationForVariableStates):
         super().__init__(information_for_variable_states)
 
     def calculate(self, information_for_variable_states: InformationForVariableStates) -> float:
         return float(sum(information_for_variable_states.get_values_counts()))
+
+
+class InformationEntropyInBits(Calculateable[float], ABC):
+    def __init__(self, entropy_for_variable_states: EntropyForVariableStates):
+        super().__init__(entropy_for_variable_states)
+
+    def calculate(self, entropy_for_variable_states: EntropyForVariableStates) -> float:
+        return float(sum(entropy_for_variable_states.get_values_counts()))
 
 
 class StatisticalResults(ProcessingResult, ABC):
@@ -123,22 +137,22 @@ class StatisticalResults(ProcessingResult, ABC):
 class EntropyMeasures(ProcessingResult, ABC):
     __information_for_x: InformationForVariableStates
     __information_in_bits: InformationInBits
-    __entropy_for_x: ImageHistogram
-    __entropy_in_bits: float
+    __entropy_for_x: EntropyForVariableStates
+    __entropy_in_bits: InformationEntropyInBits
 
     def to_dict(self) -> dict:
         return dict([
             ("information_for_x", self.__information_for_x.get_values_counts()),
             ("information_in_bits", self.__information_in_bits.value),
-            # TODO
-            # ("entropy_for_x", self.__entropy_for_x),
-            # ("entropy_in_bits", self.__entropy_in_bits)
+            ("entropy_for_x", self.__entropy_for_x.get_values_counts()),
+            ("entropy_in_bits", self.__entropy_in_bits.value)
         ])
 
     def calculate(self, img: ArrayImage):
-        # self.__entropy, self.__entropy_for_x = statisticalparameters.information_entropy(img)
         self.__information_for_x = InformationForVariableStates(img)
         self.__information_in_bits = InformationInBits(self.__information_for_x)
+        self.__entropy_for_x = EntropyForVariableStates(img)
+        self.__entropy_in_bits = InformationEntropyInBits(self.__entropy_for_x)
 
     @staticmethod
     def from_image(img: ArrayImage) -> ProcessingResult:
