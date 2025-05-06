@@ -20,3 +20,4 @@ used_system = luminance_threshold_based_system.luminance_threshold_based_system_
 # used_system = information_entropy_based_system.information_entropy_based_system
 # used_system = contour_based_system.contour_based_system
 test = used_system.process_image(img)
+print(test.to_dict())

@@ -6,7 +6,7 @@ from typing import Self
 
 from image_processing.basictools import statisticalparameters
 from image_processing.models.image import ArrayImage
-from image_processing.processing_results.processing_results_interfaces import ProcessingResult, Calculateable
+from image_processing.processing_results.processing_results_interfaces import ProcessingResult, Calculateable, T
 
 
 class ImageHistogram:
@@ -58,18 +58,29 @@ class Variance(Calculateable[float], ABC):
         return float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))
 
 
+class StandardDeviation(Calculateable[float], ABC):
+
+    def __init__(self, variance: Variance):
+        super().__init__(variance)
+
+    def calculate(self, variance: Variance) -> float:
+        return float(statisticalparameters.std_dev_from_variance(variance.value))
+
+
 class StatisticalResults(ProcessingResult, ABC):
     __histogram: ImageHistogram
     __histogram_normalized: ImageHistogram
     __expected_value: ExpectedValue
     __variance: Variance
+    __standard_deviation: StandardDeviation
 
     def to_dict(self) -> dict:
         return dict([
             ("histogram", self.__histogram.get_values_counts()),
             ("histogram_normalized", self.__histogram_normalized.get_values_counts()),
             ("expected_value", self.__expected_value.value),
-            ("variance", self.__variance.value)
+            ("variance", self.__variance.value),
+            ("standard_deviation", self.__standard_deviation.value)
         ])
 
     def calculate(self, img: ArrayImage):
@@ -80,6 +91,7 @@ class StatisticalResults(ProcessingResult, ABC):
         self.__variance = Variance(grayscale=self.__histogram_normalized.get_variables_values(),
                                    gray_shade_prob=self.__histogram_normalized.get_values_counts(),
                                    expected_val=self.__expected_value)
+        self.__standard_deviation = StandardDeviation(self.__variance)
 
     @staticmethod
     def from_image(img: ArrayImage) -> ProcessingResult:
@@ -103,3 +115,12 @@ class EntropyMeasures(ProcessingResult, ABC):
             ("entropy_for_x", self.entropy_for_x),
             ("entropy", self.entropy)
         ])
+
+    # def calculate(self, img: ArrayImage):
+    #     #todo
+
+    @staticmethod
+    def from_image(img: ArrayImage) -> ProcessingResult:
+        entropy_measures = EntropyMeasures()
+        entropy_measures.calculate(img)
+        return entropy_measures

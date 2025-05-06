@@ -135,6 +135,10 @@ def std_dev_from_histogram(variance):
     return np.sqrt(variance)
 
 
+def std_dev_from_variance(variance: float):
+    return np.sqrt(variance)
+
+
 def information_entropy(im):
     """
     Information entropy calculated by:
