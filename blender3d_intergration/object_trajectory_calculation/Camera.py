@@ -155,7 +155,11 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
                              "\nLength of trajectory is not equal to number of keyframes")
 
         file = file_name + "." + file_ext
-        f = open(file, 'w')
+        try:
+            f = open(file, 'w')
+        except FileNotFoundError:
+            f = open(file, 'x')
+
         sys.stdout = f
         keyframe = 0
 
@@ -194,3 +198,4 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
             keyframe += 1
 
         sys.stdout = sys.stdout
+        f.close()
