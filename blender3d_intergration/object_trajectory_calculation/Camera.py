@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 
 from blender3d_intergration.Interfaces import BasicBlenderPathCalculation
 from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
+from blender3d_intergration.enums import FileExtensions, FlightParameters
 
 
 class CirclePath(BasicBlenderPathCalculation, ABC):
@@ -114,12 +115,13 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         plt.grid()
         plt.show()
 
-    def calculate_multiple_trajectories_and_save_to_script(self, path_to_files="/",
-                                                           file_ext="txt",
+    def calculate_multiple_trajectories_and_save_to_script(self,
+                                                           path_to_files: str = "/",
+                                                           file_ext: FileExtensions = FileExtensions.TXT,
                                                            camera_set=False,
                                                            radius=20,
                                                            height=40,
-                                                           const_val='h',
+                                                           const_val: FlightParameters = FlightParameters.WIDTH,
                                                            end_val=50,
                                                            step=10):
         self.__height = height
