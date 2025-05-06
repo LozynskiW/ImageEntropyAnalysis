@@ -11,3 +11,10 @@ Add all objects into one with logic to build it
 Make a wrapper for image processing to serve as output for testing - 
 implement both verbose_only and show_images
 
+# IEA-3
+Fix blender3d_integration
+1. calculation of trajectory that calculates multiple rounds instead of one
+2. add more verbose scripts for blender generation 
+- set scene and animations
+- load trajectory
+- change trajectories
