@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from image_processing.segmentation import segmentation_interfaces
 from pylab import *
 
@@ -84,7 +86,7 @@ class simple_luminance_threshold(segmentation_interfaces.threshold):
         img_width = len(img[0])
         img_height = len(img)
 
-        img_after_processing = img.copy()
+        img_after_processing = deepcopy(img)
 
         for x in range(0, img_width):
 

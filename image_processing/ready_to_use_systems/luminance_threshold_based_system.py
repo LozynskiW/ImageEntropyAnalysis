@@ -3,6 +3,7 @@ from image_processing.preproocessing import format_standardization
 from image_processing.segmentation import threshold
 from image_processing.targetdetection import meanshift
 from image_processing.targetestablishing import target_distance_based
+from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
 
 global_verbose_mode = False
 
@@ -40,5 +41,18 @@ luminance_threshold_based_system = ImageTargetDetectionSystem(
     initial_validation_and_postprocessing_tools=_initial_validation_and_postprocessing_tools,
     target_detection_algorithms=_target_detection_algorithms,
     target_establishing=_target_establishing,
+    additional_postprocessing_image_parameters=additional_postprocessing_image_parameters
+)
+
+additional_postprocessing_image_parameters = [StatisticalResults, EntropyMeasures]
+
+luminance_threshold_based_system_no_target_detection = ImageTargetDetectionSystem(
+    preprocessing_tools=_img_preprocessing,
+    img_validators=_img_validators,
+    image_segmentation_algorithms=_img_segment_algorithms,
+    segmentation_fusion_method=_segmentation_fusion_method,
+    initial_validation_and_postprocessing_tools=_initial_validation_and_postprocessing_tools,
+    target_detection_algorithms=[],
+    target_establishing=[],
     additional_postprocessing_image_parameters=additional_postprocessing_image_parameters
 )
