@@ -1,12 +1,12 @@
 import sys
 from abc import ABC
 
-from Interfaces import BasicBlenderPathCalculation
 import numpy as np
-import blender_python_commands as bpy
 from matplotlib import pyplot as plt
 
-TRAJECTORIES_PATH = 'D:/artykuly/wat_2/test_animations/trajectories'
+from blender3d_intergration.Interfaces import BasicBlenderPathCalculation
+from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
+
 
 class CirclePath(BasicBlenderPathCalculation, ABC):
 
@@ -19,7 +19,7 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         self.__start_frame = 0
         self.__end_frame = 520
         self.__ang_freq = 1
-        self.__velocity = 18  #m/s
+        self.__velocity = 18  # m/s
         self.__fps = 30
 
     def set_path_parameters(self, height=None, radius=None, start_x=None, start_y=None, start_z=None,
@@ -70,7 +70,7 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
 
         t = 2 * 3.14 * self.__radius / self.__velocity
 
-        return int(t*self.__fps)
+        return int(t * self.__fps)
 
     def __get_trajectory_xyz_coordinates(self, frame_num, camera_set=False):
 
@@ -81,7 +81,6 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         if not camera_set:
 
             for frame in range(0, frame_num):
-
                 t = frame / self.__fps
                 x.append(self.__radius * np.cos(self.__ang_freq * t))
                 y.append(self.__radius * np.sin(self.__ang_freq * t))
@@ -91,8 +90,7 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
             step = 2 * self.__radius / frame_num
 
             for i in range(0, int(frame_num)):
-
-                x.append(step*i)
+                x.append(step * i)
                 y.append(0)
                 z.append(0)
 
@@ -116,14 +114,14 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         plt.grid()
         plt.show()
 
-    def calculate_multiple_trajectories(self, path_to_files="/",
-                                        file_ext="txt",
-                                        camera_set=False,
-                                        radius=20,
-                                        height=40,
-                                        const_val='h',
-                                        end_val=50,
-                                        step=10):
+    def calculate_multiple_trajectories_and_save_to_script(self, path_to_files="/",
+                                                           file_ext="txt",
+                                                           camera_set=False,
+                                                           radius=20,
+                                                           height=40,
+                                                           const_val='h',
+                                                           end_val=50,
+                                                           step=10):
         self.__height = height
         self.__radius = radius
 
@@ -132,7 +130,7 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         else:
             start_val = self.__height
 
-        for trajectory_parameter in range(start_val, end_val+1, step):
+        for trajectory_parameter in range(start_val, end_val + 1, step):
 
             if const_val == 'h':
                 self.__radius = trajectory_parameter
@@ -153,7 +151,6 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
             raise ValueError("self.end_frame is float, should be int")
 
         if len(self.trajectory) != self.__end_frame:
-
             raise ValueError('len(self.trajectory)=', len(self.trajectory), " self.__end_frame=", int(self.__end_frame),
                              "\nLength of trajectory is not equal to number of keyframes")
 
@@ -185,7 +182,6 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
         print(bpy.DESELECT_ALL)
 
         for pos in self.trajectory:
-
             print(bpy.SET_FRAME.format(val=keyframe))
 
             print(bpy.SET_CAMERA_LOCATION.format(val=pos['x']))

@@ -18,3 +18,4 @@ Fix blender3d_integration
 - set scene and animations
 - load trajectory
 - change trajectories
+3. Change module structure
