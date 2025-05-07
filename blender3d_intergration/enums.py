@@ -8,3 +8,9 @@ class FlightParameters(StrEnum):
 
 class FileExtensions(StrEnum):
     TXT = 'txt'
+
+
+class BlenderObjects(StrEnum):
+    DEER = 'deer'
+    WILD_BOAR = 'wild_boar'
+    RABBIT = 'Armature'

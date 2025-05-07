@@ -3,13 +3,15 @@ from abc import ABC
 
 import numpy as np
 from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
 
-from blender3d_intergration.Interfaces import BasicBlenderPathCalculation
+from blender3d_intergration.interfaces import BasicBlenderTrajectoryCalculator, CircleTrajectory
 from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
 from blender3d_intergration.enums import FileExtensions, FlightParameters
+from blender3d_intergration.object_trajectory_calculation.models import Coordinates
 
 
-class CirclePath(BasicBlenderPathCalculation, ABC):
+class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
 
     def __init__(self):
         self.__height = 0
@@ -201,3 +203,63 @@ class CirclePath(BasicBlenderPathCalculation, ABC):
 
         sys.stdout = sys.stdout
         f.close()
+
+
+class SimpleCircleTrajectory(CircleTrajectory, ABC):
+
+    def calculate_trajectory(self):
+
+        self._trajectory.clear_coordinates()
+
+        end_frame = self.__calculate_end_frame()
+
+        for frame in range(0, end_frame+1):
+            coordinates_for_frame = self.__calculate_coordinates(frame)
+            self._trajectory.add_coordinates(coordinates_for_frame)
+
+    def __calculate_end_frame(self) -> int:
+        """
+        end_frame = fps (frames per second in animation) x time[s]
+
+        Returns
+        -------
+        end_frame as int
+        """
+
+        return int(self._motion_parameters.get_time() * self._fps)
+
+    def __calculate_coordinates(self, frame: int) -> Coordinates:
+        time = frame / self.get_fps()
+        x = self._calculate_x(time)
+        y = self._calculate_y(time)
+        z = self._calculate_z(time)
+        return Coordinates(x, y, z, time)
+
+    def _calculate_x(self, time: float):
+        radius = self.get_initial_motion_parameters().radius_m
+        ang_freq = self.get_motion_parameters().get_angular_frequency()
+        return radius * np.cos(ang_freq * time)
+
+    def _calculate_y(self, time: float):
+        radius = self.get_initial_motion_parameters().radius_m
+        ang_freq = self.get_motion_parameters().get_angular_frequency()
+        return radius * np.sin(ang_freq * time)
+
+    def _calculate_z(self, time: float):
+        return self.get_initial_motion_parameters().trajectory_center_point.z
+
+    def plot(self):
+
+        x = self._trajectory.get_x_positions()
+        y = self._trajectory.get_y_positions()
+        z = self._trajectory.get_z_positions()
+
+        ax = plt.figure().add_subplot(projection='3d')
+        ax.scatter(x, y, z)
+
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Z')
+
+        plt.grid()
+        plt.show()
