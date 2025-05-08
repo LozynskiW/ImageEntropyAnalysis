@@ -59,3 +59,6 @@ class CircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
 
     def get_fps(self):
         return self._fps
+
+    def get_trajectory(self) -> Trajectory:
+        return self._trajectory

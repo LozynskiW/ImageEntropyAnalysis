@@ -173,8 +173,8 @@ class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
         print(bpy.DECLARE_CAMERA_AS_VARIABLE)
         print(bpy.DECLARE_CAMERAPATH_AS_VARIABLE)
         print(bpy.SET_FRAME.format(val=0))
-        print(bpy.SET_CAMERAPATH_LOCATION.format(val=self.__height))
-        print(bpy.SET_CAMERAPATH_SCALING.format(val=self.__radius))
+        print(bpy.SET_CAMERAPATH_LOCATION_Z.format(val=self.__height))
+        print(bpy.SET_CAMERAPATH_SCALING_X_Y_Z.format(val=self.__radius))
         print(bpy.SELECT_ALL)
         print(bpy.APPLY_LOCATION)
         print(bpy.APPLY_SCALING)
@@ -193,8 +193,8 @@ class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
             print(bpy.SET_FRAME.format(val=keyframe))
 
             print(bpy.SET_CAMERA_LOCATION.format(val=pos['x']))
-            print(bpy.SET_CAMERAPATH_LOCATION.format(val=self.__height))
-            print(bpy.SET_CAMERAPATH_SCALING.format(val=self.__radius))
+            print(bpy.SET_CAMERAPATH_LOCATION_Z.format(val=self.__height))
+            print(bpy.SET_CAMERAPATH_SCALING_X_Y_Z.format(val=self.__radius))
             print(bpy.SELECT_ALL)
             print(bpy.APPLY_LOCATION)
             print(bpy.DESELECT_ALL)
@@ -233,7 +233,7 @@ class SimpleCircleTrajectory(CircleTrajectory, ABC):
         x = self._calculate_x(time)
         y = self._calculate_y(time)
         z = self._calculate_z(time)
-        return Coordinates(x, y, z, time)
+        return Coordinates(x, y, z, frame, time)
 
     def _calculate_x(self, time: float):
         radius = self.get_initial_motion_parameters().radius_m

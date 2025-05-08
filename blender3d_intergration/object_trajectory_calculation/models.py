@@ -15,6 +15,7 @@ class Coordinates:
     x: float
     y: float
     z: float
+    frame: int
     time_s: float
 
 
@@ -44,6 +45,9 @@ class Trajectory:
 
     def get_z_positions(self) -> list:
         return list(map(lambda c: c.z, self.__coordinates))
+
+    def get_last_frame(self):
+        return self.__coordinates[-1].frame
 
 
 @dataclass(frozen=True)

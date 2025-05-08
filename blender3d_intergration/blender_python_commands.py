@@ -30,9 +30,11 @@ class BlenderPythonCommands(StrEnum):
     DECLARE_CAMERAPATH_AS_VARIABLE = "camera_path = bpy.data.objects['CameraPath']"
     DECLARE_CAMERA_AS_VARIABLE = "camera = bpy.data.objects['Camera']"
 
-    SET_CAMERAPATH_LOCATION = "camera_path.location = 0, 0, {val:4.2f}"
+    SET_CAMERAPATH_LOCATION_Z = "camera_path.location = 0, 0, {val:4.2f}"
+    SET_CAMERAPATH_LOCATION_X_Y_Z = "camera_path.location = {val:4.2f}, {val:4.2f}, {val:4.2f}"
     SET_CAMERA_LOCATION = "camera.location = {val:4.2f}, 0, 0"
+    SET_CAMERA_LOCATION_X_Y_Z = "camera.location = {x:4.2f}, {y:4.2f}, {z:4.2f}"
 
-    SET_CAMERAPATH_SCALING = "camera_path.scale = {val:4.2f}, {val:4.2f}, {val:4.2f}"
+    SET_CAMERAPATH_SCALING_X_Y_Z = "camera_path.scale = {val:4.2f}, {val:4.2f}, {val:4.2f}"
 
     DELETE_ALL_ANIMATIONS = "bpy.ops.anim.channels_delete()"
