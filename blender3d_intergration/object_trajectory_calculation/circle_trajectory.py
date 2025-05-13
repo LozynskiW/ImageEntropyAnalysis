@@ -3,12 +3,12 @@ from abc import ABC
 
 import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
 
 from blender3d_intergration.interfaces import BasicBlenderTrajectoryCalculator, CircleTrajectory
 from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
 from blender3d_intergration.enums import FileExtensions, FlightParameters
-from blender3d_intergration.object_trajectory_calculation.models import Coordinates
+from blender3d_intergration.object_trajectory_calculation.models import Coordinates, \
+    CircularTrajectoryMotionInitialParameters
 
 
 class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
@@ -208,12 +208,11 @@ class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
 class SimpleCircleTrajectory(CircleTrajectory, ABC):
 
     def calculate_trajectory(self):
-
         self._trajectory.clear_coordinates()
 
         end_frame = self.__calculate_end_frame()
 
-        for frame in range(0, end_frame+1):
+        for frame in range(0, end_frame + 1):
             coordinates_for_frame = self.__calculate_coordinates(frame)
             self._trajectory.add_coordinates(coordinates_for_frame)
 
@@ -249,7 +248,6 @@ class SimpleCircleTrajectory(CircleTrajectory, ABC):
         return self.get_initial_motion_parameters().trajectory_center_point.z
 
     def plot(self):
-
         x = self._trajectory.get_x_positions()
         y = self._trajectory.get_y_positions()
         z = self._trajectory.get_z_positions()
@@ -263,3 +261,26 @@ class SimpleCircleTrajectory(CircleTrajectory, ABC):
 
         plt.grid()
         plt.show()
+
+
+class CircularMotionInitialParametersGenerator:
+
+    @staticmethod
+    def changing_radius(center_point: Coordinates,
+                        linear_velocity_m_s: float,
+                        angular_displacement_degrees: int,
+                        radius_m_list: list[float]
+                        ) -> list[CircularTrajectoryMotionInitialParameters]:
+        generated_initial_params = []
+
+        for radius in radius_m_list:
+            generated_initial_params.append(
+                CircularTrajectoryMotionInitialParameters(
+                    trajectory_center_point=center_point,
+                    linear_velocity_m_s=linear_velocity_m_s,
+                    angular_displacement_degrees=angular_displacement_degrees,
+                    radius_m=radius
+                )
+            )
+
+        return generated_initial_params

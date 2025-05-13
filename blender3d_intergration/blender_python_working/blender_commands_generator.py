@@ -13,9 +13,7 @@ class TrajectoryToBlenderCommands:
     def to_bpy(trajectory: Trajectory,
                path_to_files: str = os.path.dirname(__file__),
                output_file_name: str = 'trajectory',
-               output_file_ext: FileExtensions = FileExtensions.TXT,
-               camera_name: str = "Camera",
-               camera_path_name: str = "CameraPath"):
+               output_file_ext: FileExtensions = FileExtensions.TXT):
 
         output_file = path_to_files + '/' + output_file_name + "." + output_file_ext
         try:
