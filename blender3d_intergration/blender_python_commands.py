@@ -6,10 +6,23 @@ class BlenderPythonCommands(StrEnum):
     SELECT_ALL = "bpy.ops.object.select_all(action='SELECT')"
     DESELECT_ALL = "bpy.ops.object.select_all(action='DESELECT')"
     SELECT_CAMERA = 'bpy.data.objects["Camera"].select_set(True)'
-    SELECT_CAMERA_PATH = 'bpy.data.objects["CameraPath"].select_set(True)'
+    SELECT_LIGHT_SOURCE = 'bpy.data.objects["light_source"].select_set(True)'
 
-    ADD_CAMERA_TRACKING_TO_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
-    SET_CAMERA_TRACKING_TO_TARGET = 'bpy.context.object.constraints["Track To"].target = bpy.data.objects["Target"]'
+    ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
+    SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].target = bpy.data.objects["Target"]'
+    DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.ops.constraint.delete(constraint="Track To", owner="OBJECT")'
+    SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].up_axis = "UP_Y"'
+    SET_TRACK_TO_CONSTRAINT_UP_AXIS_Z_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].up_axis = "UP_Z"'
+    SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].track_axis = "TRACK_NEGATIVE_Z"'
+
+    ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT = 'bpy.ops.object.constraint_add(type="DAMPED_TRACK")'
+    SET_DUMPED_TRACK_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Damped Track"].target = bpy.data.objects["Target"]'
+    DELETE_DUMPED_TRACK_FOR_SELECTED_OBJECT = 'bpy.ops.constraint.delete(constraint="Damped Track", owner="OBJECT")'
+    SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Damped Track"].track_axis = "TRACK_NEGATIVE_Z"'
+
+    ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='COPY_LOCATION')"
+    SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Copy Location"].target = bpy.data.objects["Camera"]'
+    DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT = 'bpy.ops.constraint.delete(constraint="Copy Location.001", owner="OBJECT")'
 
     APPLY_AUTO_KEYFRAMES = "bpy.context.scene.tool_settings.use_keyframe_insert_auto = True"
     APPLY_LOCATION = "bpy.ops.anim.keyframe_insert_menu(type='Location')"

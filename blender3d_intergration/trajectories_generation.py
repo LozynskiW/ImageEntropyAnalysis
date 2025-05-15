@@ -30,7 +30,7 @@ for height in height_values_list:
     trajectories_for_constant_height_changing_radius = circular_trajectories_constant_height(
         fps=FramesPerSecond.FPS_30,
         initial_motion_parameters=initial_params,
-        radius_values_list=[20, 30, 40, 50, 60, 70, 80, 90, 100]
+        radius_values_list=radius_values_list
     )
 
     for t in trajectories_for_constant_height_changing_radius:
@@ -38,5 +38,5 @@ for height in height_values_list:
         command_printer = TrajectoryToBlenderCommands.to_bpy(
             trajectory=t.get_trajectory(),
             path_to_files=full_path,
-            output_file_name=f"h{height}m_r{radius}m"
+            output_file_name=f"h{height}m_r{radius}m",
         )

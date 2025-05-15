@@ -35,17 +35,32 @@ class TrajectoryToBlenderCommands:
     def __set_scene(trajectory: Trajectory):
         print(bpy.BPY_IMPORT)
         print(bpy.DESELECT_ALL)
-
         print(bpy.DECLARE_CAMERA_AS_VARIABLE)
-        print(bpy.DECLARE_CAMERAPATH_AS_VARIABLE)
-
         print(bpy.DESELECT_ALL)
+
         print(bpy.SELECT_CAMERA)
-        print(bpy.ADD_CAMERA_TRACKING_TO_OBJECT)
-        print(bpy.SET_CAMERA_TRACKING_TO_TARGET)
+
+        print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+        print(bpy.ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
+        print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+        print(bpy.SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT)
+        print(bpy.SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
+        print(bpy.DESELECT_ALL)
+
+        print(bpy.SELECT_LIGHT_SOURCE)
+
+        print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+        print(bpy.ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT)
+        print(bpy.SET_DUMPED_TRACK_FOR_SELECTED_OBJECT)
+        print(bpy.SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
+
+        print(bpy.DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
+        print(bpy.ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT)
+        print(bpy.SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
+        print(bpy.DESELECT_ALL)
+
         print(bpy.SET_START_FRAME.format(val=0))
         print(bpy.SET_END_FRAME.format(val=trajectory.get_last_frame()))
-        print(bpy.DESELECT_ALL)
 
     @staticmethod
     def __apply_location_for_camera(coordinates: Coordinates):

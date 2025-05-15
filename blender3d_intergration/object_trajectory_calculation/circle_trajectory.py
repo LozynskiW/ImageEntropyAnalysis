@@ -183,8 +183,8 @@ class ConstantCircleTrajectory(BasicBlenderTrajectoryCalculator, ABC):
         if not camera_set:
             print(bpy.DESELECT_ALL)
             print(bpy.SELECT_CAMERA)
-            print(bpy.ADD_CAMERA_TRACKING_TO_OBJECT)
-            print(bpy.SET_CAMERA_TRACKING_TO_TARGET)
+            print(bpy.ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
+            print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
         print(bpy.SET_START_FRAME.format(val=self.__start_frame))
         print(bpy.SET_END_FRAME.format(val=self.__end_frame))
         print(bpy.DESELECT_ALL)
