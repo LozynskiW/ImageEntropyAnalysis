@@ -4,7 +4,7 @@ import sys
 from blender3d_intergration.blender_python_working.blender_python_commands import BlenderPythonCommands as bpy
 
 from blender3d_intergration.enums import FileExtensions
-from blender3d_intergration.trajectories_api.models import Trajectory, Coordinates
+from blender3d_intergration.trajectories_api.models import Trajectory, CoordinatesInTime
 
 
 class TrajectoryToBlenderCommands:
@@ -25,8 +25,8 @@ class TrajectoryToBlenderCommands:
 
         TrajectoryToBlenderCommands.__set_scene(trajectory)
 
-        for coordinates in trajectory.get_coordinates():
-            TrajectoryToBlenderCommands.__apply_location_for_camera(coordinates)
+        for coordinates_in_time in trajectory.get_coordinates():
+            TrajectoryToBlenderCommands.__apply_location_for_camera(coordinates_in_time)
 
         sys.stdout = sys.stdout
         file.close()
@@ -63,8 +63,9 @@ class TrajectoryToBlenderCommands:
         print(bpy.SET_END_FRAME.format(val=trajectory.get_last_frame()))
 
     @staticmethod
-    def __apply_location_for_camera(coordinates: Coordinates):
-        print(bpy.SET_FRAME.format(val=coordinates.frame))
+    def __apply_location_for_camera(coordinates_in_time: CoordinatesInTime):
+        coordinates = coordinates_in_time.coordinates
+        print(bpy.SET_FRAME.format(val=coordinates_in_time.frame))
 
         print(bpy.SET_CAMERA_LOCATION_X_Y_Z.format(x=coordinates.x, y=coordinates.y, z=coordinates.z))
         print(bpy.SELECT_ALL)

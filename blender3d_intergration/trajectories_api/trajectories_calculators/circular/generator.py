@@ -1,5 +1,5 @@
 from blender3d_intergration.blender_python_working.blender_commands_generator import TrajectoryToBlenderCommands
-from blender3d_intergration.trajectories_api.models import Coordinates, FramesPerSecond
+from blender3d_intergration.trajectories_api.models import CoordinatesInTime, FramesPerSecond, Coordinates
 from blender3d_intergration.trajectories_api.trajectories_calculators.circular.calculators import SimpleCircleTrajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.circular.models import \
     CircularTrajectoryMotionInitialParameters
@@ -12,7 +12,7 @@ linear_velocity_m_s = 18
 
 for height in height_values_list:
 
-    trajectory_center_point = Coordinates(0, 0, height, 0, 0)
+    trajectory_center_point = Coordinates(0, 0, height)
 
     for radius in radius_values_list:
 
@@ -27,6 +27,8 @@ for height in height_values_list:
             fps=FramesPerSecond.FPS_30,
             initial_motion_parameters=initial_params
         )
+
+        trajectory_for_radius_and_height.calculate_trajectory()
 
         TrajectoryToBlenderCommands.save_to_file(
             trajectory=trajectory_for_radius_and_height.get_trajectory(),

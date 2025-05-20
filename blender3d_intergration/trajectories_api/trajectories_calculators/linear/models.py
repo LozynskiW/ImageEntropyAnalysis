@@ -42,5 +42,7 @@ class LinearTrajectoryMotionParameters:
         velocity_magnitude = math.sqrt(math.pow(initial_parameters.x_velocity_m_s, 2) +
                                        math.pow(initial_parameters.y_velocity_m_s, 2) +
                                        math.pow(initial_parameters.z_velocity_m_s, 2))
+        if velocity_magnitude == 0:
+            return 0
 
         return road_magnitude / velocity_magnitude

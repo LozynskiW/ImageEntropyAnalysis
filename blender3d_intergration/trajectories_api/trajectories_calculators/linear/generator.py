@@ -1,5 +1,5 @@
 from blender3d_intergration.blender_python_working.blender_commands_generator import TrajectoryToBlenderCommands
-from blender3d_intergration.trajectories_api.models import Coordinates, FramesPerSecond
+from blender3d_intergration.trajectories_api.models import CoordinatesInTime, FramesPerSecond, Coordinates
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.calculators import SimpleLinearTrajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.models import \
     LinearTrajectoryMotionInitialParameters
@@ -8,12 +8,12 @@ from blender3d_intergration.trajectories_generation import linear_full_path
 height_values_list = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 for height in height_values_list:
-    start_point = Coordinates(x=10, y=0, z=height, frame=0, time_s=0),
-    end_point = Coordinates(x=100, y=0, z=height, frame=0, time_s=0),
+    start_point = Coordinates(x=10, y=0, z=height)
+    end_point = Coordinates(x=100, y=0, z=height)
 
     linear_initial_params = LinearTrajectoryMotionInitialParameters(
-        start_point=Coordinates(x=10, y=0, z=30, frame=0, time_s=0),
-        end_point=Coordinates(x=100, y=0, z=30, frame=0, time_s=0),
+        start_point=start_point,
+        end_point=end_point,
         x_velocity_m_s=18,
         y_velocity_m_s=0,
         z_velocity_m_s=0

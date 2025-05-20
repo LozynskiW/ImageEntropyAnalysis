@@ -3,7 +3,7 @@ from abc import abstractmethod
 from matplotlib import pyplot as plt
 
 from blender3d_intergration.trajectories_api.models import Trajectory, \
-    Coordinates, FramesPerSecond
+    CoordinatesInTime, FramesPerSecond
 
 
 class TrajectoryCalculator:
@@ -45,5 +45,5 @@ class TrajectoryCalculator:
         raise NotImplementedError
 
     @abstractmethod
-    def _calculate_coordinates(self, frame: int) -> Coordinates:
+    def _calculate_coordinates(self, frame: int) -> CoordinatesInTime:
         raise NotImplementedError
