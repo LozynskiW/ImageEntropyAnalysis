@@ -1,7 +1,7 @@
 import os
 import sys
 
-from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
+from blender3d_intergration.blender_python_working.blender_python_commands import BlenderPythonCommands as bpy
 
 from blender3d_intergration.enums import FileExtensions
 from blender3d_intergration.trajectories_api.models import Trajectory, Coordinates
@@ -10,10 +10,10 @@ from blender3d_intergration.trajectories_api.models import Trajectory, Coordinat
 class TrajectoryToBlenderCommands:
 
     @staticmethod
-    def to_bpy(trajectory: Trajectory,
-               path_to_files: str = os.path.dirname(__file__),
-               output_file_name: str = 'trajectory',
-               output_file_ext: FileExtensions = FileExtensions.TXT):
+    def save_to_file(trajectory: Trajectory,
+                     path_to_files: str = os.path.dirname(__file__),
+                     output_file_name: str = 'trajectory',
+                     output_file_ext: FileExtensions = FileExtensions.TXT) -> None:
 
         output_file = path_to_files + '/' + output_file_name + "." + output_file_ext
         try:

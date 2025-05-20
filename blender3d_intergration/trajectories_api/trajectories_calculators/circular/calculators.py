@@ -2,8 +2,9 @@ from abc import ABC
 
 import numpy as np
 
-from blender3d_intergration.interfaces import CircleTrajectory
-from blender3d_intergration.trajectories_api.models import Coordinates, \
+from blender3d_intergration.trajectories_api.models import Coordinates
+from blender3d_intergration.trajectories_api.trajectories_calculators.circular.definitions import CircleTrajectory
+from blender3d_intergration.trajectories_api.trajectories_calculators.circular.models import \
     CircularTrajectoryMotionInitialParameters
 
 

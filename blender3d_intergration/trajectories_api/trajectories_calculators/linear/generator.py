@@ -22,7 +22,7 @@ for height in height_values_list:
     linear_trajectory = SimpleLinearTrajectory(linear_initial_params, FramesPerSecond.FPS_30)
     linear_trajectory.calculate_trajectory()
 
-    command_printer = TrajectoryToBlenderCommands.to_bpy(
+    TrajectoryToBlenderCommands.save_to_file(
         trajectory=linear_trajectory.get_trajectory(),
         path_to_files=linear_full_path,
         output_file_name=f"linear_z{height}m",

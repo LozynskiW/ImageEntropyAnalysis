@@ -2,10 +2,9 @@ import os
 
 import numpy as np
 
-from blender3d_intergration.trajectories_api.circle_trajectory import SimpleCircleTrajectory
+from blender3d_intergration.trajectories_api.trajectories_calculators.circular.calculators import SimpleCircleTrajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.calculators import SimpleLinearTrajectory
-from blender3d_intergration.trajectories_api.models import Coordinates, \
-    CircularTrajectoryMotionInitialParameters, FramesPerSecond, LinearTrajectoryMotionInitialParameters
+from blender3d_intergration.trajectories_api.models import Coordinates, FramesPerSecond
 
 trajectories_path = 'trajectories_api/calculated_trajectories/new'
 script_dir = os.path.dirname(__file__)

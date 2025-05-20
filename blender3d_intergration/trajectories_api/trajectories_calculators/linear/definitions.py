@@ -1,7 +1,6 @@
-import math
 from abc import ABC
 
-from blender3d_intergration.interfaces import TrajectoryCalculator
+from blender3d_intergration.trajectories_api.definitions import TrajectoryCalculator
 from blender3d_intergration.trajectories_api.models import FramesPerSecond, Trajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.models import \
     LinearTrajectoryMotionInitialParameters, LinearTrajectoryMotionParameters
