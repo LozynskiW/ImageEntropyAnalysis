@@ -25,8 +25,11 @@ class CoordinatesInTime:
 class Trajectory:
     __coordinates_in_time: list[CoordinatesInTime]
 
-    def __init__(self):
-        self.__coordinates_in_time = []
+    def __init__(self, coordinates_in_time: list[CoordinatesInTime] | None = None):
+        if coordinates_in_time is None:
+            self.__coordinates_in_time = []
+        else:
+            self.__coordinates_in_time = coordinates_in_time
 
     def add_coordinates(self, coordinates: CoordinatesInTime):
         self.__coordinates_in_time.append(coordinates)
