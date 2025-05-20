@@ -4,7 +4,7 @@ import sys
 from blender3d_intergration.blender_python_commands import BlenderPythonCommands as bpy
 
 from blender3d_intergration.enums import FileExtensions
-from blender3d_intergration.object_trajectory_calculation.models import Trajectory, Coordinates
+from blender3d_intergration.trajectories_api.models import Trajectory, Coordinates
 
 
 class TrajectoryToBlenderCommands:

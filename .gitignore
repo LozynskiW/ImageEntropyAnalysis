@@ -292,4 +292,4 @@ Lib/
 figures/
 Scripts/
 ../data/
-blender3d_intergration/object_trajectory_calculation/calculated_trajectories
+blender3d_intergration/trajectories_api/calculated_trajectories

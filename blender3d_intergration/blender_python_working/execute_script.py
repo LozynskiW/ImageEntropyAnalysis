@@ -2,7 +2,7 @@ from enum import Enum
 
 import bpy, os
 
-trajectories_full_path = 'D:/python/ImageEntropyAnalysis/blender3d_intergration/object_trajectory_calculation/calculated_trajectories/test'
+trajectories_full_path = 'D:/python/ImageEntropyAnalysis/blender3d_intergration/trajectories_api/calculated_trajectories/test'
 
 ANIMATIONS_PATH = 'D:/artykuly/wat_2/test_animations/new'
 
