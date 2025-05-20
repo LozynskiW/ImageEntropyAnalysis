@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from blender3d_intergration.trajectories_api.circle_trajectory import SimpleCircleTrajectory
-from blender3d_intergration.trajectories_api.linear_trajectory import SimpleLinearTrajectory
+from blender3d_intergration.trajectories_api.trajectories_calculators.linear.calculators import SimpleLinearTrajectory
 from blender3d_intergration.trajectories_api.models import Coordinates, \
     CircularTrajectoryMotionInitialParameters, FramesPerSecond, LinearTrajectoryMotionInitialParameters
 

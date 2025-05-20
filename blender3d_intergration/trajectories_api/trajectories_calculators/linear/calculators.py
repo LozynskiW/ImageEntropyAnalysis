@@ -1,6 +1,6 @@
 from abc import ABC
 
-from blender3d_intergration.interfaces import LinearTrajectory
+from blender3d_intergration.trajectories_api.trajectories_calculators.linear.definitions import LinearTrajectory
 from blender3d_intergration.trajectories_api.models import Coordinates
 
 
