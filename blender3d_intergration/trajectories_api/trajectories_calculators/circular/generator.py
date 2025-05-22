@@ -1,9 +1,9 @@
-from blender3d_intergration.blender_python_working.blender_commands_generator import TrajectoryToBlenderCommands
+from blender3d_intergration.blender_python.blender_commands_generator import TrajectoryToBlenderCommands
 from blender3d_intergration.trajectories_api.models import CoordinatesInTime, FramesPerSecond, Coordinates
 from blender3d_intergration.trajectories_api.trajectories_calculators.circular.calculators import SimpleCircleTrajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.circular.models import \
     CircularTrajectoryMotionInitialParameters
-from blender3d_intergration.trajectories_generation import circular_full_path
+from blender3d_intergration.config import circular_full_path
 
 radius_values_list = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 height_values_list = [30, 40, 50, 60, 70, 80, 90, 100]

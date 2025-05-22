@@ -1,9 +1,9 @@
-from blender3d_intergration.blender_python_working.blender_commands_generator import TrajectoryToBlenderCommands
+from blender3d_intergration.blender_python.blender_commands_generator import TrajectoryToBlenderCommands
 from blender3d_intergration.trajectories_api.models import CoordinatesInTime, Coordinates, FramesPerSecond
 from blender3d_intergration.trajectories_api.trajectories_calculators.manually_assigned.calculators import \
     ManuallyAssignedCoordinatesTrajectory
 
-from blender3d_intergration.trajectories_generation import manual_full_path
+from blender3d_intergration.config import manual_full_path
 
 const_y = 0
 

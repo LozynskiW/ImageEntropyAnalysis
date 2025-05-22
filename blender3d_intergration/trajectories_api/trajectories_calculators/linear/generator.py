@@ -1,9 +1,9 @@
-from blender3d_intergration.blender_python_working.blender_commands_generator import TrajectoryToBlenderCommands
+from blender3d_intergration.blender_python.blender_commands_generator import TrajectoryToBlenderCommands
 from blender3d_intergration.trajectories_api.models import FramesPerSecond, Coordinates
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.calculators import SimpleLinearTrajectory
 from blender3d_intergration.trajectories_api.trajectories_calculators.linear.models import \
     LinearTrajectoryMotionInitialParameters
-from blender3d_intergration.trajectories_generation import linear_full_path
+from blender3d_intergration.config import linear_full_path
 
 height_values_list = [20, 30, 40, 50, 60, 70, 80, 90, 100]
 
