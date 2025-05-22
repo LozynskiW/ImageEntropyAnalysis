@@ -21,6 +21,17 @@ class CoordinatesInTime:
     frame: int
     time_s: float
 
+    def to_dict(self) -> dict:
+        return {
+            "x": self.coordinates.x,
+            "y": self.coordinates.y,
+            "z": self.coordinates.z,
+            "t": self.time_s
+        }
+
+    def to_scv(self) -> str:
+        return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s}"
+
 
 class Trajectory:
     __coordinates_in_time: list[CoordinatesInTime]
