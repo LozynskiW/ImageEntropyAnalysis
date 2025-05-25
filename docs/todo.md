@@ -15,7 +15,12 @@ implement both verbose_only and show_images
 Fix blender3d_integration
 1. calculation of trajectory that calculates multiple rounds instead of one
 2. add more verbose scripts for blender generation 
-- set scene and animations
-- load trajectory
-- change trajectories
+   - set scene and animations
+   - load trajectory
+   - change trajectories
 3. Change module structure
+
+# IEA-4
+1. Remake image processing to use ProcessingResults
+2. Add gps processing results to image processing
+3. Add sphere as object
