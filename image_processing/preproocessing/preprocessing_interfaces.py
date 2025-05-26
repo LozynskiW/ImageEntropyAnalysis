@@ -2,7 +2,7 @@ from abc import abstractmethod
 from image_processing.interfaces import verbose_mode
 
 
-class base(verbose_mode):
+class ImagePreprocessor(verbose_mode):
 
     def __init__(self, verbose_mode):
         super().__init__(verbose_mode)

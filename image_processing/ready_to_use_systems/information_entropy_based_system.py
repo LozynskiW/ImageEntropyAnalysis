@@ -24,7 +24,7 @@ _img_validators = [
 ]
 
 _img_segment_algorithms = [
-    threshold.information_threshold(verbose_mode=global_verbose_mode, show_image_after_processing=global_verbose_mode),
+    threshold.InformationThreshold(verbose_mode=global_verbose_mode, show_image_after_processing=global_verbose_mode),
     contour.canny(verbose_mode=global_verbose_mode, show_image_after_processing=global_verbose_mode)
 ]
 

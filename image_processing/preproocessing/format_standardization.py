@@ -4,7 +4,7 @@ from skimage.color import rgb2gray
 import numpy as np
 
 
-class to_unit8_rgb(preprocessing_interfaces.base):
+class to_unit8_rgb(preprocessing_interfaces.ImagePreprocessor):
 
     def process_img(self, img):
         if super().verbose_mode: print("Initiating format check...", end="")

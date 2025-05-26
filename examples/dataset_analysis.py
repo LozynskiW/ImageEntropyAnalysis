@@ -1,18 +1,18 @@
 from application_management.app import AppManager
 from image_processing.ready_to_use_systems import information_entropy_based_system as information_entropy_sys
+from image_processing.ready_to_use_systems import luminance_threshold_based_system as luminance_entropy_sys
 from consts.datasets_for_object import DEER
 from consts.system_util import PATH_TO_MAIN_FOLDER
 
-object_to_analyze = DEER.dataset_name()
+object_to_analyze = "sphere"
 datasets_to_analyze = DEER.all_datasets()
 
-used_system = information_entropy_sys.information_entropy_based_system
+used_system = luminance_entropy_sys.luminance_threshold_based_system_no_target_detection
 used_system.global_verbose_mode = True
 
 app_manager = AppManager()
-app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
+app_manager.set_main_folder(f"{PATH_TO_MAIN_FOLDER}/manual")
 app_manager.set_image_processing_system(used_system)
-
 app_manager.set_object(object=object_to_analyze)
 
 app_manager.analyze_dataset(save_to_db=True, verbose_mode=True, show_images=False, memory=True)

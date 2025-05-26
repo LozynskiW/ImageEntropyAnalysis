@@ -6,7 +6,7 @@ from pylab import *
 import image_processing.basictools.statisticalparameters as img_stat
 
 
-class information_threshold(segmentation_interfaces.base):
+class InformationThreshold(segmentation_interfaces.ImageSegmentationAlgorithm):
 
     def __init__(self, verbose_mode, show_image_after_processing, max_std_dev_from_mean=1):
 
@@ -73,7 +73,7 @@ class information_threshold(segmentation_interfaces.base):
         return img_after_processing
 
 
-class simple_luminance_threshold(segmentation_interfaces.threshold):
+class SimpleLuminanceThreshold(segmentation_interfaces.ThresholdImageSegmentationAlgorithm):
 
     def segmentation(self, img):
 

@@ -6,6 +6,7 @@ from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
 from data_visualisation.consts.plot_options import PlotOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
+from image_processing.image_processing_main import ImageTargetDetectionSystem
 
 
 class AppManager:
@@ -85,7 +86,7 @@ class AppManager:
         else:
             self.__data_base.put_to_db(json_file=json_document)
 
-    def set_image_processing_system(self, image_processing_system):
+    def set_image_processing_system(self, image_processing_system: ImageTargetDetectionSystem):
         self.__image_processing_system = image_processing_system
 
     def delete_from_db(self, query, multiple_delete=False):
