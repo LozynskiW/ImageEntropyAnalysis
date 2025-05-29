@@ -68,3 +68,13 @@ luminance_threshold_image_segmentation = ImageSegmentationSystem(
                                                                         min_luminance_threshold=80)
     )
 )
+
+luminance_threshold_image_segmentation_theoretical_data = ImageSegmentationSystem(
+    config=ImageSegmentationSystemConfig(
+        image_preprocessors=_img_preprocessing,
+        img_validators=_img_validators,
+        image_segmentation_algorithm=threshold.SimpleLuminanceThreshold(verbose_mode=False,
+                                                                        show_image_after_processing=False,
+                                                                        min_luminance_threshold=1)
+    )
+)

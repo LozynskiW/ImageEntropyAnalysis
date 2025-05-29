@@ -9,22 +9,24 @@ class JsonLogsReader(LogsReader, ABC):
 
     def _load_logs(self, path_to_file: str) -> list[GeoLocalizationData]:
         gps_data_list: list[GeoLocalizationData] = []
-        logs_map = json.loads(path_to_file)
 
-        for log_map in logs_map:
-            gps_data = GeoLocalizationData(
-                x=log_map['x'],
-                y=log_map['y'],
-                z=log_map['z'],
-                time_s=log_map['t'],
-                barometric_height=log_map['z'],
-                gps_height=log_map['z'],
-                pitch=None,
-                roll=None,
-                yaw=None,
-                image_identifier=log_map['image']
-            )
-            gps_data_list.append(gps_data)
+        with open(path_to_file) as f:
+            logs_map = json.load(f)
+
+            for log_map in logs_map:
+                gps_data = GeoLocalizationData(
+                    x=log_map['x'],
+                    y=log_map['y'],
+                    z=log_map['z'],
+                    time_s=log_map['t'],
+                    barometric_height=log_map['z'],
+                    gps_height=log_map['z'],
+                    pitch=None,
+                    roll=None,
+                    yaw=None,
+                    image_identifier=log_map['image']
+                )
+                gps_data_list.append(gps_data)
 
         return gps_data_list
 
@@ -32,7 +34,9 @@ class JsonLogsReader(LogsReader, ABC):
 
         image_identifier = image_name.split(".")[0]
 
-        for log in super()._logs:
+        logs = self.get_logs()
+
+        for log in logs:
 
             if log.image_identifier == image_identifier:
                 return log
