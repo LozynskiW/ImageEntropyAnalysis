@@ -26,11 +26,12 @@ class CoordinatesInTime:
             "x": self.coordinates.x,
             "y": self.coordinates.y,
             "z": self.coordinates.z,
-            "t": self.time_s
+            "t": self.time_s,
+            "image": self.frame
         }
 
     def to_scv(self) -> str:
-        return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s}"
+        return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s},{self.frame}"
 
 
 class Trajectory:

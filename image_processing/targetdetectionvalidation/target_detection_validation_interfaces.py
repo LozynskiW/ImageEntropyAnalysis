@@ -1,4 +1,4 @@
-from data_collection_logs_analysis.ObjectGeoLoc import ObjectGeoLoc
+from image_data_logs_readers.ObjectGeoLoc import ObjectGeoLoc
 
 
 class base:
