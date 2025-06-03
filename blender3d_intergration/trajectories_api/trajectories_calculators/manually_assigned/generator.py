@@ -1,4 +1,5 @@
 from blender3d_intergration.blender_python.blender_commands_generator import blender_commands_from_trajectory, gps_data_from_trajectory
+from blender3d_intergration.enums import FileExtensions
 from blender3d_intergration.trajectories_api.models import CoordinatesInTime, Coordinates, FramesPerSecond
 from blender3d_intergration.trajectories_api.trajectories_calculators.manually_assigned.calculators import \
     ManuallyAssignedCoordinatesTrajectory
@@ -31,4 +32,5 @@ gps_data_from_trajectory(
     trajectory=manually_defined_trajectory.get_trajectory(),
     path_to_files=manual_full_path,
     output_file_name="manual_gps",
+    output_file_ext=FileExtensions.JSON
 )

@@ -15,15 +15,15 @@ class ImageSegmentationSystem:
     def __init__(self, config: ImageSegmentationSystemConfig):
         self.__config = config
 
-    def process_image(self, img: ArrayImage) -> ProcessingResults:
+    def process_image(self, img: ArrayImage, show_images=False) -> ProcessingResults:
 
         img_processing_outcome = ProcessingResults()
 
         self.__calculate_parameters_for_given_image(img, img_processing_outcome)
-        show_image(img=img, fig_title="Given image - before any processing")
+        if show_images: show_image(img=img, fig_title="Given image - before any processing")
 
         img_preprocessed = self.__preprocessing(img=img)
-        show_image(img=img_preprocessed, fig_title="Image after preprocessing")
+        if show_images: show_image(img=img_preprocessed, fig_title="Image after preprocessing")
 
         if not self.__image_validation(img=img_preprocessed):
             img_processing_outcome.add_operations_audit_data(
@@ -37,7 +37,7 @@ class ImageSegmentationSystem:
 
         img_segmented = self.__segmentation(img=img_preprocessed)
 
-        show_image(img=img_segmented, fig_title="Image after segmentation")
+        if show_images: show_image(img=img_segmented, fig_title="Image after segmentation")
 
         self.__calculate_parameters_after_processing(img_segmented, img_processing_outcome)
 

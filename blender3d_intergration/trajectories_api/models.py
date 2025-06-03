@@ -27,12 +27,15 @@ class CoordinatesInTime:
             "y": self.coordinates.y,
             "z": self.coordinates.z,
             "t": self.time_s,
-            "image": self.frame
+            "image": self._format_to_length_4(self.frame)
         }
 
     def to_scv(self) -> str:
         return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s},{self.frame}"
 
+    @staticmethod
+    def _format_to_length_4(s: int) -> str:
+        return str(s).zfill(4)
 
 class Trajectory:
     __coordinates_in_time: list[CoordinatesInTime]

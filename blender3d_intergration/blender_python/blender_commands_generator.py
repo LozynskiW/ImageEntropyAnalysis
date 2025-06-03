@@ -5,6 +5,7 @@ from blender3d_intergration.blender_python.blender_python_commands import Blende
 
 from blender3d_intergration.enums import FileExtensions
 from blender3d_intergration.trajectories_api.models import Trajectory, CoordinatesInTime
+import json
 
 
 def blender_commands_from_trajectory(trajectory: Trajectory,
@@ -37,16 +38,44 @@ def gps_data_from_trajectory(trajectory: Trajectory,
 
     output_file = f'{path_to_files}/{output_file_name}.{output_file_ext}'
 
+    if output_file_ext == FileExtensions.TXT:
+        _save_to_txt(output_file, trajectory.get_coordinates())
+    if output_file_ext == FileExtensions.JSON:
+        _save_to_json(output_file, trajectory.get_coordinates())
+
+
+def _save_to_txt(
+        file_name: str,
+        coordinates: list[CoordinatesInTime]) -> None:
+
     try:
-        file = open(output_file, 'w')
+        file = open(file_name, 'w')
     except FileNotFoundError:
-        file = open(output_file, 'x')
+        file = open(file_name, 'x')
 
     sys.stdout = file
 
-    for coordinates_in_time in trajectory.get_coordinates():
+    for coordinates_in_time in coordinates:
         print(coordinates_in_time.to_dict())
 
+
+def _save_to_json(
+        file_name: str,
+        coordinates: list[CoordinatesInTime]) -> None:
+
+    try:
+        with open(f'{file_name}', 'w', encoding='utf-8') as f:
+            coordinates_json_serializable_list = []
+
+            for coordinates_in_time in coordinates:
+                coordinates_json_serializable_list.append(coordinates_in_time.to_dict())
+
+            json.dump(coordinates_json_serializable_list, f, ensure_ascii=False, indent=4)
+
+    except FileNotFoundError:
+        with open(f'{file_name}', 'x', encoding='utf-8') as f:
+            for coordinates_in_time in coordinates:
+                json.dump(coordinates_in_time.to_dict(), f, ensure_ascii=False, indent=4)
 
 def __set_scene(trajectory: Trajectory):
     print(bpy.BPY_IMPORT)

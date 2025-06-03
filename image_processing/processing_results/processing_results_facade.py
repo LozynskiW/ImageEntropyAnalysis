@@ -1,3 +1,5 @@
+import numpy as np
+
 from image_processing.processing_results.application_actions import ProcessingAudit
 from image_processing.processing_results.consts import BEFORE_IMG_PROCESSING, AFTER_IMG_PROCESSING
 from image_processing.processing_results.processing_results_interfaces import Convertable
@@ -52,6 +54,9 @@ class ProcessingResults:
             return output_dict
 
         for k, v in convertable_obj.to_dict().items():
-            output_dict[key_mapper(k)] = v
+            if isinstance(v, np.ndarray):
+                output_dict[key_mapper(k)] = list(v)
+            else:
+                output_dict[key_mapper(k)] = v
 
         return output_dict

@@ -41,4 +41,6 @@ class JsonLogsReader(LogsReader, ABC):
             if log.image_identifier == image_identifier:
                 return log
 
-        raise Exception("no log for given image_name found")
+        return GeoLocalizationData(x=None, y=None, z=None,
+                                   time_s=None, barometric_height=None, gps_height=None,
+                                   pitch=None, roll=None, yaw=None, image_identifier="")

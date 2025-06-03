@@ -1,19 +1,12 @@
-from threshold import InformationThreshold, SimpleLuminanceThreshold
-from skimage import io
+import copy
 
-img = io.imread('D:/artykuly/wat_2/test_animations/deer/h20m_r20m/0016.png')
+from image_processing.segmentation.segmentation_interfaces import ImageSegmentationAlgorithm
 
-simple_luminance_threshold_test = SimpleLuminanceThreshold(min_luminance_threshold=100,
-                                                           verbose_mode=True,
-                                                           show_image_after_processing=True)
 
-simple_luminance_threshold_test.segmentation(img=img)
+class NoImageProcessing(ImageSegmentationAlgorithm):
 
-information_threshold_test = InformationThreshold(max_std_dev_from_mean=1, verbose_mode=True, show_image_after_processing=True)
-information_threshold_test.segmentation(img=img)
+    def __init__(self):
+        super().__init__(verbose_mode=False, show_image_after_processing=False)
 
-"""
-contour_segmentation(img=img, method='canny',
-                     verbose_mode=True, show_image_after_processing=True)
-                     
-"""
+    def segmentation(self, img):
+        return copy.deepcopy(img)

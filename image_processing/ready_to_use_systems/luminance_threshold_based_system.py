@@ -1,7 +1,7 @@
 from image_processing.image_processing_main import ImageTargetDetectionSystem, ImageSegmentationSystem
 from image_processing.model import ImageSegmentationSystemConfig
 from image_processing.preproocessing import format_standardization
-from image_processing.segmentation import threshold
+from image_processing.segmentation import threshold, test
 from image_processing.targetdetection import meanshift
 from image_processing.targetestablishing import target_distance_based
 from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
@@ -73,8 +73,6 @@ luminance_threshold_image_segmentation_theoretical_data = ImageSegmentationSyste
     config=ImageSegmentationSystemConfig(
         image_preprocessors=_img_preprocessing,
         img_validators=_img_validators,
-        image_segmentation_algorithm=threshold.SimpleLuminanceThreshold(verbose_mode=False,
-                                                                        show_image_after_processing=False,
-                                                                        min_luminance_threshold=1)
+        image_segmentation_algorithm=test.NoImageProcessing()
     )
 )

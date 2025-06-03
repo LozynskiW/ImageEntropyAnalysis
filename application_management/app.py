@@ -6,7 +6,9 @@ from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
 from data_visualisation.consts.plot_options import PlotOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
-from image_processing.image_processing_main import ImageTargetDetectionSystem
+from image_data_logs_readers.definitions import LogsReader
+from image_processing.image_processing_main import ImageTargetDetectionSystem, ImageSegmentationSystem
+from image_processing.processing_results.processing_results_facade import ProcessingResults
 
 
 class AppManager:
@@ -200,7 +202,55 @@ class AppManager:
                 print("No folder was found, try setting other dataset path")
                 return None
 
-    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False, memory=False):
+    def analyze_dataset_only_segmentation(self,
+                                          save_to_db=False,
+                                          update=False,
+                                          verbose_mode=False,
+                                          show_images=False,
+                                          log_reader: LogsReader =None):
+
+        analysis_system: ImageSegmentationSystem = self.__image_processing_system
+
+        self.__db_collection_setup()
+
+        datasets, log = self.__images_and_logs_setup(logs=False)
+
+        for dataset in datasets:
+
+            self.__local_storage.set_dataset(dataset)
+            images = self.__local_storage.get_folder_content(folder_name=dataset)
+
+            for image_name in images:
+                query_to_find_file = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
+                json_document_to_db = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
+
+                if verbose_mode: print("STARTING PROCESSING OF IMAGE: ", {'object': self.__object, 'dataset': dataset, 'file_name': image_name})
+
+                image = self.__local_storage.open_img_from_path(image_name)
+
+                img_processing_results: ProcessingResults = analysis_system.process_image(img=image,
+                                                                                          show_images=show_images)
+
+                img_processing_results_dict = img_processing_results.to_dict()
+                for key in img_processing_results_dict:
+                    json_document_to_db[key] = img_processing_results_dict[key]
+
+                if log_reader is not None:
+                    log_for_image = log_reader.get_log_by_image_name(json_document_to_db['file_name'])
+
+                    log_for_image_dict = log_for_image.to_dict()
+                    for key in log_for_image.to_dict():
+                        json_document_to_db[key] = log_for_image_dict[key]
+
+                if verbose_mode: print("DOCUMENT SENT TO DB: ", json_document_to_db)
+
+                if save_to_db:
+                    self.__update_or_add_to_db(query_to_find_file=query_to_find_file,
+                                               json_document=json_document_to_db,
+                                               update=update)
+                if verbose_mode: print("PROCESSING END")
+
+    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False, memory=False, log_reader=None):
 
         if memory:
             memory_unit = file_memory()
@@ -228,11 +278,16 @@ class AppManager:
 
                 image = self.__local_storage.open_img_from_path(image_name)
 
-                img_processing_outcome = analysis_system.search_for_target(img=image, verbose_mode=verbose_mode,
-                                                                           show_images=show_images)
+                img_processing_outcome = analysis_system.process_image(img=image)
 
                 for key in img_processing_outcome.keys():
                     json_document_to_db[key] = img_processing_outcome[key]
+
+                if log_reader is not None:
+                    log_reader.get_log_by_image_name(json_document_to_db['file_name'])
+
+                    for key in log_reader.to_dict():
+                        json_document_to_db[key] = log_reader[key]
 
                 if verbose_mode: print(json_document_to_db)
 
