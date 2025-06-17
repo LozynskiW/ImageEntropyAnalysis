@@ -1,104 +1,15 @@
+from abc import ABC
+
 from image_processing.basictools.utilities import show_image, calculate_fill_factor, show_detected_target_on_img
 from image_processing.basictools import statisticalparameters
 from copy import deepcopy
 
-from image_processing.model import ImageSegmentationSystemConfig
+from image_processing.definitions import ConfigurableImageSegmentationSystem
 from image_processing.processing_results.application_actions import ProcessingAudit
 from image_processing.processing_results.processing_results_facade import ProcessingResults
 from image_processing.processing_results.processing_results_interfaces import ProcessingResult
 from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
 from image_processing.models.image import ArrayImage
-
-
-class ImageSegmentationSystem:
-
-    def __init__(self, config: ImageSegmentationSystemConfig):
-        self.__config = config
-
-    def process_image(self, img: ArrayImage, show_images=False) -> ProcessingResults:
-
-        img_processing_outcome = ProcessingResults()
-
-        self.__calculate_parameters_for_given_image(img, img_processing_outcome)
-        if show_images: show_image(img=img, fig_title="Given image - before any processing")
-
-        img_preprocessed = self.__preprocessing(img=img)
-        if show_images: show_image(img=img_preprocessed, fig_title="Image after preprocessing")
-
-        if not self.__image_validation(img=img_preprocessed):
-            img_processing_outcome.add_operations_audit_data(
-                ProcessingAudit(
-                    was_positively_validated=False,
-                    was_processed=None,
-                    was_target_detected=None
-                )
-            )
-            return img_processing_outcome
-
-        img_segmented = self.__segmentation(img=img_preprocessed)
-
-        if show_images: show_image(img=img_segmented, fig_title="Image after segmentation")
-
-        self.__calculate_parameters_after_processing(img_segmented, img_processing_outcome)
-
-        return img_processing_outcome
-
-    def __preprocessing(self, img, verbose_mode=False):
-
-        img = deepcopy(img)
-
-        for image_preprocessing_tool in self.__config.image_preprocessors:
-            if verbose_mode: print("Preprocessing via:", str(image_preprocessing_tool))
-
-            img = image_preprocessing_tool.process_img(img)
-
-        if verbose_mode:
-            print("Preprocessing done")
-            print()
-        return img
-
-    def __image_validation(self, img, verbose_mode=False):
-        img = deepcopy(img)
-
-        if verbose_mode: print("Initiating image validation")
-
-        for img_validator in self.__config.img_validators:
-
-            if verbose_mode: print("Validating via:", str(img_validator))
-
-            if not img_validator.validate(img):
-                if verbose_mode: print("Image validation done...image NOT valid")
-                return False
-
-        if verbose_mode:
-            print("Image validation done...image valid")
-            print()
-
-        return True
-
-    def __segmentation(self, img, verbose_mode=False):
-
-        img = deepcopy(img)
-
-        if verbose_mode: print("segmentation via:", str(self.__config.image_segmentation_algorithm))
-
-        segmented_img = self.__config.image_segmentation_algorithm.segmentation(img)
-
-        if verbose_mode:
-            print("Image segmentation done")
-            print()
-
-        return segmented_img
-
-    @staticmethod
-    def __calculate_parameters_for_given_image(img: ArrayImage, img_processing_outcome: ProcessingResults):
-        img_processing_outcome.add_statistical_parameters_before_processing(StatisticalResults.from_image(img))
-        img_processing_outcome.add_entropy_measures_before_processing(EntropyMeasures.from_image(img))
-
-    @staticmethod
-    def __calculate_parameters_after_processing(img: ArrayImage, img_processing_outcome: ProcessingResults):
-        img_processing_outcome.add_statistical_parameters_after_processing(StatisticalResults.from_image(img))
-        img_processing_outcome.add_entropy_measures_after_processing(EntropyMeasures.from_image(img))
 
 
 class ImageTargetDetectionSystem:

@@ -7,7 +7,8 @@ from data_management.data_base.nosql import Mongo
 from data_visualisation.consts.plot_options import PlotOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
 from image_data_logs_readers.definitions import LogsReader
-from image_processing.image_processing_main import ImageTargetDetectionSystem, ImageSegmentationSystem
+from image_processing.definitions import ImageSegmentationSystem
+from image_processing.image_processing_main import ImageTargetDetectionSystem
 from image_processing.processing_results.processing_results_facade import ProcessingResults
 
 
@@ -228,8 +229,7 @@ class AppManager:
 
                 image = self.__local_storage.open_img_from_path(image_name)
 
-                img_processing_results: ProcessingResults = analysis_system.process_image(img=image,
-                                                                                          show_images=show_images)
+                img_processing_results: ProcessingResults = analysis_system.process_image(img=image)
 
                 img_processing_results_dict = img_processing_results.to_dict()
                 for key in img_processing_results_dict:

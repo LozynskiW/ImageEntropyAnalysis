@@ -2,14 +2,12 @@ from abc import ABC
 
 from image_processing.basictools.imageoverlay import image_add, image_and, image_multiply
 from image_processing.basictools.utilities import calculate_fill_factor
-from image_processing.interfaces import show_img_before_and_after_with_verbose_mode
 
 
-class add(show_img_before_and_after_with_verbose_mode, ABC):
+class add:
 
     def __init__(self, verbose_mode, show_image_after_processing):
-
-        super().__init__(verbose_mode, show_image_after_processing)
+        pass
 
     def fuse(self, imgs):
 
@@ -24,11 +22,10 @@ class add(show_img_before_and_after_with_verbose_mode, ABC):
         return img, calculate_fill_factor(img=img)
 
 
-class multiply(show_img_before_and_after_with_verbose_mode, ABC):
+class multiply:
 
     def __init__(self, verbose_mode, show_image_after_processing):
-
-        super().__init__(verbose_mode, show_image_after_processing)
+        pass
 
     def fuse(self, imgs):
 
@@ -43,11 +40,10 @@ class multiply(show_img_before_and_after_with_verbose_mode, ABC):
         return img, calculate_fill_factor(img=img)
 
 
-class im_and(show_img_before_and_after_with_verbose_mode, ABC):
+class im_and:
 
     def __init__(self, verbose_mode, show_image_after_processing):
-
-        super().__init__(verbose_mode, show_image_after_processing)
+        pass
 
     def fuse(self, imgs):
 

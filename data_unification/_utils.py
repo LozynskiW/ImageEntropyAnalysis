@@ -3,8 +3,10 @@ import numpy as np
 from data_visualisation.analysis_outcome._data_for_visualisation import SingleDataset, SingleDataset3D, \
     MultipleDatasets, MultipleDatasets3D, MultipleDatasetsValuesMap, Single3DPoint
 
+
 def build_single_3d_point(x, y, z) -> Single3DPoint:
     return Single3DPoint(x, y, z)
+
 
 def build_single_dataset(data_from_db, data_to_x_axis, data_to_y_axis) -> SingleDataset:
     return SingleDataset(
@@ -32,10 +34,10 @@ def build_multiple_datasets(data_from_db, data_to_x_axis, data_to_y_axis) -> Mul
     return MultipleDatasets(datasets=datasets)
 
 
-def build_multiple_datasets_value_map(data_from_db,
-                                      data_to_x_axis,
-                                      data_to_y_axis,
-                                      data_as_map_value) -> MultipleDatasetsValuesMap:
+def build_multiple_datasets_value_map_means(data_from_db,
+                                            data_to_x_axis,
+                                            data_to_y_axis,
+                                            data_as_map_value) -> MultipleDatasetsValuesMap:
     datasets_names = _get_datasets_from_data(data_from_db)
     datasets_reduced_to_point = []
     x_labels = []
@@ -55,7 +57,44 @@ def build_multiple_datasets_value_map(data_from_db,
 
     return MultipleDatasetsValuesMap(points_3d_array=datasets_reduced_to_point,
                                      x_labels=x_labels_sorted_distinct,
-                                     y_labels=list(reversed(y_labels_sorted_distinct)) # needed so y axis values are sorted from lowest(bottom) to highest(top)
+                                     y_labels=list(reversed(y_labels_sorted_distinct))
+                                     # needed so y axis values are sorted from lowest(bottom) to highest(top)
+                                     )
+
+
+def build_single_dataset_value_map(data_from_db,
+                                   data_to_x_axis,
+                                   data_to_y_axis,
+                                   data_as_map_value,
+                                   mapping_fun=None) -> MultipleDatasetsValuesMap:
+    data_as_points = []
+
+    for d in data_from_db:
+
+        if mapping_fun is None:
+            point = build_single_3d_point(
+                x=float(d[data_to_x_axis]),
+                y=float(d[data_to_y_axis]),
+                z=float(d[data_as_map_value])
+            )
+        else:
+            point = build_single_3d_point(
+                x=float(d[data_to_x_axis]),
+                y=float(d[data_to_y_axis]),
+                z=float(mapping_fun(d[data_as_map_value]))
+            )
+        data_as_points.append(point)
+
+    x_labels = list(map(lambda x: x[data_to_x_axis], data_from_db))
+    y_labels = list(map(lambda x: x[data_to_y_axis], data_from_db))
+
+    x_labels_sorted_distinct = np.sort(list(set(x_labels)))
+    y_labels_sorted_distinct = np.sort(list(set(y_labels)))
+
+    return MultipleDatasetsValuesMap(points_3d_array=data_as_points,
+                                     x_labels=x_labels_sorted_distinct,
+                                     y_labels=list(reversed(y_labels_sorted_distinct))
+                                     # needed so y axis values are sorted from lowest(bottom) to highest(top)
                                      )
 
 

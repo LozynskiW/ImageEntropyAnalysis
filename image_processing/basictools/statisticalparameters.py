@@ -61,6 +61,9 @@ def normalize_histogram(histogram_values_counts: array) -> array:
     for i in range(0, len(probabilities)):
         probabilities[i] = probabilities[i] / num_of_all_pixels
 
+    if round(sum(probabilities), 3) != 1.0:
+        raise ValueError("Sum of all probabilities does not equal to 1")
+
     return probabilities
 
 
@@ -129,7 +132,7 @@ def variance_from_histogram(grayscale, gray_shade_prob, mean_value):
     variance = 0
     for i in range(0, len(grayscale)):
         variance += ((grayscale[i] - mean_value) ** 2) * gray_shade_prob[i]
-    return variance
+    return variance / len(grayscale)
 
 
 def std_dev_from_histogram(variance):

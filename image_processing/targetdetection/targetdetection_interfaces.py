@@ -1,9 +1,9 @@
 from abc import abstractmethod
-from image_processing.interfaces import show_img_before_and_after_with_verbose_mode
+from image_processing.models.image import ArrayImage
 
 
-class base(show_img_before_and_after_with_verbose_mode):
+class TargetDetectionAlgorithm:
 
     @abstractmethod
-    def search_for_target(self, segmented_img):
+    def search_for_target(self, segmented_img: ArrayImage):
         raise NotImplementedError

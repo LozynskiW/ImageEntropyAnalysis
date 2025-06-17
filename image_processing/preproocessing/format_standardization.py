@@ -7,15 +7,12 @@ import numpy as np
 class to_unit8_rgb(preprocessing_interfaces.ImagePreprocessor):
 
     def process_img(self, img):
-        if super().verbose_mode: print("Initiating format check...", end="")
 
         try:
             self.__img_format_check(img)
         except ValueError:
-            if super().verbose_mode: print("format invalid, converting image")
             return self.__convert_img(img)
         else:
-            if super().verbose_mode: print("format valid")
             return img
 
     @staticmethod

@@ -77,12 +77,6 @@ class SimpleLuminanceThreshold(segmentation_interfaces.ThresholdImageSegmentatio
 
     def segmentation(self, img):
 
-        if super().verbose_mode:
-            print("")
-            print("luminance_threshold_segmentation")
-            print("--------------------------------")
-            print("Beginning")
-
         img_width = len(img[0])
         img_height = len(img)
 
@@ -97,13 +91,23 @@ class SimpleLuminanceThreshold(segmentation_interfaces.ThresholdImageSegmentatio
                 else:
                     img_after_processing[y][x] = 255
 
-        if super().verbose_mode:
-            print("")
-            print("DONE")
+        return img_after_processing
 
-        if super().show_image_after_processing:
-            super().show_images(imgs_before=(img, img),
-                                img_after=img_after_processing,
-                                fig_title="Image simple luminance threshold segmentation")
+
+class SimpleLuminanceThresholdNoImageModification(segmentation_interfaces.ThresholdImageSegmentationAlgorithm):
+
+    def segmentation(self, img):
+
+        img_width = len(img[0])
+        img_height = len(img)
+
+        img_after_processing = deepcopy(img)
+
+        for x in range(0, img_width):
+
+            for y in range(0, img_height):
+
+                if img[y][x] < super().get_min_luminance_threshold():
+                    img_after_processing[y][x] = 0
 
         return img_after_processing

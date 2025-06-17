@@ -1,7 +1,7 @@
 from image_data_logs_readers.ObjectGeoLoc import ObjectGeoLoc
 
 
-class base:
+class TargetDetectionValidator:
 
     def __init__(self, verbose_mode=False, object_geo_loc_calculator=ObjectGeoLoc()):
         self.__verbose_mode = verbose_mode

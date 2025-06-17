@@ -1,7 +1,7 @@
+import math
 from abc import ABC
 from array import array
 from copy import deepcopy
-from dataclasses import dataclass
 from typing import Self
 
 from image_processing.basictools import statisticalparameters
@@ -9,17 +9,16 @@ from image_processing.models.image import ArrayImage
 from image_processing.processing_results.processing_results_interfaces import ProcessingResult, Calculateable, T
 
 
-class ImageHistogram:
+class Histogram:
     __variable_values: array
     __variable_values_counts: array
 
-    def __init__(self, image: ArrayImage):
-        values, values_counts = self.calculate(image)
-        self.__variable_values = values
-        self.__variable_values_counts = values_counts
-
-    def calculate(self, image: ArrayImage):
-        return statisticalparameters.image_histogram(im=image, normalize_to_pdf=False)
+    def __init__(self, variable_values: array, variable_values_counts: array):
+        if len(variable_values) != len(variable_values_counts):
+            raise ValueError("Length of variable_values does not equal variable_values_counts, histogram cannot be "
+                             "created")
+        self.__variable_values = variable_values
+        self.__variable_values_counts = variable_values_counts
 
     def normalize(self) -> Self:
         histogram_copy = deepcopy(self)
@@ -37,6 +36,15 @@ class ImageHistogram:
         return self.__variable_values_counts
 
 
+class ImageHistogram(Histogram, ABC):
+
+    def __init__(self, image: ArrayImage):
+        super().__init__(self.calculate(image))
+
+    def calculate(self, image: ArrayImage):
+        return statisticalparameters.image_histogram(im=image, normalize_to_pdf=False)
+
+
 class InformationForVariableStates(ImageHistogram):
 
     def calculate(self, image: ArrayImage):
@@ -51,11 +59,19 @@ class EntropyForVariableStates(ImageHistogram):
 
 class ExpectedValue(Calculateable[float], ABC):
 
-    def __init__(self, grayscale: array, gray_shade_prob: array):
-        super().__init__(grayscale, gray_shade_prob)
+    def __init__(self, img: ArrayImage):
+        super().__init__(img)
 
-    def calculate(self, grayscale: array, gray_shade_prob: array) -> float:
-        return float(statisticalparameters.exp_val_from_histogram(grayscale, gray_shade_prob))
+    def calculate(self, img: ArrayImage) -> float:
+        pixel_value_sum = 0
+        pixel_number = 0
+        for y in range(0, len(img[0])):
+            for x in range(0, len(img)):
+                pixel_value_sum += img[x][y]
+                pixel_number += 1
+        if pixel_number == 0:
+            return 0
+        return float(pixel_value_sum/pixel_number)
 
     def __sub__(self, other) -> float:
         return self.value - other
@@ -66,11 +82,19 @@ class ExpectedValue(Calculateable[float], ABC):
 
 class Variance(Calculateable[float], ABC):
 
-    def __init__(self, grayscale: array, gray_shade_prob: array, expected_val: ExpectedValue):
-        super().__init__(grayscale, gray_shade_prob, expected_val.value)
+    def __init__(self, img: ArrayImage, expected_val: ExpectedValue):
+        super().__init__(img, expected_val)
 
-    def calculate(self, grayscale: array, gray_shade_prob: array, expected_val: ExpectedValue) -> float:
-        return float(statisticalparameters.variance_from_histogram(grayscale, gray_shade_prob, expected_val))
+    def calculate(self, img: ArrayImage, expected_val: ExpectedValue) -> float:
+        variance_sum = 0
+        pixel_number = 0
+        for y in range(0, len(img[0])):
+            for x in range(0, len(img)):
+                variance_sum += math.pow(img[x][y] - expected_val.value, 2)
+                pixel_number += 1
+        if pixel_number == 0:
+            return 0
+        return float(variance_sum / pixel_number)
 
 
 class StandardDeviation(Calculateable[float], ABC):
@@ -79,7 +103,7 @@ class StandardDeviation(Calculateable[float], ABC):
         super().__init__(variance)
 
     def calculate(self, variance: Variance) -> float:
-        return float(statisticalparameters.std_dev_from_variance(variance.value))
+        return float(math.sqrt(variance.value))
 
 
 class InformationInBits(Calculateable[float], ABC):
@@ -117,10 +141,8 @@ class StatisticalResults(ProcessingResult, ABC):
     def calculate(self, img: ArrayImage):
         self.__histogram = ImageHistogram(img)
         self.__histogram_normalized = self.__histogram.normalize()
-        self.__expected_value = ExpectedValue(grayscale=self.__histogram_normalized.get_variables_values(),
-                                              gray_shade_prob=self.__histogram_normalized.get_values_counts())
-        self.__variance = Variance(grayscale=self.__histogram_normalized.get_variables_values(),
-                                   gray_shade_prob=self.__histogram_normalized.get_values_counts(),
+        self.__expected_value = ExpectedValue(img=img)
+        self.__variance = Variance(img=img,
                                    expected_val=self.__expected_value)
         self.__standard_deviation = StandardDeviation(self.__variance)
 

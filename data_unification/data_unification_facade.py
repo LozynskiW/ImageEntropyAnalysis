@@ -1,7 +1,8 @@
 from data_visualisation.consts.plot_options import PlotOptions
 from data_visualisation.analysis_outcome._data_for_visualisation import SingleDataset, SingleDataset3D, \
     MultipleDatasets, MultipleDatasetsValuesMap
-from data_unification._utils import build_single_dataset, build_single_dataset_3d, build_multiple_datasets, build_multiple_datasets_value_map
+from data_unification._utils import build_single_dataset, build_single_dataset_3d, build_multiple_datasets, \
+    build_multiple_datasets_value_map_means
 
 
 class DataUnificationForPlotting:
@@ -79,7 +80,7 @@ class DataUnificationForPlotting:
         datasets_in_data_from_db = list(data_from_db.keys())
 
         if len(datasets_in_data_from_db) >= 1:
-            return build_multiple_datasets_value_map(
+            return build_multiple_datasets_value_map_means(
                 data_from_db=data_from_db,
                 data_to_x_axis=plot_options.x_axis,
                 data_to_y_axis=plot_options.y_axis,
