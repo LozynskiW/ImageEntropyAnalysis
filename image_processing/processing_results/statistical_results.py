@@ -39,7 +39,7 @@ class Histogram:
 class ImageHistogram(Histogram, ABC):
 
     def __init__(self, image: ArrayImage):
-        super().__init__(self.calculate(image))
+        super().__init__(*self.calculate(image))
 
     def calculate(self, image: ArrayImage):
         return statisticalparameters.image_histogram(im=image, normalize_to_pdf=False)

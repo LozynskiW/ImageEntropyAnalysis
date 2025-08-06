@@ -12,7 +12,6 @@ def blender_commands_from_trajectory(trajectory: Trajectory,
                                      path_to_files: str = os.path.dirname(__file__),
                                      output_file_name: str = 'trajectory',
                                      output_file_ext: FileExtensions = FileExtensions.TXT) -> None:
-
     output_file = f'{path_to_files}/{output_file_name}.{output_file_ext}'
 
     try:
@@ -35,7 +34,6 @@ def gps_data_from_trajectory(trajectory: Trajectory,
                              path_to_files: str = os.path.dirname(__file__),
                              output_file_name: str = 'gps_for_trajectory',
                              output_file_ext: FileExtensions = FileExtensions.TXT) -> None:
-
     output_file = f'{path_to_files}/{output_file_name}.{output_file_ext}'
 
     if output_file_ext == FileExtensions.TXT:
@@ -47,7 +45,6 @@ def gps_data_from_trajectory(trajectory: Trajectory,
 def _save_to_txt(
         file_name: str,
         coordinates: list[CoordinatesInTime]) -> None:
-
     try:
         file = open(file_name, 'w')
     except FileNotFoundError:
@@ -62,7 +59,6 @@ def _save_to_txt(
 def _save_to_json(
         file_name: str,
         coordinates: list[CoordinatesInTime]) -> None:
-
     try:
         with open(f'{file_name}', 'w', encoding='utf-8') as f:
             coordinates_json_serializable_list = []
@@ -77,34 +73,36 @@ def _save_to_json(
             for coordinates_in_time in coordinates:
                 json.dump(coordinates_in_time.to_dict(), f, ensure_ascii=False, indent=4)
 
+
 def __set_scene(trajectory: Trajectory):
     print(bpy.BPY_IMPORT)
+
     print(bpy.DESELECT_ALL)
     print(bpy.DECLARE_CAMERA_AS_VARIABLE)
     print(bpy.DESELECT_ALL)
 
     print(bpy.SELECT_CAMERA)
 
-    print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-    print(bpy.DESELECT_ALL)
+    # print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+    # print(bpy.ADD_TRACK_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
+    # print(bpy.DESELECT_ALL)
+    #
+    # print(bpy.SELECT_LIGHT_SOURCE)
+    #
+    # print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
+    # print(bpy.ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_DUMPED_TRACK_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
+    #
+    # print(bpy.DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
+    # print(bpy.ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT)
+    # print(bpy.SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
+    # print(bpy.DESELECT_ALL)
 
-    print(bpy.SELECT_LIGHT_SOURCE)
-
-    print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    print(bpy.SET_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    print(bpy.SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-
-    print(bpy.DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT)
-    print(bpy.SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    print(bpy.DESELECT_ALL)
-
-    print(bpy.SET_START_FRAME.format(val=0))
+    print(bpy.SET_START_FRAME.format(val=1))
     print(bpy.SET_END_FRAME.format(val=trajectory.get_last_frame()))
 
 

@@ -1,4 +1,4 @@
-from data_visualisation.consts.plot_options import PlotOptions
+from data_visualisation.models import PlotOptions
 from data_visualisation.analysis_outcome._data_for_visualisation import SingleDataset, SingleDataset3D, \
     MultipleDatasets, MultipleDatasetsValuesMap
 from data_unification._utils import build_single_dataset, build_single_dataset_3d, build_multiple_datasets, \

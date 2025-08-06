@@ -4,7 +4,7 @@ import pandas as pd
 from application_management.util.util import load_data_from_db, db_management
 from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
-from data_visualisation.consts.plot_options import PlotOptions
+from data_visualisation.models import PlotOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
 from image_data_logs_readers.definitions import LogsReader
 from image_processing.definitions import ImageSegmentationSystem

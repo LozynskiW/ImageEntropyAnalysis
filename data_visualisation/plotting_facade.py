@@ -3,25 +3,24 @@ from matplotlib import pyplot as plt
 
 from data_unification._utils import build_multiple_datasets, build_multiple_datasets_3d, \
     build_multiple_datasets_value_map_means, build_single_dataset_value_map
-from data_visualisation.consts.plot_options import PlotOptions
-from data_visualisation.util.figure_and_plot_style import FigureBuilder
+from data_visualisation._implementations.manual_plots import ManualPlot
+from data_visualisation._implementations.multiple_plots import MultiplePlot
+from data_visualisation.models import PlotOptions
+from data_visualisation.definitions import FigureBuilder
 
 
-class ManualPlot:
-    figure_builder = FigureBuilder()
+class PlottingFacade:
+    _manual_plot = ManualPlot()
+    _multiple_plot = MultiplePlot()
 
     @staticmethod
-    def scatter_plot(x: list, y: list, x_label: str, y_label: str, title: str):
+    def manual_plot():
+        return PlottingFacade._manual_plot
 
-        fig, ax = plt.subplots(1,1)
-        fig.suptitle(title, size=14)
+    @staticmethod
+    def multiple_plot():
+        return PlottingFacade._multiple_plot
 
-        ax.scatter(x, y)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        ax.grid()
-
-        plt.show()
 
 class Plots2D:
     figure_builder = FigureBuilder()
@@ -79,7 +78,8 @@ class Heatmap:
 
         for y in np.arange(len(self.__datasets_map.y_labels)):
             for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],self.__datasets_map.y_labels[y])
+                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
+                                                                      self.__datasets_map.y_labels[y])
 
         im = ax.imshow(heatmap)
         cbar = ax.figure.colorbar(im, ax=ax)
@@ -102,7 +102,8 @@ class Heatmap:
 
         for y in np.arange(len(self.__datasets_map.y_labels)):
             for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],self.__datasets_map.y_labels[y])
+                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
+                                                                      self.__datasets_map.y_labels[y])
 
         im = ax.imshow(heatmap)
         cbar = ax.figure.colorbar(im, ax=ax)
@@ -126,7 +127,8 @@ class Heatmap:
 
         for y in np.arange(len(self.__datasets_map.y_labels)):
             for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],self.__datasets_map.y_labels[y])
+                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
+                                                                      self.__datasets_map.y_labels[y])
 
         im = ax.imshow(heatmap)
         cbar = ax.figure.colorbar(im, ax=ax)

@@ -8,7 +8,15 @@ class BlenderPythonCommands(StrEnum):
     SELECT_CAMERA = 'bpy.data.objects["Camera"].select_set(True)'
     SELECT_LIGHT_SOURCE = 'bpy.data.objects["light_source"].select_set(True)'
 
-    ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
+    DISABLE_RENDER_FOR_SELECTED_OBJ = 'bpy.context.object.hide_render = True'
+    ENABLE_RENDER_FOR_SELECTED_OBJ = 'bpy.context.object.hide_render = False'
+    DISABLE_RENDER_BY_NAME = 'bpy.data.objects[name:%s].hide_render = True'
+    ENABLE_RENDER_BY_NAME = 'bpy.data.objects[name:%s].hide_render = False'
+
+    ITERATE_OVER_ALL_OBJECTS = 'for o in bpy.data.objects:'
+    DISABLE_RENDER_BY_NAME_OF_ITERATED_OBJ = '\tbpy.data.objects[o.name].hide_render = True'
+
+    ADD_TRACK_TO_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
     SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].target = bpy.data.objects["Target"]'
     DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.ops.constraint.delete(constraint="Track To", owner="OBJECT")'
     SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].up_axis = "UP_Y"'

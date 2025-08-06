@@ -1,7 +1,5 @@
 from application_management.app import AppManager
-from consts.datasets_for_object import DEER
-from consts.data_to_plot import X_axis, Y_axis
-from data_visualisation.consts.plot_options import PlotOptionsBuilder
+from data_visualisation.models import PlotOptionsBuilder
 from consts.system_util import PATH_TO_MAIN_FOLDER
 import statistics
 
