@@ -146,7 +146,6 @@ class AppManager:
         self.__data_from_db = {}
 
         if data_from_db:
-
             self.__data_from_db[self.__object] = data_from_db
 
         self.__data_from_db['meta'] = {
@@ -171,7 +170,8 @@ class AppManager:
         return self.__data_base
 
     def update_data(self, query, data):
-        self.__data_base.update_in_db(query=query, json_file=self.__data_base.query_assistance().form_query_to_update(data))
+        self.__data_base.update_in_db(query=query,
+                                      json_file=self.__data_base.query_assistance().form_query_to_update(data))
 
     def __db_collection_setup(self):
         try:
@@ -208,13 +208,18 @@ class AppManager:
                                           update=False,
                                           verbose_mode=False,
                                           show_images=False,
-                                          log_reader: LogsReader =None):
+                                          log_reader: LogsReader = None,
+                                          datasets: list | None = None):
 
         analysis_system: ImageSegmentationSystem = self.__image_processing_system
 
         self.__db_collection_setup()
 
-        datasets, log = self.__images_and_logs_setup(logs=False)
+        if datasets is None:
+            datasets, log = self.__images_and_logs_setup(logs=False)
+
+        else:
+            _, log = self.__images_and_logs_setup(logs=False)
 
         for dataset in datasets:
 
@@ -225,7 +230,8 @@ class AppManager:
                 query_to_find_file = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
                 json_document_to_db = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
 
-                if verbose_mode: print("STARTING PROCESSING OF IMAGE: ", {'object': self.__object, 'dataset': dataset, 'file_name': image_name})
+                if verbose_mode: print("STARTING PROCESSING OF IMAGE: ",
+                                       {'object': self.__object, 'dataset': dataset, 'file_name': image_name})
 
                 image = self.__local_storage.open_img_from_path(image_name)
 
@@ -250,7 +256,8 @@ class AppManager:
                                                update=update)
                 if verbose_mode: print("PROCESSING END")
 
-    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False, memory=False, log_reader=None):
+    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False,
+                        memory=False, log_reader=None):
 
         if memory:
             memory_unit = file_memory()

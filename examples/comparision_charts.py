@@ -15,28 +15,34 @@ objects = {
     'cylinder': PlotColor.YELLOW
 }
 
-plotted_param = "standard_deviation_of_processed_image"
+dataset_for_objects = 'manual'
 
-figure_options = FigureOptions(
-    x_axis_label="distance from object",
-    y_axis_label=f'{plotted_param}'
-)
+plotted_params = [
+    "expected_value_of_original_image",
+    "standard_deviation_of_processed_image",
+    "entropy_in_bits_of_processed_image"
+]
 
-multiple_plot = PlottingFacade.multiple_plot().scatter_plot(figure_options)
+for plotted_param in plotted_params:
 
-for obj in objects.keys():
-    app_manager.set_object(object=obj)
-    data_for_obj = (app_manager
-                     .load_data_from_db()
-                     .custom_data({"dataset": "manual"}))
+    figure_options = FigureOptions(
+        x_axis_label="distance from object",
+        y_axis_label=f'{plotted_param}'
+    )
 
-    # y = list(map(lambda yi: sum(yi["histogram_of_processed_image"][1:]) / sum(yi["histogram_of_processed_image"]), data_for_obj))
+    multiple_plot = PlottingFacade.multiple_plot().scatter_plot(figure_options)
 
-    y = list(map(lambda yi: yi[f'{plotted_param}'], data_for_obj))
+    for obj in objects.keys():
+        app_manager.set_object(object=obj)
+        data_for_obj = (app_manager
+                         .load_data_from_db()
+                         .custom_data({"dataset": dataset_for_objects}))
 
-    x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
+        y = list(map(lambda yi: yi[f'{plotted_param}'], data_for_obj))
 
-    plot_options = PlotOptions(x=x, y=y, color=objects[obj], label=obj)
-    multiple_plot.add_data(plot_options)
+        x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
 
-multiple_plot.show()
+        plot_options = PlotOptions(x=x, y=y, color=objects[obj], label=obj)
+        multiple_plot.add_data(plot_options)
+
+    multiple_plot.show()

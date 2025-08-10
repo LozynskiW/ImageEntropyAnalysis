@@ -4,6 +4,7 @@ from image_processing.ready_to_use_systems import luminance_threshold_based_syst
 from consts.system_util import PATH_TO_MAIN_FOLDER
 
 objects_to_analyze = ["cylinder", "sphere", "cube", "cone"]
+datasets_to_analyze = ["white_noise"]
 
 used_system = luminance_entropy_sys.luminance_threshold_image_segmentation_theoretical_data
 used_system.global_verbose_mode = True
@@ -17,4 +18,10 @@ for object_to_analyze in objects_to_analyze:
 
     gps_logs_reader = JsonLogsReader("D:/python/ImageEntropyAnalysis/blender3d_intergration/trajectories_api/calculated_trajectories/manual/manual_gps.json")
 
-    app_manager.analyze_dataset_only_segmentation(save_to_db=True, update=True, verbose_mode=True, show_images=False, log_reader=gps_logs_reader)
+    app_manager.analyze_dataset_only_segmentation(
+        save_to_db=True,
+        update=True,
+        verbose_mode=True,
+        show_images=False,
+        log_reader=gps_logs_reader,
+        datasets=datasets_to_analyze)
