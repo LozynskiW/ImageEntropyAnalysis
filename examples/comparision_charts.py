@@ -15,7 +15,7 @@ objects = {
     'cylinder': PlotColor.YELLOW
 }
 
-dataset_for_objects = 'manual'
+dataset_for_objects = 'white_only' #manual white_noise white_only
 
 plotted_params = [
     "expected_value_of_original_image",

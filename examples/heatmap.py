@@ -1,7 +1,16 @@
-from application_management.app import AppManager
-from data_visualisation.models import PlotOptionsBuilder
-from consts.system_util import PATH_TO_MAIN_FOLDER
 import statistics
+
+from application_management.app import AppManager
+from data_visualisation.models import FigureOptions
+from consts.system_util import PATH_TO_MAIN_FOLDER
+from data_visualisation.plotting_facade import PlottingFacade
+
+object_to_plot = 'cube'
+dataset_to_plot = 'white_only'
+
+plotted_param = 'standard_deviation_of_processed_image'
+x_axis = "x"
+y_axis = "z"
 
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
@@ -13,13 +22,11 @@ data_from_db = (app_manager
 
 app_manager.set_data_from_db(data_from_db=data_from_db)
 
-builder = PlotOptionsBuilder()
-
-plot_options_3d = builder \
-    .x_axis("x") \
-    .y_axis("z") \
-    .z_axis("standard_deviation_of_processed_image") \
-    .build()
+figure_options = FigureOptions(
+    x_axis_label=x_axis,
+    y_axis_label=y_axis,
+    z_axis_label=plotted_param
+)
 
 
 def mapping_fun(data):
@@ -28,4 +35,4 @@ def mapping_fun(data):
     return statistics.stdev(data[2:])
 
 
-app_manager.heatmap(plot_options_3d).plot_single_dataset_map_results_by_fun()
+PlottingFacade.heatmap().plot_data(data_from_db=data_from_db, figure_options=figure_options)

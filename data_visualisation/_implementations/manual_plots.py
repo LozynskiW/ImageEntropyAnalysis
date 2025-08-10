@@ -22,7 +22,7 @@ class ManualPlot:
 
         fig, ax = ManualPlot._build_figure(figure_options)
 
-        ax.bar(plot_options.x, plot_options.y, plot_options.color, plot_options.marker)
+        ax.bar(plot_options.x, plot_options.y, plot_options.color)
         ax.grid()
 
         plt.show()

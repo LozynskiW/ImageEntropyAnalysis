@@ -4,7 +4,7 @@ import pandas as pd
 from application_management.util.util import load_data_from_db, db_management
 from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
-from data_visualisation.models import PlotOptions
+from data_visualisation.models import PlotOptions, FigureOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
 from image_data_logs_readers.definitions import LogsReader
 from image_processing.definitions import ImageSegmentationSystem
@@ -309,9 +309,6 @@ class AppManager:
 
     def plot_2d(self, plot_options: PlotOptions):
         return Plots2D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
-
-    def heatmap(self, plot_options: PlotOptions):
-        return Heatmap(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
 
     def plot_3d(self, plot_options: PlotOptions):
         return Plots3D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)

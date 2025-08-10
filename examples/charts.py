@@ -5,84 +5,51 @@ from matplotlib import pyplot as plt
 
 from application_management.app import AppManager
 from consts.system_util import PATH_TO_MAIN_FOLDER
-from data_analysis.statistical_calculations_utils import ExpectedValueFromValuesCounts, VarianceFromValuesCounts
 from data_visualisation.models import PlotOptions, FigureOptions
-from data_visualisation.plotting_facade import ManualPlot, PlottingFacade
+from data_visualisation.plotting_facade import PlottingFacade
+
+object_to_plot = 'cube'
+dataset_to_plot = 'white_only'
+plotted_params = [
+    "expected_value_of_original_image",
+    "standard_deviation_of_processed_image",
+    "entropy_in_bits_of_processed_image"
+]
 
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
-app_manager.set_object(object='cube')
+app_manager.set_object(object=object_to_plot)
 
 data_from_db = (app_manager
                 .load_data_from_db()
-                .custom_data({ "dataset": "manual" }))
+                .custom_data({ "dataset": dataset_to_plot}))
 
-data_from_db_without_zeros = data_from_db[1:]
+for plotted_param in plotted_params:
 
-expected_values_list = list(map(lambda yi: ExpectedValueFromValuesCounts(
-        variable_values_counts=yi["histogram_of_processed_image"][1:]).value, data_from_db_without_zeros))
+    figure_options = FigureOptions(
+        x_axis_label="distance from object",
+        y_axis_label=f'{plotted_param}'
+    )
 
-variance_list = list(map(lambda yi: VarianceFromValuesCounts(
-        variable_values_counts=yi["histogram_of_processed_image"][1:]).value, data_from_db_without_zeros))
+    y = list(map(lambda yi: yi[f'{plotted_param}'], data_from_db))
 
-y = list(map(lambda yi: sum(yi["histogram_of_processed_image"][180:]) / sum(yi["histogram_of_processed_image"][:180]), data_from_db))
+    x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_from_db))
 
-x = list(map(lambda xi: math.sqrt(math.pow(xi["x"],2) + math.pow(xi["z"],2)), data_from_db))
+    plot_options = PlotOptions(x=x, y=y, label=object_to_plot)
+    PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
 
-figure_options = FigureOptions(
-    x_axis_label="distance from object",
-    y_axis_label="number of pixels above 180"
-)
-
-plot_options = PlotOptions(x=x, y=y)
-PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
-
-y = list(map(lambda yi: sum(yi["histogram_of_processed_image"][2:]), data_from_db))
-
-x = list(map(lambda xi: math.sqrt(math.pow(xi["x"],2) + math.pow(xi["z"],2)), data_from_db))
+# num of pixels to distance
 
 figure_options = FigureOptions(
     x_axis_label="distance from object",
-    y_axis_label="number of pixels"
+    y_axis_label='number of pixels that are above 0'
 )
 
-plot_options = PlotOptions(x=x, y=y)
-PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
+y = list(map(lambda yi: sum(yi["histogram_of_processed_image"][1:]), data_from_db))
 
-y = list(map(lambda yi: yi["standard_deviation_of_processed_image"], data_from_db))
+x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_from_db))
 
-x = list(map(lambda xi: math.sqrt(math.pow(xi["x"],2) + math.pow(xi["z"],2)), data_from_db))
-
-figure_options = FigureOptions(
-    x_axis_label="distance from object",
-    y_axis_label="standard_deviation_of_processed_image"
-)
-
-plot_options = PlotOptions(x=x, y=y)
-PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
-
-y = list(map(lambda yi: yi["variance_of_processed_image"], data_from_db))
-
-x = list(map(lambda xi: math.sqrt(math.pow(xi["x"],2) + math.pow(xi["z"],2)), data_from_db))
-
-figure_options = FigureOptions(
-    x_axis_label="distance from object",
-    y_axis_label="variance_of_processed_image"
-)
-
-plot_options = PlotOptions(x=x, y=y)
-PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
-
-y = list(map(lambda yi: yi["entropy_in_bits_of_processed_image"], data_from_db))
-
-x = list(map(lambda xi: math.sqrt(math.pow(xi["x"],2) + math.pow(xi["z"],2)), data_from_db))
-
-figure_options = FigureOptions(
-    x_axis_label="distance from object",
-    y_axis_label="entropy_in_bits_of_processed_image"
-)
-
-plot_options = PlotOptions(x=x, y=y)
+plot_options = PlotOptions(x=x, y=y, label=object_to_plot)
 PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
 
 # histograms

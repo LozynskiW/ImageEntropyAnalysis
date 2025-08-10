@@ -1,17 +1,18 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from data_unification._utils import build_multiple_datasets, build_multiple_datasets_3d, \
-    build_multiple_datasets_value_map_means, build_single_dataset_value_map
+from data_unification._utils import build_multiple_datasets, build_multiple_datasets_3d
 from data_visualisation._implementations.manual_plots import ManualPlot
 from data_visualisation._implementations.multiple_plots import MultiplePlot
-from data_visualisation.models import PlotOptions
+from data_visualisation._implementations.heatmap import Heatmap
+from data_visualisation.models import PlotOptions, FigureOptions
 from data_visualisation.definitions import FigureBuilder
 
 
 class PlottingFacade:
     _manual_plot = ManualPlot()
     _multiple_plot = MultiplePlot()
+    _heat_map = Heatmap()
 
     @staticmethod
     def manual_plot():
@@ -21,6 +22,10 @@ class PlottingFacade:
     def multiple_plot():
         return PlottingFacade._multiple_plot
 
+    @staticmethod
+    def heatmap():
+        return PlottingFacade._heat_map
+
 
 class Plots2D:
     figure_builder = FigureBuilder()
@@ -29,8 +34,8 @@ class Plots2D:
         self.__plot_options = plot_options
         self.__datasets = build_multiple_datasets(
             data_from_db=data_from_db,
-            data_to_x_axis=plot_options.x_axis,
-            data_to_y_axis=plot_options.y_axis
+            data_to_x_axis=plot_options.x_axis_label,
+            data_to_y_axis=plot_options.y_axis_label
         )
 
     def scatter_plot(self):
@@ -59,97 +64,16 @@ class Plots2D:
         plt.show()
 
 
-class Heatmap:
-
-    def __init__(self, data_from_db, plot_options: PlotOptions):
-        self.__plot_options = plot_options
-        self.__data_from_db = data_from_db
-        self.__datasets_map = None
-
-    def reduce_to_means(self):
-        self.__datasets_map = build_multiple_datasets_value_map_means(
-            data_from_db=self.__data_from_db,
-            data_to_x_axis=self.__plot_options.x_axis,
-            data_to_y_axis=self.__plot_options.y_axis,
-            data_as_map_value=self.__plot_options.z_axis
-        )
-        figure, ax = plt.subplots()
-        heatmap = self.__datasets_map.datasets_map
-
-        for y in np.arange(len(self.__datasets_map.y_labels)):
-            for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
-                                                                      self.__datasets_map.y_labels[y])
-
-        im = ax.imshow(heatmap)
-        cbar = ax.figure.colorbar(im, ax=ax)
-        cbar.ax.set_ylabel(self.__plot_options.z_axis, rotation=-90, va="bottom")
-        ax.set_xticks(np.arange(len(self.__datasets_map.x_labels)), labels=self.__datasets_map.x_labels)
-        ax.set_yticks(np.arange(len(self.__datasets_map.y_labels)), labels=self.__datasets_map.y_labels)
-        ax.set_xlabel(self.__plot_options.x_axis)
-        ax.set_ylabel(self.__plot_options.y_axis)
-        plt.show()
-
-    def plot_single_dataset(self):
-        self.__datasets_map = build_single_dataset_value_map(
-            data_from_db=self.__data_from_db,
-            data_to_x_axis=self.__plot_options.x_axis,
-            data_to_y_axis=self.__plot_options.y_axis,
-            data_as_map_value=self.__plot_options.z_axis
-        )
-        figure, ax = plt.subplots()
-        heatmap = self.__datasets_map.datasets_map
-
-        for y in np.arange(len(self.__datasets_map.y_labels)):
-            for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
-                                                                      self.__datasets_map.y_labels[y])
-
-        im = ax.imshow(heatmap)
-        cbar = ax.figure.colorbar(im, ax=ax)
-        cbar.ax.set_ylabel(self.__plot_options.z_axis, rotation=-90, va="bottom")
-        ax.set_xticks(np.arange(len(self.__datasets_map.x_labels)), labels=self.__datasets_map.x_labels)
-        ax.set_yticks(np.arange(len(self.__datasets_map.y_labels)), labels=self.__datasets_map.y_labels)
-        ax.set_xlabel(self.__plot_options.x_axis)
-        ax.set_ylabel(self.__plot_options.y_axis)
-        plt.show()
-
-    def plot_single_dataset_map_results_by_fun(self, fun=None):
-        self.__datasets_map = build_single_dataset_value_map(
-            data_from_db=self.__data_from_db,
-            data_to_x_axis=self.__plot_options.x_axis,
-            data_to_y_axis=self.__plot_options.y_axis,
-            data_as_map_value=self.__plot_options.z_axis,
-            mapping_fun=fun
-        )
-        figure, ax = plt.subplots()
-        heatmap = self.__datasets_map.datasets_map
-
-        for y in np.arange(len(self.__datasets_map.y_labels)):
-            for x in np.arange(len(self.__datasets_map.x_labels)):
-                heatmap[y][x] = self.__datasets_map.get_point_for_x_y(self.__datasets_map.x_labels[x],
-                                                                      self.__datasets_map.y_labels[y])
-
-        im = ax.imshow(heatmap)
-        cbar = ax.figure.colorbar(im, ax=ax)
-        cbar.ax.set_ylabel(self.__plot_options.z_axis, rotation=-90, va="bottom")
-        ax.set_xticks(np.arange(len(self.__datasets_map.x_labels)), labels=self.__datasets_map.x_labels)
-        ax.set_yticks(np.arange(len(self.__datasets_map.y_labels)), labels=self.__datasets_map.y_labels)
-        ax.set_xlabel(self.__plot_options.x_axis)
-        ax.set_ylabel(self.__plot_options.y_axis)
-        plt.show()
-
-
 class Plots3D:
     figure_builder = FigureBuilder()
 
-    def __init__(self, data_from_db, plot_options: PlotOptions):
+    def __init__(self, data_from_db, plot_options: FigureOptions):
         self.__plot_options = plot_options
         self.__datasets = build_multiple_datasets_3d(
             data_from_db=data_from_db,
-            data_to_x_axis=plot_options.x_axis,
-            data_to_y_axis=plot_options.y_axis,
-            data_to_z_axis=plot_options.z_axis
+            data_to_x_axis=plot_options.x_axis_label,
+            data_to_y_axis=plot_options.y_axis_label,
+            data_to_z_axis=plot_options.z_axis_label
         )
 
     def bar_plot(self):
@@ -209,8 +133,8 @@ class Plots3D:
             ax.plot_surface(X, Y, Z, cmap=color_maps[cm_index], alpha=.7)
 
             # Ustawienie etykiet osi
-            ax.set_xlabel(self.__plot_options.x_axis)
-            ax.set_ylabel(self.__plot_options.y_axis)
-            ax.set_zlabel(self.__plot_options.z_axis)
+            ax.set_xlabel(self.__plot_options.x_axis_label)
+            ax.set_ylabel(self.__plot_options.y_axis_label)
+            ax.set_zlabel(self.__plot_options.z_axis_label)
             cm_index += 1
         plt.show()
