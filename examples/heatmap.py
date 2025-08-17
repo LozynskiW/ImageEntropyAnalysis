@@ -1,11 +1,14 @@
+import numpy as np
+
 from application_management.app import AppManager
 from data_visualisation._implementations.heatmap import HeatmapConfig
 from data_visualisation.models import FigureOptions
-from consts.system_util import PATH_TO_MAIN_FOLDER
+from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
 from data_visualisation.plotting_facade import PlottingFacade
 
 object_to_plot = 'cone'
 dataset_for_objects = 'manual'  # manual white_noise white_only
+path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 plotted_param = 'standard_deviation_of_processed_image'
 x_axis = "x"
@@ -30,7 +33,8 @@ figure_options = FigureOptions(
 
 heatmap_config = HeatmapConfig(
     show_cbar=False,
-    show_annotations=True
+    show_annotations=True,
+    values_mapping_fun=lambda x: np.arctan(x['z']/x['x'])
 )
 
 PlottingFacade.heatmap().plot_data(
@@ -38,3 +42,10 @@ PlottingFacade.heatmap().plot_data(
     figure_options=figure_options,
     config=heatmap_config
 )
+
+# PlottingFacade.heatmap().save_to_file(
+#     data_from_db=data_from_db,
+#     figure_options=figure_options,
+#     config=heatmap_config,
+#     file_name=f'{path_to_save_figures}/{object_to_plot}_heatmap_{plotted_param}'
+# )

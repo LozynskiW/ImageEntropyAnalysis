@@ -11,8 +11,6 @@ from data_visualisation.plotting_facade import PlottingFacade
 object_to_plot = 'cube'
 dataset_to_plot = 'white_only'
 plotted_params = [
-    "expected_value_of_original_image",
-    "standard_deviation_of_processed_image",
     "entropy_in_bits_of_processed_image"
 ]
 

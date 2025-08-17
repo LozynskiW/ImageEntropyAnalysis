@@ -59,13 +59,13 @@ class Trajectory:
         return list(map(lambda c: c.time_s, self.__coordinates_in_time))
 
     def get_x_positions(self) -> list:
-        return list(map(lambda c: c.x, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.x, self.__coordinates_in_time))
 
     def get_y_positions(self) -> list:
-        return list(map(lambda c: c.y, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.y, self.__coordinates_in_time))
 
     def get_z_positions(self) -> list:
-        return list(map(lambda c: c.z, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.z, self.__coordinates_in_time))
 
     def get_last_frame(self):
         return self.__coordinates_in_time[-1].frame
