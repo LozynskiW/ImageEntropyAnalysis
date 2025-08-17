@@ -13,9 +13,7 @@ from typing import Callable
 class HeatmapConfig:
     show_cbar: bool = True
     show_annotations: bool = True
-    # x_values: list = None
-    # y_values: list = None
-    # z_values: list = None
+    to_percentage: bool = False
     values_mapping_fun: Callable = None
 
 
@@ -61,7 +59,7 @@ class Heatmap:
                 heatmap[y][x] = datasets_map.get_point_for_x_y(datasets_map.x_labels[x],
                                                                datasets_map.y_labels[y])
         if config.show_annotations:
-            Heatmap.__set_annotations_to_heatmap(ax, heatmap, to_percentage=True)
+            Heatmap.__set_annotations_to_heatmap(ax, heatmap, to_percentage=config.to_percentage)
 
         im = ax.imshow(heatmap)
         if config.show_cbar:

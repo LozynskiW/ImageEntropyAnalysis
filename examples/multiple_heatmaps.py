@@ -15,6 +15,12 @@ y_axis = "z"
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
 
+heatmap_config = HeatmapConfig(
+            show_cbar=False,
+            show_annotations=True,
+            to_percentage=False
+        )
+
 for obj_to_plot in objects_to_plot:
     app_manager.set_object(object=obj_to_plot)
 
@@ -31,11 +37,6 @@ for obj_to_plot in objects_to_plot:
             y_axis_label=y_axis,
             z_axis_label=plotted_param,
             title=f'{obj_to_plot} - {dataset} - {plotted_param}'
-        )
-
-        heatmap_config = HeatmapConfig(
-            show_cbar=False,
-            show_annotations=True
         )
 
         PlottingFacade.heatmap().save_to_file(

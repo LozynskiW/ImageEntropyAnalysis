@@ -1,5 +1,3 @@
-import numpy as np
-
 from application_management.app import AppManager
 from data_visualisation._implementations.heatmap import HeatmapConfig
 from data_visualisation.models import FigureOptions
@@ -10,7 +8,7 @@ object_to_plot = 'cone'
 dataset_for_objects = 'manual'  # manual white_noise white_only
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
-plotted_param = 'standard_deviation_of_processed_image'
+plotted_param = 'entropy_in_bits_of_processed_image'
 x_axis = "x"
 y_axis = "z"
 
@@ -34,7 +32,8 @@ figure_options = FigureOptions(
 heatmap_config = HeatmapConfig(
     show_cbar=False,
     show_annotations=True,
-    values_mapping_fun=lambda x: np.arctan(x['z']/x['x'])
+    to_percentage=False,
+    values_mapping_fun=None
 )
 
 PlottingFacade.heatmap().plot_data(
