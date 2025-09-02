@@ -1,7 +1,10 @@
+from abc import ABC
+
 from image_processing.basictools.utilities import show_image, calculate_fill_factor, show_detected_target_on_img
 from image_processing.basictools import statisticalparameters
 from copy import deepcopy
 
+from image_processing.definitions import ConfigurableImageSegmentationSystem
 from image_processing.processing_results.application_actions import ProcessingAudit
 from image_processing.processing_results.processing_results_facade import ProcessingResults
 from image_processing.processing_results.processing_results_interfaces import ProcessingResult

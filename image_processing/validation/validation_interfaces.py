@@ -1,7 +1,5 @@
-from image_processing.interfaces import verbose_mode
 
-
-class base(verbose_mode):
+class ImageValidator:
 
     def validate(self, img):
         return NotImplementedError

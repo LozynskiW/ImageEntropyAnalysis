@@ -1,7 +1,6 @@
-from image_processing.interfaces import verbose_mode
 
 
-class base(verbose_mode):
+class TargetEstablishingAlgorithm:
 
     def establish_target_location(self, target_coordinates):
         raise NotImplementedError

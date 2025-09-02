@@ -1,3 +1,5 @@
+import traceback
+
 import pymongo
 import os
 import pandas as pd
@@ -49,8 +51,8 @@ class Mongo:
 
         try:
             self.__db_collection.insert_one(json_file)
-        except:
-            print("Error in DataBase.put_to_db")
+        except Exception:
+            traceback.print_exc()
 
     def delete_in_db(self, query, multiple_delete=False, verbose_mode=True, delete_all=False):
 

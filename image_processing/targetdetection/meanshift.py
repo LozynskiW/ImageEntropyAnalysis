@@ -3,7 +3,7 @@ from image_processing.basictools.utilities import show_detected_target_on_img
 from image_processing.targetdetection import targetdetection_interfaces
 
 
-class highest_luminance_density(targetdetection_interfaces.base):
+class highest_luminance_density(targetdetection_interfaces.TargetDetectionAlgorithm):
 
     def search_for_target(self, segmented_img):
         if super().verbose_mode:

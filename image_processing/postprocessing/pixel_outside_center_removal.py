@@ -3,7 +3,7 @@ from image_processing.basictools.twodimstructures import calculate_center_disk_m
 from image_processing.postprocessing import postprocessing_interfaces
 
 
-class fill_factor_based(postprocessing_interfaces.base):
+class fill_factor_based(postprocessing_interfaces.PostProcessingAlgorithm):
 
     def validate_or_process(self, img, fill_factor):
 

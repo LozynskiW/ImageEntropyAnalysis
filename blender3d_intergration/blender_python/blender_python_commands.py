@@ -5,10 +5,18 @@ class BlenderPythonCommands(StrEnum):
     BPY_IMPORT = "import bpy"
     SELECT_ALL = "bpy.ops.object.select_all(action='SELECT')"
     DESELECT_ALL = "bpy.ops.object.select_all(action='DESELECT')"
-    SELECT_CAMERA = 'bpy.data.objects["Camera"].select_set(True)'
+    SELECT_OBJECT = 'bpy.data.objects["{obj_name:s}"].select_set(True)'
     SELECT_LIGHT_SOURCE = 'bpy.data.objects["light_source"].select_set(True)'
 
-    ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
+    DISABLE_RENDER_FOR_SELECTED_OBJ = 'bpy.context.object.hide_render = True'
+    ENABLE_RENDER_FOR_SELECTED_OBJ = 'bpy.context.object.hide_render = False'
+    DISABLE_RENDER_BY_NAME = 'bpy.data.objects[name:%s].hide_render = True'
+    ENABLE_RENDER_BY_NAME = 'bpy.data.objects[name:%s].hide_render = False'
+
+    ITERATE_OVER_ALL_OBJECTS = 'for o in bpy.data.objects:'
+    DISABLE_RENDER_BY_NAME_OF_ITERATED_OBJ = '\tbpy.data.objects[o.name].hide_render = True'
+
+    ADD_TRACK_TO_CONSTRAINT_FOR_SELECTED_OBJECT = "bpy.ops.object.constraint_add(type='TRACK_TO')"
     SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].target = bpy.data.objects["Target"]'
     DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT = 'bpy.ops.constraint.delete(constraint="Track To", owner="OBJECT")'
     SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT = 'bpy.context.object.constraints["Track To"].up_axis = "UP_Y"'
@@ -40,14 +48,12 @@ class BlenderPythonCommands(StrEnum):
     SCALE_Y = "bpy.context.object.scale[1] = {val:4.2f}"
     SCALE_Z = "bpy.context.object.scale[2] = {val:4.2f}"
 
-    DECLARE_CAMERAPATH_AS_VARIABLE = "camera_path = bpy.data.objects['CameraPath']"
-    DECLARE_CAMERA_AS_VARIABLE = "camera = bpy.data.objects['Camera']"
-
-    SET_CAMERAPATH_LOCATION_Z = "camera_path.location = 0, 0, {val:4.2f}"
-    SET_CAMERAPATH_LOCATION_X_Y_Z = "camera_path.location = {val:4.2f}, {val:4.2f}, {val:4.2f}"
-    SET_CAMERA_LOCATION = "camera.location = {val:4.2f}, 0, 0"
-    SET_CAMERA_LOCATION_X_Y_Z = "camera.location = {x:4.2f}, {y:4.2f}, {z:4.2f}"
-
-    SET_CAMERAPATH_SCALING_X_Y_Z = "camera_path.scale = {val:4.2f}, {val:4.2f}, {val:4.2f}"
+    SET_OBJECT_LOCATION_X_Y_Z = 'bpy.data.objects["{obj_name:s}"].location = {x:4.2f}, {y:4.2f}, {z:4.2f}'
 
     DELETE_ALL_ANIMATIONS = "bpy.ops.anim.channels_delete()"
+
+    SELECT_MATERIAL_AT_INDEX = "bpy.context.object.active_material_index = {val:d}"
+    TOGGLE_EDIT_MODE = "bpy.ops.object.editmode_toggle()"
+    SELECT_ALL_OBJECT_FACES = "bpy.ops.mesh.select_all(action='SELECT')"
+
+    SET_WORLD_BACKGROUND_COLOR_RGB = 'bpy.data.worlds["World"].node_tree.nodes["Background"].inputs[0].default_value = ({r:1.6f}, {g:1.6f}, {b:1.6f}, 1)'

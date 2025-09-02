@@ -5,13 +5,13 @@ from blender3d_intergration.blender_python.blender_python_commands import Blende
 
 from blender3d_intergration.enums import FileExtensions
 from blender3d_intergration.trajectories_api.models import Trajectory, CoordinatesInTime
+import json
 
 
 def blender_commands_from_trajectory(trajectory: Trajectory,
                                      path_to_files: str = os.path.dirname(__file__),
                                      output_file_name: str = 'trajectory',
                                      output_file_ext: FileExtensions = FileExtensions.TXT) -> None:
-
     output_file = f'{path_to_files}/{output_file_name}.{output_file_ext}'
 
     try:
@@ -34,56 +34,65 @@ def gps_data_from_trajectory(trajectory: Trajectory,
                              path_to_files: str = os.path.dirname(__file__),
                              output_file_name: str = 'gps_for_trajectory',
                              output_file_ext: FileExtensions = FileExtensions.TXT) -> None:
-
     output_file = f'{path_to_files}/{output_file_name}.{output_file_ext}'
 
+    if output_file_ext == FileExtensions.TXT:
+        _save_to_txt(output_file, trajectory.get_coordinates())
+    if output_file_ext == FileExtensions.JSON:
+        _save_to_json(output_file, trajectory.get_coordinates())
+
+
+def _save_to_txt(
+        file_name: str,
+        coordinates: list[CoordinatesInTime]) -> None:
     try:
-        file = open(output_file, 'w')
+        file = open(file_name, 'w')
     except FileNotFoundError:
-        file = open(output_file, 'x')
+        file = open(file_name, 'x')
 
     sys.stdout = file
 
-    for coordinates_in_time in trajectory.get_coordinates():
+    for coordinates_in_time in coordinates:
         print(coordinates_in_time.to_dict())
+
+
+def _save_to_json(
+        file_name: str,
+        coordinates: list[CoordinatesInTime]) -> None:
+    try:
+        with open(f'{file_name}', 'w', encoding='utf-8') as f:
+            coordinates_json_serializable_list = []
+
+            for coordinates_in_time in coordinates:
+                coordinates_json_serializable_list.append(coordinates_in_time.to_dict())
+
+            json.dump(coordinates_json_serializable_list, f, ensure_ascii=False, indent=4)
+
+    except FileNotFoundError:
+        with open(f'{file_name}', 'x', encoding='utf-8') as f:
+            for coordinates_in_time in coordinates:
+                json.dump(coordinates_in_time.to_dict(), f, ensure_ascii=False, indent=4)
 
 
 def __set_scene(trajectory: Trajectory):
     print(bpy.BPY_IMPORT)
+
     print(bpy.DESELECT_ALL)
-    print(bpy.DECLARE_CAMERA_AS_VARIABLE)
-    print(bpy.DESELECT_ALL)
-
-    print(bpy.SELECT_CAMERA)
-
-    print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_TRACk_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT)
-    print(bpy.SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-    print(bpy.DESELECT_ALL)
-
-    print(bpy.SELECT_LIGHT_SOURCE)
-
-    print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    print(bpy.SET_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    print(bpy.SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-
-    print(bpy.DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    print(bpy.ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT)
-    print(bpy.SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    print(bpy.DESELECT_ALL)
-
-    print(bpy.SET_START_FRAME.format(val=0))
+    print(bpy.SET_START_FRAME.format(val=1))
     print(bpy.SET_END_FRAME.format(val=trajectory.get_last_frame()))
 
 
-def __apply_location_for_camera(coordinates_in_time: CoordinatesInTime):
+def __apply_location_for_object(obj_name: str, coordinates_in_time: CoordinatesInTime):
     coordinates = coordinates_in_time.coordinates
     print(bpy.SET_FRAME.format(val=coordinates_in_time.frame))
 
-    print(bpy.SET_CAMERA_LOCATION_X_Y_Z.format(x=coordinates.x, y=coordinates.y, z=coordinates.z))
-    print(bpy.SELECT_ALL)
+    print(bpy.SET_OBJECT_LOCATION_X_Y_Z.format(obj_name=obj_name, x=coordinates.x, y=coordinates.y, z=coordinates.z))
+
+    print(bpy.DESELECT_ALL)
+    print(bpy.SELECT_OBJECT.format(obj_name=obj_name))
     print(bpy.APPLY_LOCATION)
     print(bpy.DESELECT_ALL)
+
+
+def __apply_location_for_camera(coordinates_in_time: CoordinatesInTime):
+    __apply_location_for_object("Camera", coordinates_in_time)

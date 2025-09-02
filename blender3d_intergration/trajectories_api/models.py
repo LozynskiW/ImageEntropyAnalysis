@@ -26,11 +26,16 @@ class CoordinatesInTime:
             "x": self.coordinates.x,
             "y": self.coordinates.y,
             "z": self.coordinates.z,
-            "t": self.time_s
+            "t": self.time_s,
+            "image": self._format_to_length_4(self.frame)
         }
 
     def to_scv(self) -> str:
-        return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s}"
+        return f"{self.coordinates.x},{self.coordinates.y},{self.coordinates.z},{self.time_s},{self.frame}"
+
+    @staticmethod
+    def _format_to_length_4(s: int) -> str:
+        return str(s).zfill(4)
 
 
 class Trajectory:
@@ -55,13 +60,13 @@ class Trajectory:
         return list(map(lambda c: c.time_s, self.__coordinates_in_time))
 
     def get_x_positions(self) -> list:
-        return list(map(lambda c: c.x, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.x, self.__coordinates_in_time))
 
     def get_y_positions(self) -> list:
-        return list(map(lambda c: c.y, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.y, self.__coordinates_in_time))
 
     def get_z_positions(self) -> list:
-        return list(map(lambda c: c.z, self.__coordinates_in_time))
+        return list(map(lambda c: c.coordinates.z, self.__coordinates_in_time))
 
     def get_last_frame(self):
         return self.__coordinates_in_time[-1].frame

@@ -1,6 +1,9 @@
+from image_processing._decorators import Profile
+from image_processing.definitions import ImageSegmentationSystem
 from image_processing.image_processing_main import ImageTargetDetectionSystem
+from image_processing.model import ImageSegmentationSystemConfig
 from image_processing.preproocessing import format_standardization
-from image_processing.segmentation import threshold
+from image_processing.segmentation import threshold, test
 from image_processing.targetdetection import meanshift
 from image_processing.targetestablishing import target_distance_based
 from image_processing.processing_results.statistical_results import StatisticalResults, EntropyMeasures
@@ -8,15 +11,15 @@ from image_processing.processing_results.statistical_results import StatisticalR
 global_verbose_mode = False
 
 _img_preprocessing = [
-    format_standardization.to_unit8_rgb(verbose_mode=global_verbose_mode)
+    format_standardization.to_unit8_rgb()
 ]
 
 _img_validators = []
 
 _img_segment_algorithms = [
-    threshold.simple_luminance_threshold(verbose_mode=global_verbose_mode,
-                                         show_image_after_processing=global_verbose_mode,
-                                         min_luminance_threshold=80),
+    threshold.SimpleLuminanceThreshold(verbose_mode=global_verbose_mode,
+                                       show_image_after_processing=global_verbose_mode,
+                                       min_luminance_threshold=80),
 ]
 
 _segmentation_fusion_method = None
@@ -24,7 +27,7 @@ _segmentation_fusion_method = None
 _initial_validation_and_postprocessing_tools = []
 
 _target_detection_algorithms = [
-    meanshift.highest_luminance_density(verbose_mode=global_verbose_mode, show_image_after_processing=global_verbose_mode)
+    meanshift.highest_luminance_density()
 ]
 
 _target_establishing = [
@@ -55,4 +58,24 @@ luminance_threshold_based_system_no_target_detection = ImageTargetDetectionSyste
     target_detection_algorithms=[],
     target_establishing=[],
     additional_postprocessing_image_parameters=additional_postprocessing_image_parameters
+)
+
+luminance_threshold_image_segmentation = ImageSegmentationSystem(
+    config=ImageSegmentationSystemConfig(
+        image_preprocessors=_img_preprocessing,
+        img_validators=_img_validators,
+        image_segmentation_algorithm=threshold.SimpleLuminanceThreshold(verbose_mode=False,
+                                                                        show_image_after_processing=False,
+                                                                        min_luminance_threshold=80)
+    )
+)
+
+luminance_threshold_image_segmentation_theoretical_data = ImageSegmentationSystem(
+    config=ImageSegmentationSystemConfig(
+        image_preprocessors=_img_preprocessing,
+        img_validators=_img_validators,
+        image_segmentation_algorithm=threshold.SimpleLuminanceThresholdNoImageModification(verbose_mode=False,
+                                                                        show_image_after_processing=False,
+                                                                        min_luminance_threshold=2)),
+    profile=Profile.SILENT
 )

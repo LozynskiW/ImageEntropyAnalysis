@@ -4,8 +4,12 @@ import pandas as pd
 from application_management.util.util import load_data_from_db, db_management
 from data_visualisation.plotting_facade import Plots2D, Plots3D, Heatmap
 from data_management.data_base.nosql import Mongo
-from data_visualisation.consts.plot_options import PlotOptions
+from data_visualisation.models import PlotOptions, FigureOptions
 from data_unification.data_unification_facade import DataUnificationForPlotting
+from image_data_logs_readers.definitions import LogsReader
+from image_processing.definitions import ImageSegmentationSystem
+from image_processing.image_processing_main import ImageTargetDetectionSystem
+from image_processing.processing_results.processing_results_facade import ProcessingResults
 
 
 class AppManager:
@@ -85,7 +89,7 @@ class AppManager:
         else:
             self.__data_base.put_to_db(json_file=json_document)
 
-    def set_image_processing_system(self, image_processing_system):
+    def set_image_processing_system(self, image_processing_system: ImageTargetDetectionSystem):
         self.__image_processing_system = image_processing_system
 
     def delete_from_db(self, query, multiple_delete=False):
@@ -142,7 +146,6 @@ class AppManager:
         self.__data_from_db = {}
 
         if data_from_db:
-
             self.__data_from_db[self.__object] = data_from_db
 
         self.__data_from_db['meta'] = {
@@ -167,7 +170,8 @@ class AppManager:
         return self.__data_base
 
     def update_data(self, query, data):
-        self.__data_base.update_in_db(query=query, json_file=self.__data_base.query_assistance().form_query_to_update(data))
+        self.__data_base.update_in_db(query=query,
+                                      json_file=self.__data_base.query_assistance().form_query_to_update(data))
 
     def __db_collection_setup(self):
         try:
@@ -199,7 +203,61 @@ class AppManager:
                 print("No folder was found, try setting other dataset path")
                 return None
 
-    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False, memory=False):
+    def analyze_dataset_only_segmentation(self,
+                                          save_to_db=False,
+                                          update=False,
+                                          verbose_mode=False,
+                                          show_images=False,
+                                          log_reader: LogsReader = None,
+                                          datasets: list | None = None):
+
+        analysis_system: ImageSegmentationSystem = self.__image_processing_system
+
+        self.__db_collection_setup()
+
+        if datasets is None:
+            datasets, log = self.__images_and_logs_setup(logs=False)
+
+        else:
+            _, log = self.__images_and_logs_setup(logs=False)
+
+        for dataset in datasets:
+
+            self.__local_storage.set_dataset(dataset)
+            images = self.__local_storage.get_folder_content(folder_name=dataset)
+
+            for image_name in images:
+                query_to_find_file = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
+                json_document_to_db = {'object': self.__object, 'dataset': dataset, 'file_name': image_name}
+
+                if verbose_mode: print("STARTING PROCESSING OF IMAGE: ",
+                                       {'object': self.__object, 'dataset': dataset, 'file_name': image_name})
+
+                image = self.__local_storage.open_img_from_path(image_name)
+
+                img_processing_results: ProcessingResults = analysis_system.process_image(img=image)
+
+                img_processing_results_dict = img_processing_results.to_dict()
+                for key in img_processing_results_dict:
+                    json_document_to_db[key] = img_processing_results_dict[key]
+
+                if log_reader is not None:
+                    log_for_image = log_reader.get_log_by_image_name(json_document_to_db['file_name'])
+
+                    log_for_image_dict = log_for_image.to_dict()
+                    for key in log_for_image.to_dict():
+                        json_document_to_db[key] = log_for_image_dict[key]
+
+                if verbose_mode: print("DOCUMENT SENT TO DB: ", json_document_to_db)
+
+                if save_to_db:
+                    self.__update_or_add_to_db(query_to_find_file=query_to_find_file,
+                                               json_document=json_document_to_db,
+                                               update=update)
+                if verbose_mode: print("PROCESSING END")
+
+    def analyze_dataset(self, logs=False, save_to_db=False, update=False, verbose_mode=False, show_images=False,
+                        memory=False, log_reader=None):
 
         if memory:
             memory_unit = file_memory()
@@ -227,11 +285,16 @@ class AppManager:
 
                 image = self.__local_storage.open_img_from_path(image_name)
 
-                img_processing_outcome = analysis_system.search_for_target(img=image, verbose_mode=verbose_mode,
-                                                                           show_images=show_images)
+                img_processing_outcome = analysis_system.process_image(img=image)
 
                 for key in img_processing_outcome.keys():
                     json_document_to_db[key] = img_processing_outcome[key]
+
+                if log_reader is not None:
+                    log_reader.get_log_by_image_name(json_document_to_db['file_name'])
+
+                    for key in log_reader.to_dict():
+                        json_document_to_db[key] = log_reader[key]
 
                 if verbose_mode: print(json_document_to_db)
 
@@ -246,9 +309,6 @@ class AppManager:
 
     def plot_2d(self, plot_options: PlotOptions):
         return Plots2D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
-
-    def heatmap(self, plot_options: PlotOptions):
-        return Heatmap(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)
 
     def plot_3d(self, plot_options: PlotOptions):
         return Plots3D(data_from_db=self.__data_from_db[self.__object], plot_options=plot_options)

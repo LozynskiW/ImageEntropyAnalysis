@@ -1,8 +1,10 @@
+from abc import ABC
+
 from skimage.segmentation import flood
-from image_processing.validation import validation_interfaces
+from image_processing.validation.validation_interfaces import ImageValidator
 
 
-class without_contour_closing(validation_interfaces.base):
+class ContourClosureValidator(ImageValidator, ABC):
     """
     Klasa pozwalająca na okreslenie, czy kontur obiektu jest zamknięty
     """

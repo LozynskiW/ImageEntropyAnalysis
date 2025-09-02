@@ -8,6 +8,7 @@ class FlightParameters(StrEnum):
 
 class FileExtensions(StrEnum):
     TXT = 'txt'
+    JSON = 'json'
 
 
 class BlenderObjects(StrEnum):

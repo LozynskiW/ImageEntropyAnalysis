@@ -32,5 +32,8 @@ class GrayscaleImage8bit(ArrayImage, ABC):
 
     @staticmethod
     def from_image(any_image):
-        img_converted = img_as_ubyte(rgb2gray(any_image))
-        return GrayscaleImage8bit(img_converted)
+        try:
+            img_converted = img_as_ubyte(rgb2gray(any_image))
+            return GrayscaleImage8bit(img_converted)
+        except ValueError:
+            return GrayscaleImage8bit(img_as_ubyte(any_image))

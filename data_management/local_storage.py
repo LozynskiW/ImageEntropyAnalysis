@@ -266,7 +266,7 @@ class on_disk:
         Returns
         Value of __dataset_path
         """
-        return os.listdir(self.__main_folder + '/' + self.__object + '/' + folder_name)
+        return os.listdir(f"{self.__main_folder}/{self.__object}/{folder_name}")
 
     def get_folder_contents_from_log(self, log_filename='log.txt'):
         """

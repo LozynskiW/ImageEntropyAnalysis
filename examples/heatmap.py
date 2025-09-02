@@ -1,28 +1,52 @@
 from application_management.app import AppManager
-from consts.datasets_for_object import DEER
-from consts.data_to_plot import X_axis, Y_axis
-from data_visualisation.consts.plot_options import PlotOptionsBuilder
-from consts.system_util import PATH_TO_MAIN_FOLDER
+from data_visualisation._implementations.heatmap import HeatmapConfig
+from data_visualisation.models import FigureOptions
+from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
+from data_visualisation.plotting_facade import PlottingFacade
+
+object_to_plot = 'cone'
+dataset_for_objects = 'manual'  # manual white_noise white_only
+path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
+
+plotted_param = 'number of target pixels'
+values_mapping_fun = lambda xi: sum(xi["histogram_of_processed_image"][1:])
+
+x_axis = "x"
+y_axis = "z"
 
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
-app_manager.set_object(object=DEER.dataset_name())
+app_manager.set_object(object=object_to_plot)
 
-data_from_db = app_manager.load_data_from_db().multiple_datasets(
-    datasets=DEER.all_datasets(),
-    is_valid=True,
-    was_processed=True,
-    is_target_detected=True
-)
+data_from_db = (app_manager
+                .load_data_from_db()
+                .custom_data({"dataset": {"$in": datasets_for_objects}}))
 
 app_manager.set_data_from_db(data_from_db=data_from_db)
 
-builder = PlotOptionsBuilder()
+figure_options = FigureOptions(
+    x_axis_label=x_axis,
+    y_axis_label=y_axis,
+    z_axis_label=plotted_param,
+    title=f'{object_to_plot}: {plotted_param}'
+)
 
-plot_options_3d = builder \
-    .x_axis(X_axis.PITCH_ANGLE_IN_DEG) \
-    .y_axis(X_axis.HEIGHT) \
-    .z_axis(Y_axis.ENTROPY_OF_PROCESSED_IMAGE) \
-    .build()
+heatmap_config = HeatmapConfig(
+    show_cbar=False,
+    show_annotations=True,
+    to_percentage=False,
+    values_mapping_fun=values_mapping_fun
+)
 
-app_manager.heatmap(plot_options_3d).reduce_to_means()
+PlottingFacade.heatmap().plot_data(
+    data_from_db=data_from_db,
+    figure_options=figure_options,
+    config=heatmap_config
+)
+
+# PlottingFacade.heatmap().save_to_file(
+#     data_from_db=data_from_db,
+#     figure_options=figure_options,
+#     config=heatmap_config,
+#     file_name=f'{path_to_save_figures}/{object_to_plot}_heatmap_{plotted_param}'
+# )

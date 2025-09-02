@@ -6,13 +6,13 @@ from image_processing.segmentation import segmentation_interfaces
 from image_processing.validation import contour_closure
 
 
-class canny(segmentation_interfaces.base):
+class canny(segmentation_interfaces.ImageSegmentationAlgorithm):
 
     def segmentation(self, img, sigma=4):
 
         img_after_processing = img.copy()
 
-        contour_closure_validator = contour_closure.without_contour_closing(verbose_mode=False)
+        contour_closure_validator = contour_closure.ContourClosureValidator(verbose_mode=False)
 
         if super().verbose_mode:
             print("")

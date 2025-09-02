@@ -6,9 +6,9 @@ from image_processing.processing_results.processing_results_interfaces import Pr
 
 @dataclass(frozen=True)
 class ProcessingAudit(ProcessingResult, ABC):
-    was_positively_validated: bool
-    was_processed: bool
-    was_target_detected: bool
+    was_positively_validated: bool | None
+    was_processed: bool | None
+    was_target_detected: bool | None
 
     def to_dict(self) -> dict:
         return dict([

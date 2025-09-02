@@ -1,9 +1,9 @@
 import numpy as np
 
-from target_detection_validation_interfaces import base
+from target_detection_validation_interfaces import TargetDetectionValidator
 
 
-class SizeBased(base):
+class SizeBased(TargetDetectionValidator):
 
     def validate(self, target_coordinates, camera):
 

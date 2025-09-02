@@ -2,11 +2,10 @@ import numpy as np
 from image_processing.targetestablishing import target_establishing_interfaces
 
 
-class max_target_coordinates_distance(target_establishing_interfaces.base):
+class max_target_coordinates_distance(target_establishing_interfaces.TargetEstablishingAlgorithm):
 
     def __init__(self, max_variety, verbose_mode):
 
-        super().__init__(verbose_mode)
         self.__max_variety = max_variety
 
     def establish_target_location(self, target_coordinates):

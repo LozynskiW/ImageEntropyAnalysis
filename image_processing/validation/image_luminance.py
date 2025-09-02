@@ -1,8 +1,8 @@
-from image_processing.validation.validation_interfaces import base
+from image_processing.validation.validation_interfaces import ImageValidator
 from image_processing.basictools import statisticalparameters as stat_params
 
 
-class maximal_mean_luminance(base):
+class maximal_mean_luminance(ImageValidator):
 
     def __init__(self, validating_mean, validating_std, deviation_from_mean_in_std, verbose_mode):
         super().__init__(verbose_mode)

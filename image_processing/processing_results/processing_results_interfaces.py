@@ -2,7 +2,8 @@ from abc import abstractmethod, ABC
 
 from image_processing.models.image import ArrayImage
 
-from typing import TypeVar, Generic, Self
+from typing import TypeVar, Generic
+
 
 class Convertable(ABC):
 

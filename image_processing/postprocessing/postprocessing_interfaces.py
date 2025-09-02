@@ -1,11 +1,10 @@
 from abc import abstractmethod
-from image_processing.interfaces import show_img_before_and_after_with_verbose_mode
+from image_processing.models.image import ArrayImage
 
 
-class base(show_img_before_and_after_with_verbose_mode):
+class PostProcessingAlgorithm:
 
     def __init__(self, max_fill_factor, verbose_mode=False, show_image_after_processing=False):
-        super().__init__(verbose_mode, show_image_after_processing)
         self.__max_fill_factor = max_fill_factor
 
     @property
@@ -17,5 +16,5 @@ class base(show_img_before_and_after_with_verbose_mode):
         self.__max_fill_factor = max_fill_factor
 
     @abstractmethod
-    def validate_or_process(self, img, fill_factor):
+    def validate_or_process(self, img: ArrayImage, fill_factor):
         pass
