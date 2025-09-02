@@ -37,6 +37,7 @@ class CoordinatesInTime:
     def _format_to_length_4(s: int) -> str:
         return str(s).zfill(4)
 
+
 class Trajectory:
     __coordinates_in_time: list[CoordinatesInTime]
 

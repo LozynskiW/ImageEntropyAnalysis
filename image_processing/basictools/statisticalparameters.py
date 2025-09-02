@@ -128,15 +128,21 @@ def exp_val_from_histogram(grayscale, gray_shade_prob):
     return exp_val
 
 
-def variance_from_histogram(grayscale, gray_shade_prob, mean_value):
+def variance_from_histogram(grayscale, gray_shade_prob, expected_value):
     variance = 0
     for i in range(0, len(grayscale)):
-        variance += ((grayscale[i] - mean_value) ** 2) * gray_shade_prob[i]
+        variance += ((grayscale[i] - expected_value) ** 2) * gray_shade_prob[i]
     return variance / len(grayscale)
 
 
-def std_dev_from_histogram(variance):
-    return np.sqrt(variance)
+def std_dev_from_histogram(grayscale, gray_shade_prob):
+    expected_val = exp_val_from_histogram(grayscale, gray_shade_prob)
+
+    variance = 0
+    for i in range(0, len(grayscale)):
+        variance += ((grayscale[i] - expected_val) ** 2) * gray_shade_prob[i]
+
+    return np.sqrt(variance / len(grayscale))
 
 
 def std_dev_from_variance(variance: float):
@@ -207,12 +213,24 @@ def information_for_image_histogram(image: ArrayImage):
 
     histogram_values, histogram_probabilities = image_histogram(image, True)
 
+    return histogram_values, information_for_histogram(histogram_probabilities)
+
+
+def information_for_histogram(histogram_probabilities: list | np.ndarray) -> list[float]:
+    """
+    Information calculated by:
+    I = log2(p) [bit]
+    where:
+    p - probability of pixel value (color/luminescence) in image histogram
+    :returns: array of information for each value of pixel
+    """
+
     information_for_histogram_values = []
 
     for p in histogram_probabilities:
         information_for_histogram_values.append(-np.log2(p) if p != 0 else 0)
 
-    return histogram_values, information_for_histogram_values
+    return information_for_histogram_values
 
 
 def information_entropy_for_image_histogram(image: ArrayImage):
@@ -227,21 +245,43 @@ def information_entropy_for_image_histogram(image: ArrayImage):
 
     histogram_values, histogram_probabilities = image_histogram(image, True)
 
-    _, information_for_histogram_values = information_for_image_histogram(image)
+    return histogram_values, information_entropy_values_from_histogram(histogram_values, histogram_probabilities)
+
+
+def information_entropy_values_from_histogram(
+        histogram_values: list | np.ndarray,
+        histogram_probabilities: list | np.ndarray
+) -> list[float]:
+    """
+    Information entropy calculated by: H(x) = p(x) * log2(p(x)) [bit] where: p - probability of pixel value (
+    color/luminescence) in image histogram
+    :param histogram_values: list of values that a variable can have like 0,1,2...255
+    :param histogram_probabilities: list of probabilities that a variable can have specific value,
+    must be the same length as histogram_values
+    :returns: list of information entropy for given histogram value
+    """
+    information_for_histogram_values = information_for_histogram(histogram_probabilities)
 
     information_entropy_for_histogram_values = []
 
     for i in range(0, len(histogram_values)):
-        H_i = histogram_probabilities[i] * information_for_histogram_values[i]
-        information_entropy_for_histogram_values.append(H_i)
+        entropy_for_value_i = histogram_probabilities[i] * information_for_histogram_values[i]
+        information_entropy_for_histogram_values.append(entropy_for_value_i)
 
-    return histogram_values, information_entropy_for_histogram_values
+    return information_entropy_for_histogram_values
+
+
+def information_entropy_for_histogram(
+        histogram_values: list | np.ndarray,
+        histogram_probabilities: list | np.ndarray
+) -> float:
+    return sum(information_entropy_values_from_histogram(histogram_values, histogram_probabilities))
 
 
 def calculate_all(im):
     grayscale, gray_shade_prob = image_histogram(im, True)
-    mean = exp_val_from_histogram(grayscale, gray_shade_prob)
-    var = variance_from_histogram(grayscale, gray_shade_prob, mean)
-    std_dev = std_dev_from_histogram(var)
+    exp_val = exp_val_from_histogram(grayscale, gray_shade_prob)
+    var = variance_from_histogram(grayscale, gray_shade_prob, exp_val)
+    std_dev = std_dev_from_variance(var)
     entropy, _ = information_entropy(im)
-    return mean, var, std_dev, entropy
+    return exp_val, var, std_dev, entropy

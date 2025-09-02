@@ -17,8 +17,13 @@ class MultiplePlot:
             self._fig, self._ax = ManualPlot._build_figure(figure_options)
 
         def add_data(self, plot_options: PlotOptions):
-            self._ax.scatter(plot_options.x, plot_options.y, c=plot_options.color, marker=plot_options.marker, label=plot_options.label)
+            self._ax.scatter(plot_options.x, plot_options.y, c=plot_options.color, marker=plot_options.marker,
+                             label=plot_options.label)
 
         def show(self):
             plt.legend()
             plt.show()
+
+        def save_to_file(self, file_name: str, dpi: int):
+            plt.legend()
+            plt.savefig(fname=file_name, dpi=dpi)

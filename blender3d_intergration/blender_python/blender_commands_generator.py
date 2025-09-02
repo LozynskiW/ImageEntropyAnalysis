@@ -78,39 +78,21 @@ def __set_scene(trajectory: Trajectory):
     print(bpy.BPY_IMPORT)
 
     print(bpy.DESELECT_ALL)
-    print(bpy.DECLARE_CAMERA_AS_VARIABLE)
-    print(bpy.DESELECT_ALL)
-
-    print(bpy.SELECT_CAMERA)
-
-    # print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    # print(bpy.ADD_TRACK_TO_CONSTRAINT_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_TRACK_TO_CONSTRAINT_UP_AXIS_Y_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_TRACK_TO_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-    # print(bpy.DESELECT_ALL)
-    #
-    # print(bpy.SELECT_LIGHT_SOURCE)
-    #
-    # print(bpy.DELETE_TRACK_TO_CONSTRAINT_TO_TARGET_FOR_SELECTED_OBJECT)
-    # print(bpy.ADD_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_DUMPED_TRACK_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_DUMPED_TRACK_CONSTRAINT_TRACK_AXIS_TRACK_NEGATIVE_Z_FOR_SELECTED_OBJECT)
-    #
-    # print(bpy.DELETE_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    # print(bpy.ADD_COPY_LOCATION_CONSTRAINT_FOR_SELECTED_OBJECT)
-    # print(bpy.SET_COPY_LOCATION_TO_CAMERA_FOR_SELECTED_OBJECT)
-    # print(bpy.DESELECT_ALL)
-
     print(bpy.SET_START_FRAME.format(val=1))
     print(bpy.SET_END_FRAME.format(val=trajectory.get_last_frame()))
 
 
-def __apply_location_for_camera(coordinates_in_time: CoordinatesInTime):
+def __apply_location_for_object(obj_name: str, coordinates_in_time: CoordinatesInTime):
     coordinates = coordinates_in_time.coordinates
     print(bpy.SET_FRAME.format(val=coordinates_in_time.frame))
 
-    print(bpy.SET_CAMERA_LOCATION_X_Y_Z.format(x=coordinates.x, y=coordinates.y, z=coordinates.z))
-    print(bpy.SELECT_ALL)
+    print(bpy.SET_OBJECT_LOCATION_X_Y_Z.format(obj_name=obj_name, x=coordinates.x, y=coordinates.y, z=coordinates.z))
+
+    print(bpy.DESELECT_ALL)
+    print(bpy.SELECT_OBJECT.format(obj_name=obj_name))
     print(bpy.APPLY_LOCATION)
     print(bpy.DESELECT_ALL)
+
+
+def __apply_location_for_camera(coordinates_in_time: CoordinatesInTime):
+    __apply_location_for_object("Camera", coordinates_in_time)

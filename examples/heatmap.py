@@ -8,7 +8,9 @@ object_to_plot = 'cone'
 dataset_for_objects = 'manual'  # manual white_noise white_only
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
-plotted_param = 'entropy_in_bits_of_processed_image'
+plotted_param = 'number of target pixels'
+values_mapping_fun = lambda xi: sum(xi["histogram_of_processed_image"][1:])
+
 x_axis = "x"
 y_axis = "z"
 
@@ -18,7 +20,7 @@ app_manager.set_object(object=object_to_plot)
 
 data_from_db = (app_manager
                 .load_data_from_db()
-                .custom_data({"dataset": dataset_for_objects}))
+                .custom_data({"dataset": {"$in": datasets_for_objects}}))
 
 app_manager.set_data_from_db(data_from_db=data_from_db)
 
@@ -33,7 +35,7 @@ heatmap_config = HeatmapConfig(
     show_cbar=False,
     show_annotations=True,
     to_percentage=False,
-    values_mapping_fun=None
+    values_mapping_fun=values_mapping_fun
 )
 
 PlottingFacade.heatmap().plot_data(

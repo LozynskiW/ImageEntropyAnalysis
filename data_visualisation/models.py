@@ -3,7 +3,7 @@ from enum import Enum, StrEnum
 
 
 class PlotFontSize(Enum):
-    SMALL = (12,16,20)
+    SMALL = (12, 16, 20)
     MEDIUM = (20, 24, 28)
     BIG = (28, 32, 36)
 
@@ -13,6 +13,7 @@ class PlotFontSize(Enum):
         self.big_font = big_font
 
 
+# https://matplotlib.org/stable/users/explain/colors/colors.html#colors-def
 class PlotColor(StrEnum):
     BLUE = "b"
     GREEN = 'g'
@@ -22,6 +23,7 @@ class PlotColor(StrEnum):
     MAGENTA = 'm'
     BLACK = 'b'
     WHITE = 'w'
+    VIOLET = "violet"
 
 
 class PlotMarker(StrEnum):

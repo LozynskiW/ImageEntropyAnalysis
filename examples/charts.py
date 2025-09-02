@@ -11,7 +11,8 @@ from data_visualisation.plotting_facade import PlottingFacade
 object_to_plot = 'cube'
 dataset_to_plot = 'white_only'
 plotted_params = [
-    "entropy_in_bits_of_processed_image"
+    "entropy_in_bits_of_processed_image",
+    "variance_of_processed_image"
 ]
 
 app_manager = AppManager()
@@ -20,7 +21,7 @@ app_manager.set_object(object=object_to_plot)
 
 data_from_db = (app_manager
                 .load_data_from_db()
-                .custom_data({ "dataset": dataset_to_plot}))
+                .custom_data({"dataset": dataset_to_plot}))
 
 for plotted_param in plotted_params:
 

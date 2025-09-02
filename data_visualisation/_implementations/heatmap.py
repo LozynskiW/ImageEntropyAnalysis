@@ -14,7 +14,8 @@ class HeatmapConfig:
     show_cbar: bool = True
     show_annotations: bool = True
     to_percentage: bool = False
-    values_mapping_fun: Callable = None
+    values_mapping_fun: Callable = None,
+    dpi: int = 200
 
 
 class Heatmap:
@@ -39,7 +40,7 @@ class Heatmap:
 
         Heatmap.__create_heatmap(data_from_db, figure_options, config)
 
-        plt.savefig(fname=file_name, dpi=200)
+        plt.savefig(fname=file_name, dpi=config.dpi)
 
     @staticmethod
     def __create_heatmap(data_from_db, figure_options: FigureOptions, config: HeatmapConfig):

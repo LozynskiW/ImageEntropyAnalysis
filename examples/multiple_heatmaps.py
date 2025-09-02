@@ -8,7 +8,7 @@ objects_to_plot = ['cube', 'cone', 'sphere', 'cylinder']
 datasets_for_objects = ['manual', 'white_noise', 'white_only']
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
-plotted_param = 'entropy_in_bits_of_processed_image'
+plotted_param = 'number of target pixels'
 x_axis = "x"
 y_axis = "z"
 
@@ -16,16 +16,17 @@ app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
 
 heatmap_config = HeatmapConfig(
-            show_cbar=False,
-            show_annotations=True,
-            to_percentage=False
-        )
+    show_cbar=False,
+    show_annotations=True,
+    to_percentage=False,
+    values_mapping_fun=lambda xi: sum(xi["histogram_of_processed_image"][1:])/100,
+    dpi=300
+)
 
 for obj_to_plot in objects_to_plot:
     app_manager.set_object(object=obj_to_plot)
 
     for dataset in datasets_for_objects:
-
         data_from_db = (app_manager
                         .load_data_from_db()
                         .custom_data({"dataset": f'{dataset}'}))
