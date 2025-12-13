@@ -58,3 +58,11 @@ class PlotOptions:
     z: list = None
     color: PlotColor = PlotColor.BLUE
     marker: PlotMarker = PlotMarker.CIRCLE
+    take_nth_value: int = 0
+
+
+@dataclass
+class PlotOptionsWithOYErrors:
+    plot_options: PlotOptions
+    y_errors: list
+    x_errors: list

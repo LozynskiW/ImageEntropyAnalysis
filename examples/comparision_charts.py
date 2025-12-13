@@ -1,12 +1,14 @@
 import math
 
 from application_management.app import AppManager
-from consts.system_util import PATH_TO_MAIN_FOLDER
+from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
 from data_visualisation.models import PlotOptions, FigureOptions, PlotColor
 from data_visualisation.plotting_facade import PlottingFacade
 
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
+
+path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 objects = {
     'cube': PlotColor.BLUE,

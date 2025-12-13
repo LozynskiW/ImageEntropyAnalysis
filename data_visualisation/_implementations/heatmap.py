@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import numpy as np
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, ticker
 
 from data_visualisation.analysis_outcome._data_for_visualisation import MultipleDatasetsValuesMap, Single3DPoint
 from data_visualisation.models import FigureOptions
@@ -33,6 +33,15 @@ class Heatmap:
         plt.show()
 
     @staticmethod
+    def plot_custom_data(data: list,
+                  figure_options: FigureOptions = FigureOptions(),
+                  config: HeatmapConfig = HeatmapConfig()):
+
+        Heatmap.__create_heatmap(data_from_db, figure_options, config)
+
+        plt.show()
+
+    @staticmethod
     def save_to_file(data_from_db,
                      figure_options: FigureOptions = FigureOptions(),
                      config: HeatmapConfig = HeatmapConfig(),
@@ -52,8 +61,11 @@ class Heatmap:
             mapping_fun=config.values_mapping_fun
         )
 
-        figure, ax = plt.subplots()
+        figure, ax = plt.subplots(figsize=(16, 9))
         heatmap = datasets_map.datasets_map
+
+        ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
+        ax.xaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
 
         for y in np.arange(len(datasets_map.y_labels)):
             for x in np.arange(len(datasets_map.x_labels)):

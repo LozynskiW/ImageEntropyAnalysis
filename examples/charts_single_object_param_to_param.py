@@ -9,18 +9,13 @@ app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 objects = [
-    'sphere'
+    'sphere', 'cube', 'cone', 'cylinder'
 ]
 
 datasets_for_objects = {
-    'white_noise': PlotColor.RED,
-    'world_636363FF': PlotColor.GREEN,
-    'world_898989FF': PlotColor.BLUE,
-    'world_A5A5A5FF': PlotColor.YELLOW,
-    'world_BCBCBCFF': PlotColor.MAGENTA,
-    'world_CFCFCFFF': PlotColor.BLACK,
-    'world_E1E1E1FF': PlotColor.CYAN,
-    'world_F0F0F0FF': PlotColor.VIOLET
+    'white_only': PlotColor.RED,
+    'gradient': PlotColor.GREEN,
+    'white_noise': PlotColor.BLUE
 }
 
 plotted_params_pairs = [
