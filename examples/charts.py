@@ -35,9 +35,7 @@ for plotted_param in plotted_params:
     x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_from_db))
 
     plot_options = PlotOptions(x=x, y=y, label=object_to_plot)
-    PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
-
-# num of pixels to distance
+    plot = PlottingFacade.manual_plot().scatter_plot(plot_options, figure_options)
 
 figure_options = FigureOptions(
     x_axis_label="distance from object",

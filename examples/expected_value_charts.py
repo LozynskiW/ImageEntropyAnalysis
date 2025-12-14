@@ -5,7 +5,8 @@ from application_management.app import AppManager
 from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
 from data_unification.data_maps import SortableDataMap, ImageEntropyAnalysisDataMap, SmoothingDataMap
 from data_unification.enums import KeyValues, PersistentNames
-from data_visualisation.models import PlotOptions, FigureOptions, PlotColor, PlotOptionsWithOYErrors, PlotMarker
+from data_visualisation.models import PlotOptions, FigureOptions, PlotColor, PlotOptionsWithOYErrors, PlotMarker, \
+    ViridisColors
 from data_visualisation.plotting_facade import PlottingFacade
 
 app_manager = AppManager()
@@ -27,10 +28,14 @@ figure_options = FigureOptions(
     y_axis_label="expected_value_of_processed_image"
 )
 
-z_values = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200,
-            240, 280, 320, 360, 400, 450, 500]
+# all possible values
+# z_values = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200,
+#             240, 280, 320, 360, 400, 450, 500]
 
-multiple_plot = PlottingFacade.multiple_plot().scatter_with_errors_plot(figure_options)
+z_values = [10, 40, 80, 120, 160, 200, 240, 280, 320, 360, 400, 500]
+
+multiple_plot = PlottingFacade.multiple_plot()
+multiple_plot.configure(figure_options)
 
 for obj in objects.keys():
     app_manager.set_object(object=obj)
@@ -52,39 +57,39 @@ for obj in objects.keys():
         std_devs = sorted_data.get_values_for_where(values_key=PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE,
                                                       values_where_key=PersistentNames.Z, min_val=20, max_val=20)
 
+        color = ViridisColors.next_color()
+        color_light = ViridisColors.get_lighter_version()
+
         plot_options = PlotOptions(
             x=distance,
             y=exp_val,
-            color=objects[obj],
-            label=obj,
+            color=color,
+            label=f"Height={z}[m]",
             marker=PlotMarker.X
         )
-        plot_options_with_errors = PlotOptionsWithOYErrors(
-            plot_options=plot_options,
-            y_errors=std_devs,
-            x_errors=[]
-        )
-        multiple_plot.add_data(plot_options_with_errors)
-
+        multiple_plot.add_scatter_plot(plot_options)
 
         spl = make_smoothing_spline(distance, exp_val)
-        grid = np.linspace(distance[0], distance[-1], 100)
+        grid = np.linspace(distance[0], distance[-1], len(distance))
 
         spl_plot_options = PlotOptions(
             x=grid,
             y=spl(grid),
-            color=objects[obj],
-            label=obj
+            color=color,
+            label=f"spline for H={z}[m]"
         )
         spl_plot_options_with_errors = PlotOptionsWithOYErrors(
             plot_options=spl_plot_options,
-            y_errors=[],
-            x_errors=[]
+            y_errors=std_devs,
+            x_errors=[],
+            errors_color=color_light
         )
-        multiple_plot.add_data(spl_plot_options_with_errors)
+        multiple_plot.add_line_with_errors_plot(spl_plot_options_with_errors)
 
     multiple_plot.show()
     # multiple_plot.save_to_file(
     #     file_name=f'{path_to_save_figures}/all_objs_{dataset_for_objects}_{plotted_param}',
     #     dpi=1200
     # )
+
+    multiple_plot.clear()

@@ -50,7 +50,7 @@ class _DataRow(DataRow):
 
 
 class ImageEntropyAnalysisDataMap(DataMap):
-    _data_rows: list[_DataRow] = []
+    _data_rows: list[_DataRow]
 
     def __init__(self, data_from_db: list[dict], indexes: set[KeyValues], histogram_values_to_ignore: list = []):
         """
@@ -61,6 +61,8 @@ class ImageEntropyAnalysisDataMap(DataMap):
         histogram_values_to_ignore: list of histogram values (also positions on array so 0 means histogram[0]) to remove
         from calculations of statistical parameters
         """
+
+        self._data_rows = []
 
         if len(data_from_db) == 0:
             raise ValueError("No data, provided data should be non empty list[dict]")
@@ -146,7 +148,8 @@ class ImageEntropyAnalysisDataMap(DataMap):
             grayscale = list(dr.get_value(TransientValues.HISTOGRAM_VALUES))
 
             for v in histogram_values_to_remove:
-                grayscale.remove(v)
+                if v in grayscale:
+                    grayscale.remove(v)
 
             histogram_processed_img: list = dr.get_value(PersistentNames.HISTOGRAM_OF_PROCESSED_IMAGE)
 

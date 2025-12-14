@@ -29,27 +29,3 @@ class FigureBuilder:
         self.__ax.rc('axes', titlesize=plotFontSize.mid_font)
 
         self.__ax.rc('figure', titlesize=plotFontSize.big_font)
-
-
-class ManualPlotDefinition:
-
-    def add_data(self, plot_options: PlotOptions):
-        raise NotImplementedError
-
-    @staticmethod
-    def _build_figure(figure_options: FigureOptions):
-        fig, ax = plt.subplots()
-        fig.suptitle(figure_options.title, size=figure_options.font_size.big_font)
-
-        ax.set_xlabel(figure_options.x_axis_label)
-        ax.set_ylabel(figure_options.y_axis_label)
-        ax.grid()
-
-        return fig, ax
-
-
-class ManualPlotWithErrorsMarkersDefinition(ManualPlotDefinition):
-    _manual_plot: ManualPlotDefinition
-
-    def __init__(self, manual_plot: ManualPlotDefinition):
-        self._manual_plot = manual_plot

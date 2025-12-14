@@ -32,7 +32,8 @@ for plotted_param in plotted_params:
         y_axis_label=f'{plotted_param}'
     )
 
-    multiple_plot = PlottingFacade.multiple_plot().scatter_plot(figure_options)
+    multiple_plot = PlottingFacade.multiple_plot()
+    multiple_plot.configure(figure_options)
 
     for obj in objects.keys():
         app_manager.set_object(object=obj)
@@ -45,6 +46,7 @@ for plotted_param in plotted_params:
         x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
 
         plot_options = PlotOptions(x=x, y=y, color=objects[obj], label=obj)
-        multiple_plot.add_data(plot_options)
+        multiple_plot.add_scatter_plot(plot_options)
 
     multiple_plot.show()
+    multiple_plot.clear()

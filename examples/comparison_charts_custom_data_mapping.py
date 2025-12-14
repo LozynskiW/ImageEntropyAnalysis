@@ -49,7 +49,8 @@ for plotted_param in plotted_params:
     for obj in objects:
         app_manager.set_object(object=obj)
         figure_options.title = obj
-        multiple_plot = PlottingFacade.multiple_plot().scatter_plot(figure_options)
+        multiple_plot = PlottingFacade.multiple_plot()
+        multiple_plot.configure(figure_options)
 
         for dataset in datasets_for_objects.keys():
             data_for_obj = (app_manager
@@ -62,7 +63,8 @@ for plotted_param in plotted_params:
 
             plot_options = PlotOptions(x=distance_x, y=plotted_param_y, color=datasets_for_objects[dataset],
                                        label=f'{dataset}')
-            multiple_plot.add_data(plot_options)
+            multiple_plot.add_scatter_plot(plot_options)
 
         # multiple_plot.save_to_file(file_name=f'{path_to_save_figures}/{obj}_{plotted_param}', dpi=200)
         multiple_plot.show()
+        multiple_plot.clear()

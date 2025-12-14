@@ -65,7 +65,7 @@ for obj in objects:
     app_manager.set_object(object=obj)
 
     for dataset in datasets_for_objects:
-        multiple_plot = PlottingFacade.multiple_plot().bar_plot(figure_options)
+        multiple_plot = PlottingFacade.multiple_plot().add_bar_plot(figure_options)
 
         data_for_obj = (app_manager
                         .load_data_from_db()
