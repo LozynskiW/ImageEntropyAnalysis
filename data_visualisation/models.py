@@ -32,18 +32,18 @@ class PlotColor(StrEnum):
 
 class ViridisColors:
     class _ViridisColorsEnum(Enum):
-        _MAGENTA = '#AD2E88'
-        _DARK_PURPLE = '#225EA8'
-        _PURPLE = '#4E2A84'
-        _LIGHT_PURPLE = '#7F3C85'
-        _BLUE = '#440154'
-        _LIGHT_BLUE = '#41B6C4'
-        _CYAN = '#35B779'
-        _GREEN = '#21908C'
-        _LIGHT_GREEN = '#7AD151'
-        _LIGHT_YELLOW = '#FDC948'
-        _YELLOW = '#FDE725'
-        _ORANGE = '#FD8D3C'
+        _DARK_PURPLE = '#440154'
+        _PURPLE = '#482173'
+        _PURPLE_BLUE = '#433e85'
+        _BLUE = '#38588c'
+        _LIGHT_BLUE = '#2d708e'
+        _BLUE_CYAN = '#25858e'
+        _CYAN = '#1e9b8a'
+        _CYAN_GREEN = '#2ab07f'
+        _GREEN = '#52c569'
+        _LIGHT_GREEN = '#86d549'
+        _GREEN_YELLOW = '#c2df23'
+        _ORANGE = '#fd8d3c'
 
         @classmethod
         def all_values(cls):
