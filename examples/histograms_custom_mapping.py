@@ -161,7 +161,7 @@ datasets_for_objects = [
     'white_only', 'gradient', 'white_noise'
 ]
 
-x_z_coordinates_pairs = [(10, 10), (20, 20), (40, 40), (80, 80), (140, 140), (200, 200)]
+x_z_coordinates_pairs = [(10, 10), (40, 40), (80, 80), (160, 160), (320, 320), (500, 500)]
 
 grayscale_histogram_values = np.linspace(1, 255, num=254)
 
@@ -208,5 +208,5 @@ for obj in objects:
         fig.tight_layout()
         fig.set_size_inches(12, 5)
         plt.title(f"histogram bins structure for: {obj}, dataset: {dataset}")
-        # plt.show()
-        plt.savefig(f"{path_to_save_figures}/histogram_bins_structure_{obj}_{dataset}.png", dpi=600)
+        plt.show()
+        # plt.savefig(f"{path_to_save_figures}/histogram_bins_structure_{obj}_{dataset}.png", dpi=600)

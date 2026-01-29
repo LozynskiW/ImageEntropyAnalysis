@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 from data_unification._utils import build_multiple_datasets, build_multiple_datasets_3d
 from data_visualisation._implementations.manual_plots import ManualPlot
-from data_visualisation._implementations.multiple_plots import MultiplePlot
+from data_visualisation._implementations.multiple_plots import MultiplePlot, Subplots
 from data_visualisation._implementations.heatmap import Heatmap
 from data_visualisation.models import PlotOptions, FigureOptions
 from data_visualisation.definitions import FigureBuilder
@@ -26,7 +26,12 @@ class PlottingFacade:
     def heatmap():
         return PlottingFacade._heat_map
 
+    @staticmethod
+    def subplots(figure_options: FigureOptions):
+        return Subplots(figure_options)
 
+
+@DeprecationWarning
 class Plots2D:
     figure_builder = FigureBuilder()
 

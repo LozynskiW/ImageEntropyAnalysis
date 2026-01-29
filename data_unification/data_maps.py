@@ -2,6 +2,7 @@ import copy
 import math
 from abc import ABC
 
+import numpy as np
 from numpy import mean
 
 from data_unification.data_map.models import DataMap, DataRow
@@ -35,6 +36,9 @@ class _DataRow(DataRow):
 
         self._data_row[TransientValues.HISTOGRAM_VALUES.value] = range(len(self._data_row.get(
             PersistentNames.HISTOGRAM_OF_ORIGINAL_IMAGE.value)))
+
+        self._data_row[TransientValues.NUMBER_OF_PIXELS] = sum(self._data_row[PersistentNames.HISTOGRAM_OF_PROCESSED_IMAGE])
+        self._data_row[TransientValues.LOG10_NUMBER_OF_PIXELS] = np.log10(self._data_row[TransientValues.NUMBER_OF_PIXELS])
 
         self._data_row[KeyValues.DISTANCE.value] = float(math.sqrt(
             math.pow(self._data_row[PersistentNames.X.value], 2) +
@@ -153,9 +157,13 @@ class ImageEntropyAnalysisDataMap(DataMap):
 
             histogram_processed_img: list = dr.get_value(PersistentNames.HISTOGRAM_OF_PROCESSED_IMAGE)
 
+            offset = 0
             for i in histogram_values_to_remove:
-                histogram_processed_img.pop(i)
+                histogram_processed_img.pop(i-offset)
+                offset += 1
 
+            number_of_pixels = sum(histogram_processed_img)
+            log10_num_of_pixels = np.log10(number_of_pixels)
             histogram_normalized = normalize_histogram(histogram_processed_img)
             exp_val = exp_val_from_histogram(grayscale=grayscale, gray_shade_prob=histogram_normalized)
             variance = variance_from_histogram(grayscale=grayscale,
@@ -172,6 +180,10 @@ class ImageEntropyAnalysisDataMap(DataMap):
                                                                     histogram_probabilities=histogram_normalized)
 
             dr._set_value(TransientValues.HISTOGRAM_VALUES, grayscale)
+
+            dr._set_value(TransientValues.NUMBER_OF_PIXELS, number_of_pixels)
+
+            dr._set_value(TransientValues.LOG10_NUMBER_OF_PIXELS, log10_num_of_pixels)
 
             dr._set_value(PersistentNames.HISTOGRAM_OF_PROCESSED_IMAGE, histogram_processed_img)
 

@@ -1,11 +1,17 @@
 from application_management.app import AppManager
 from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
 from data_unification.data_maps import ImageEntropyAnalysisDataMap
-from data_unification.enums import PersistentNames, KeyValues
+from data_unification.enums import PersistentNames, KeyValues, TransientValues
 from data_visualisation.labels import Label
 from data_visualisation.models import PlotOptions, FigureOptions
 from data_visualisation.plotting_facade import PlottingFacade
-from examples.utils import ALL_OBJECTS_LIST, DATASETS_DICT
+from examples.utils import ALTERNATING_BACKGROUND_LIGHT_DATASETS_DICT
+
+def change_name(name: str) -> str:
+    if name == "white_noise":
+        return "000000FF"
+    else:
+        return dataset.split("_")[-1]
 
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
@@ -13,19 +19,21 @@ app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 plotted_params_pairs = [
+    # (KeyValues.DISTANCE, TransientValues.LOG10_NUMBER_OF_PIXELS),
+    # (KeyValues.DISTANCE, PersistentNames.EXPECTED_VALUE_OF_PROCESSED_IMAGE),
     (PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE, PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE),
     # (KeyValues.DISTANCE, PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE)
 ]
 
-datasets_for_objects = DATASETS_DICT
+objects_list = ['sphere']
 
-histogram_values_to_ignore = [0]
+datasets_for_objects = ALTERNATING_BACKGROUND_LIGHT_DATASETS_DICT
 
 for params_pair in plotted_params_pairs:
 
     multiple_plot = PlottingFacade.multiple_plot()
 
-    for obj in ALL_OBJECTS_LIST:
+    for obj in objects_list:
         app_manager.set_object(object=obj)
 
         figure_options = FigureOptions(
@@ -41,23 +49,24 @@ for params_pair in plotted_params_pairs:
                             .load_data_from_db()
                             .custom_data({"dataset": dataset}))
 
+            histogram_values_to_ignore = datasets_for_objects[dataset]['background_value']
+
             data_map = ImageEntropyAnalysisDataMap(data_for_obj, {}, histogram_values_to_ignore=histogram_values_to_ignore)
 
             if params_pair[0] == PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE:
-                param_to_x = list(map(lambda x: 6*x, data_map.get_values(params_pair[0])))
+                param_to_x = list(map(lambda x: 6 * x, data_map.get_values(params_pair[0])))
             else:
                 param_to_x = data_map.get_values(params_pair[0])
-
             param_to_y = data_map.get_values(params_pair[1])
 
             plot_options = PlotOptions(x=param_to_x, y=param_to_y,
                                        color=datasets_for_objects[dataset]['color'],
                                        marker=datasets_for_objects[dataset]['marker'],
-                                       label=f'{dataset}',
+                                       label=f'{change_name(dataset)}',
                                        title=f'{obj}')
 
             multiple_plot.add_scatter_plot(plot_options)
 
-        multiple_plot.save_to_file(file_name=f'{path_to_save_figures}/param_to_param/{obj}_{params_pair[0]}_to_{params_pair[1]}', dpi=600)
+        multiple_plot.save_to_file(file_name=f'{path_to_save_figures}/alternating_background/{params_pair[0]}_to_{params_pair[1]}', dpi=600)
         # multiple_plot.show()
         multiple_plot.clear()

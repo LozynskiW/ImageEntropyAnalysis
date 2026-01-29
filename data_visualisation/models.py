@@ -96,6 +96,7 @@ class FigureOptions:
     z_axis_label: str = ""
     title: str = ""
     font_size: PlotFontSize = PlotFontSize.MEDIUM
+    figure_size: tuple = (10, 6)
 
 
 @dataclass
@@ -106,6 +107,8 @@ class PlotOptions:
     z: list = None
     color: PlotColor = PlotColor.BLUE
     marker: PlotMarker = PlotMarker.CIRCLE
+    marker_size: int = 20
+    title: str = ""
 
 
 @dataclass

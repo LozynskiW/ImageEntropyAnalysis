@@ -4,6 +4,7 @@ import numpy as np
 from matplotlib import pyplot as plt, ticker
 
 from data_visualisation.analysis_outcome._data_for_visualisation import MultipleDatasetsValuesMap, Single3DPoint
+from data_visualisation.labels import Label
 from data_visualisation.models import FigureOptions
 
 from typing import Callable
@@ -33,15 +34,6 @@ class Heatmap:
         plt.show()
 
     @staticmethod
-    def plot_custom_data(data: list,
-                  figure_options: FigureOptions = FigureOptions(),
-                  config: HeatmapConfig = HeatmapConfig()):
-
-        Heatmap.__create_heatmap(data_from_db, figure_options, config)
-
-        plt.show()
-
-    @staticmethod
     def save_to_file(data_from_db,
                      figure_options: FigureOptions = FigureOptions(),
                      config: HeatmapConfig = HeatmapConfig(),
@@ -61,7 +53,7 @@ class Heatmap:
             mapping_fun=config.values_mapping_fun
         )
 
-        figure, ax = plt.subplots(figsize=(16, 9))
+        figure, ax = plt.subplots(figsize=figure_options.figure_size)
         heatmap = datasets_map.datasets_map
 
         ax.yaxis.set_major_formatter(ticker.FormatStrFormatter('%.2f'))
@@ -86,9 +78,9 @@ class Heatmap:
         ax.set_xticks(np.arange(len(datasets_map.x_labels)), labels=datasets_map.x_labels)
         ax.set_yticks(np.arange(len(datasets_map.y_labels)), labels=datasets_map.y_labels)
 
-        ax.set_xlabel(figure_options.x_axis_label)
-        ax.set_ylabel(figure_options.y_axis_label)
-        ax.set_title(figure_options.title)
+        ax.set_xlabel(f'{Label.get_symbol(figure_options.x_axis_label)}', fontsize=figure_options.font_size.mid_font)
+        ax.set_ylabel(f'{Label.get_symbol(figure_options.y_axis_label)}', fontsize=figure_options.font_size.mid_font)
+        ax.set_title(figure_options.title, fontsize=figure_options.font_size.big_font)
 
     @staticmethod
     def __set_annotations_to_heatmap(ax, heatmap_values, to_percentage=False):

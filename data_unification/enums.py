@@ -52,6 +52,8 @@ class TransientValues(MapKeysEnum, StrEnum):
     Enum to store keys of values that are not saved into db
     """
     HISTOGRAM_VALUES = "histogram_values"
+    NUMBER_OF_PIXELS = "number of pixels"
+    LOG10_NUMBER_OF_PIXELS = "Log10(No)"
 
 
 class KeyValues(MapKeysEnum, StrEnum):

@@ -1,52 +1,66 @@
 import math
 
+from matplotlib import pyplot as plt
+
 from application_management.app import AppManager
 from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
-from data_visualisation.models import PlotOptions, FigureOptions, PlotColor
-from data_visualisation.plotting_facade import PlottingFacade
-
+from data_unification.enums import PersistentNames
+from data_visualisation.labels import Label
+from data_visualisation.models import PlotColor, PlotMarker
 app_manager = AppManager()
 app_manager.set_main_folder(PATH_TO_MAIN_FOLDER)
 
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 objects = {
-    'cube': PlotColor.BLUE,
-    'cone': PlotColor.GREEN,
-    'sphere': PlotColor.MAGENTA,
-    'cylinder': PlotColor.YELLOW
+    'cube': {'color': PlotColor.BLUE, 'marker': PlotMarker.PLUS},
+    'cone': {'color': PlotColor.GREEN, 'marker': PlotMarker.STAR},
+    'sphere': {'color': PlotColor.MAGENTA, 'marker': PlotMarker.POINT},
+    'cylinder': {'color': PlotColor.YELLOW, 'marker': PlotMarker.X}
 }
 
-dataset_for_objects = 'white_only' #manual white_noise white_only
+datasets_for_objects = ['white_only', 'gradient', 'white_noise']
 
 plotted_params = [
-    "expected_value_of_original_image",
-    "standard_deviation_of_processed_image",
-    "entropy_in_bits_of_processed_image"
+    PersistentNames.EXPECTED_VALUE_OF_PROCESSED_IMAGE,
+    PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE,
+    PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE
 ]
 
-for plotted_param in plotted_params:
+fig, axs = plt.subplots(3, 3, figsize=(10, 8), layout='constrained')
+ax_col = 0
+ax_row = 0
 
-    figure_options = FigureOptions(
-        x_axis_label="distance from object",
-        y_axis_label=f'{plotted_param}'
-    )
+for dataset_for_objects in datasets_for_objects:
 
-    multiple_plot = PlottingFacade.multiple_plot()
-    multiple_plot.configure(figure_options)
+    ax_row = 0
 
-    for obj in objects.keys():
-        app_manager.set_object(object=obj)
-        data_for_obj = (app_manager
-                         .load_data_from_db()
-                         .custom_data({"dataset": dataset_for_objects}))
+    for plotted_param in plotted_params:
 
-        y = list(map(lambda yi: yi[f'{plotted_param}'], data_for_obj))
+        for obj in objects.keys():
 
-        x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
+            app_manager.set_object(object=obj)
+            data_for_obj = (app_manager
+                            .load_data_from_db()
+                            .custom_data({"dataset": dataset_for_objects}))
 
-        plot_options = PlotOptions(x=x, y=y, color=objects[obj], label=obj)
-        multiple_plot.add_scatter_plot(plot_options)
+            ax = axs[ax_row, ax_col]
+            ax.grid(True)
+            if ax_row == 0:
+                ax.set_title(f'{dataset_for_objects}')
 
-    multiple_plot.show()
-    multiple_plot.clear()
+            if ax_col == 0:
+                ax.set_ylabel(f'{Label.get_symbol(plotted_param)}')
+
+            y = list(map(lambda yi: yi[f'{plotted_param}'], data_for_obj))
+
+            x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
+
+            ax.scatter(x, y, label=f'{obj}', color=objects[obj]['color'], marker=objects[obj]['marker'])
+            ax.legend()
+
+        ax_row += 1
+
+    ax_col += 1
+
+plt.show()
