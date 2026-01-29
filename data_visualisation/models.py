@@ -1,3 +1,4 @@
+import colorsys
 from dataclasses import dataclass
 from enum import Enum, StrEnum
 
@@ -15,15 +16,62 @@ class PlotFontSize(Enum):
 
 # https://matplotlib.org/stable/users/explain/colors/colors.html#colors-def
 class PlotColor(StrEnum):
-    BLUE = "b"
+    BLUE = 'b'
     GREEN = 'g'
     RED = 'r'
     CYAN = 'c'
     YELLOW = 'y'
     MAGENTA = 'm'
-    BLACK = 'b'
+    BLACK = 'k'
     WHITE = 'w'
     VIOLET = "violet"
+    BROWN = 'brown'
+    SALMON = 'salmon'
+    TEAL = 'teal'
+
+
+class ViridisColors:
+    class _ViridisColorsEnum(Enum):
+        _DARK_PURPLE = '#440154'
+        _PURPLE = '#482173'
+        _PURPLE_BLUE = '#433e85'
+        _BLUE = '#38588c'
+        _LIGHT_BLUE = '#2d708e'
+        _BLUE_CYAN = '#25858e'
+        _CYAN = '#1e9b8a'
+        _CYAN_GREEN = '#2ab07f'
+        _GREEN = '#52c569'
+        _LIGHT_GREEN = '#86d549'
+        _GREEN_YELLOW = '#c2df23'
+        _ORANGE = '#fd8d3c'
+
+        @classmethod
+        def all_values(cls):
+            return list(map(lambda c: c.value, cls))
+
+    _index = 0
+    _all_colors = _ViridisColorsEnum.all_values()
+
+    @staticmethod
+    def next_color():
+        color = ViridisColors._all_colors[ViridisColors._index]
+
+        if len(ViridisColors._all_colors) - 1 > ViridisColors._index:
+            ViridisColors._index += 1
+        else:
+            ViridisColors._index = 0
+
+        return color
+
+    @staticmethod
+    def get_lighter_version():
+        factor=0.3
+        hex_color = ViridisColors._all_colors[ViridisColors._index]
+        r, g, b = int(hex_color[1:3], 16) / 255.0, int(hex_color[3:5], 16) / 255.0, int(hex_color[5:7], 16) / 255.0
+        h, l, s = colorsys.rgb_to_hls(r, g, b)
+        l = min(1.0, l + factor)
+        r, g, b = colorsys.hls_to_rgb(h, l, s)
+        return f'#{int(r * 255):02x}{int(g * 255):02x}{int(b * 255):02x}'
 
 
 class PlotMarker(StrEnum):
@@ -48,6 +96,7 @@ class FigureOptions:
     z_axis_label: str = ""
     title: str = ""
     font_size: PlotFontSize = PlotFontSize.MEDIUM
+    figure_size: tuple = (10, 6)
 
 
 @dataclass
@@ -58,3 +107,13 @@ class PlotOptions:
     z: list = None
     color: PlotColor = PlotColor.BLUE
     marker: PlotMarker = PlotMarker.CIRCLE
+    marker_size: int = 20
+    title: str = ""
+
+
+@dataclass
+class PlotOptionsWithOYErrors:
+    plot_options: PlotOptions
+    y_errors: list
+    x_errors: list
+    errors_color: str

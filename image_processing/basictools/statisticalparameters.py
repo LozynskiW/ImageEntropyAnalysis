@@ -5,7 +5,7 @@
 import array
 
 import numpy as np
-from numpy import copy
+import copy
 
 from image_processing.models.image import ArrayImage
 
@@ -56,7 +56,7 @@ def image_histogram(im, normalize_to_pdf=False, grayscale_offset=-1):
 
 def normalize_histogram(histogram_values_counts: array) -> array:
     num_of_all_pixels = np.sum(histogram_values_counts)
-    probabilities = copy(histogram_values_counts)
+    probabilities = copy.deepcopy(histogram_values_counts)
 
     for i in range(0, len(probabilities)):
         probabilities[i] = probabilities[i] / num_of_all_pixels

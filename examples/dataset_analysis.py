@@ -4,7 +4,7 @@ from image_processing.ready_to_use_systems import luminance_threshold_based_syst
 from consts.system_util import PATH_TO_MAIN_FOLDER
 
 objects_to_analyze = ["sphere"]
-datasets_to_analyze = ["world_636363FF", "world_898989FF", "world_A5A5A5FF", "world_BCBCBCFF", "world_CFCFCFFF", "world_E1E1E1FF", "world_F0F0F0FF"]
+datasets_to_analyze = ["white_noise_background_636363FF", "white_noise_background_A5A5A5FF", "white_noise_background_CFCFCFFF", "white_noise_background_F0F0F0FF"]
 
 used_system = luminance_entropy_sys.luminance_threshold_image_segmentation_theoretical_data
 used_system.global_verbose_mode = True

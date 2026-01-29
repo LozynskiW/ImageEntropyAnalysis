@@ -10,7 +10,8 @@ from blender3d_intergration.trajectories_api.trajectories_calculators.manually_a
 from blender3d_intergration.config import manual_full_path
 
 const_y = 0
-x_values = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200]
+x_values = [10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 120, 140, 160, 180, 200,
+            240, 280, 320, 360, 400, 450, 500]
 z_values = copy.deepcopy(x_values)
 
 

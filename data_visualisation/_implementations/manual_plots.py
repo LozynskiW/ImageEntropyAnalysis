@@ -1,11 +1,10 @@
+import numpy as np
 from matplotlib import pyplot as plt
 
-from data_visualisation.definitions import FigureBuilder
-from data_visualisation.models import PlotOptions, FigureOptions
+from data_visualisation.models import PlotOptions, FigureOptions, PlotOptionsWithOYErrors
 
 
 class ManualPlot:
-    figure_builder = FigureBuilder()
 
     @staticmethod
     def scatter_plot(plot_options: PlotOptions, figure_options: FigureOptions = FigureOptions()):
@@ -38,3 +37,10 @@ class ManualPlot:
         ax.grid()
 
         return fig, ax
+
+
+class ManualPlotWithErrorsMarkers:
+
+    def add_data(self, plot_options: PlotOptionsWithOYErrors):
+
+        self._manual_plot.add_data(plot_options.plot_options)

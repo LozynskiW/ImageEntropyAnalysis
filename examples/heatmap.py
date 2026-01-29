@@ -5,7 +5,7 @@ from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
 from data_visualisation.plotting_facade import PlottingFacade
 
 object_to_plot = 'cone'
-dataset_for_objects = 'manual'  # manual white_noise white_only
+dataset_for_objects = ['gradient']  # gradient white_noise white_only
 path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 plotted_param = 'number of target pixels'
@@ -20,7 +20,7 @@ app_manager.set_object(object=object_to_plot)
 
 data_from_db = (app_manager
                 .load_data_from_db()
-                .custom_data({"dataset": {"$in": datasets_for_objects}}))
+                .custom_data({"dataset": {"$in": dataset_for_objects}}))
 
 app_manager.set_data_from_db(data_from_db=data_from_db)
 
