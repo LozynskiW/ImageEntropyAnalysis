@@ -32,6 +32,7 @@ class Heatmap:
         Heatmap.__create_heatmap(data_from_db, figure_options, config)
 
         plt.show()
+        plt.close()
 
     @staticmethod
     def save_to_file(data_from_db,
@@ -42,6 +43,7 @@ class Heatmap:
         Heatmap.__create_heatmap(data_from_db, figure_options, config)
 
         plt.savefig(fname=file_name, dpi=config.dpi)
+        plt.close()
 
     @staticmethod
     def __create_heatmap(data_from_db, figure_options: FigureOptions, config: HeatmapConfig):

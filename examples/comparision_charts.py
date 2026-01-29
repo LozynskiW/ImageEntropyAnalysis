@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 from application_management.app import AppManager
 from consts.system_util import PATH_TO_MAIN_FOLDER, PATH_TO_FIGURES_FOLDER
-from data_unification.enums import PersistentNames
+from data_unification.enums import PersistentNames, KeyValues
 from data_visualisation.labels import Label
 from data_visualisation.models import PlotColor, PlotMarker
 app_manager = AppManager()
@@ -27,15 +27,11 @@ plotted_params = [
     PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE
 ]
 
-fig, axs = plt.subplots(3, 3, figsize=(10, 8), layout='constrained')
-ax_col = 0
-ax_row = 0
-
 for dataset_for_objects in datasets_for_objects:
 
-    ax_row = 0
-
     for plotted_param in plotted_params:
+
+        fig, ax = plt.subplots(1, 1, figsize=(15, 10), layout='constrained')
 
         for obj in objects.keys():
 
@@ -44,23 +40,18 @@ for dataset_for_objects in datasets_for_objects:
                             .load_data_from_db()
                             .custom_data({"dataset": dataset_for_objects}))
 
-            ax = axs[ax_row, ax_col]
             ax.grid(True)
-            if ax_row == 0:
-                ax.set_title(f'{dataset_for_objects}')
-
-            if ax_col == 0:
-                ax.set_ylabel(f'{Label.get_symbol(plotted_param)}')
+            ax.set_title(f'{dataset_for_objects}', fontsize=20)
+            ax.set_ylabel(f'{Label.get_symbol(plotted_param)}', fontsize=20)
+            ax.set_xlabel(f'{Label.get_symbol(KeyValues.DISTANCE)}', fontsize=20)
 
             y = list(map(lambda yi: yi[f'{plotted_param}'], data_for_obj))
 
             x = list(map(lambda xi: math.sqrt(math.pow(xi["x"], 2) + math.pow(xi["z"], 2)), data_for_obj))
 
             ax.scatter(x, y, label=f'{obj}', color=objects[obj]['color'], marker=objects[obj]['marker'])
-            ax.legend()
+            ax.legend(shadow=True, fancybox=True, fontsize=20)
 
-        ax_row += 1
-
-    ax_col += 1
-
-plt.show()
+        plt.savefig(fname=f'{path_to_save_figures}/comparison/{dataset_for_objects}_{plotted_param}_d', dpi=200)
+        # plt.show()
+        plt.close(fig)

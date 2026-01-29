@@ -14,7 +14,7 @@ path_to_save_figures = f'{PATH_TO_FIGURES_FOLDER}'
 
 plotted_params_pairs = [
     (PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE, PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE),
-    # (KeyValues.DISTANCE, PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE)
+    (KeyValues.DISTANCE, PersistentNames.ENTROPY_IN_BITS_OF_PROCESSED_IMAGE)
 ]
 
 datasets_for_objects = DATASETS_DICT
@@ -29,7 +29,7 @@ for params_pair in plotted_params_pairs:
         app_manager.set_object(object=obj)
 
         figure_options = FigureOptions(
-            x_axis_label=f'6 x {Label.get_symbol(params_pair[0])}',
+            x_axis_label=f'{Label.get_symbol(params_pair[0])}',
             y_axis_label=f'{Label.get_symbol(params_pair[1])}',
             title=f'{obj}'
         )
@@ -43,11 +43,7 @@ for params_pair in plotted_params_pairs:
 
             data_map = ImageEntropyAnalysisDataMap(data_for_obj, {}, histogram_values_to_ignore=histogram_values_to_ignore)
 
-            if params_pair[0] == PersistentNames.STANDARD_DEVIATION_OF_PROCESSED_IMAGE:
-                param_to_x = list(map(lambda x: 6*x, data_map.get_values(params_pair[0])))
-            else:
-                param_to_x = data_map.get_values(params_pair[0])
-
+            param_to_x = data_map.get_values(params_pair[0])
             param_to_y = data_map.get_values(params_pair[1])
 
             plot_options = PlotOptions(x=param_to_x, y=param_to_y,
@@ -58,6 +54,6 @@ for params_pair in plotted_params_pairs:
 
             multiple_plot.add_scatter_plot(plot_options)
 
-        multiple_plot.save_to_file(file_name=f'{path_to_save_figures}/param_to_param/{obj}_{params_pair[0]}_to_{params_pair[1]}', dpi=600)
-        # multiple_plot.show()
+        # multiple_plot.save_to_file(file_name=f'{path_to_save_figures}/param_to_param/{obj}_{params_pair[0]}_to_{params_pair[1]}', dpi=600)
+        multiple_plot.show()
         multiple_plot.clear()
